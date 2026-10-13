@@ -1,0 +1,6 @@
+{
+  "firestore": {"rules": "firestore.rules"},
+  "storage": {"rules": "storage.rules"},
+  "functions": [{"source": "functions", "codebase": "air-alerts", "runtime": "python312"}],
+  "emulators": {"firestore": {"port": 8080}, "ui": {"enabled": false}, "singleProjectMode": true}
+}

@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function validPlace(place) {
+      return place is map && place.id is string && place.name is string && place.name.size() <= 200
+        && place.latitude is number && place.latitude >= -90 && place.latitude <= 90
+        && place.longitude is number && place.longitude >= -180 && place.longitude <= 180;
+    }
+    function validUser(data) {
+      return data.name is string && data.name.size() <= 80
+        && data.email is string && data.email.size() <= 254
+        && (data.photoUrl == null || data.photoUrl is string)
+        && data.threshold is int && data.threshold >= 25 && data.threshold <= 300
+        && data.backgroundAlerts is bool && data.milligrams is bool
+        && data.theme is int && data.theme >= 0 && data.theme <= 2
+        && (data.place == null || validPlace(data.place));
+    }
+    match /users/{uid} {
+      allow read: if owner(uid);
+      allow create: if owner(uid) && validUser(request.resource.data)
+        && request.resource.data.keys().hasOnly(['name', 'email', 'photoUrl', 'threshold',
+          'backgroundAlerts', 'place', 'theme', 'milligrams', 'updatedAt']);
+      allow update: if owner(uid) && validUser(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'photoUrl',
+          'threshold', 'backgroundAlerts', 'place', 'theme', 'milligrams', 'updatedAt']);
+      allow delete: if owner(uid);
+      match /favorites/{placeId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && validPlace(request.resource.data)
+          && request.resource.data.id == placeId
+          && request.resource.data.keys().hasOnly(['id', 'name', 'latitude', 'longitude', 'country', 'region']);
+      }
+      match /devices/{deviceId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && request.resource.data.token is string
+          && request.resource.data.token.size() <= 4096
+          && request.resource.data.keys().hasOnly(['token', 'updatedAt']);
+      }
+      match /notifications/{notificationId} {
+        allow read: if owner(uid);
+        allow write: if false;
+      }
+      match /alertClaims/{claimId} { allow read, write: if false; }
+    }
+  }
+}

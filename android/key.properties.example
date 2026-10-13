@@ -1,0 +1,6 @@
+# Copy to android/key.properties after creating your own release keystore.
+# Values below must be filled with your real signing configuration.
+storeFile=
+storePassword=
+keyAlias=
+keyPassword=

@@ -1,0 +1,181 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../data/services/firebase_service.dart';
+import '../providers/auth_controller.dart';
+
+import '../../data/local/local_store.dart';
+import '../../data/services/notification_service.dart';
+import '../providers/settings_controller.dart';
+import '../widgets/primitives.dart';
+
+class AlertsScreen extends StatefulWidget {
+  const AlertsScreen({super.key});
+  @override
+  State<AlertsScreen> createState() => _AlertsScreenState();
+}
+
+class _AlertsScreenState extends State<AlertsScreen> {
+  late double _threshold = context
+      .read<SettingsController>()
+      .threshold
+      .toDouble();
+  late Future<List<Map<String, Object?>>> _history = context
+      .read<LocalStore>()
+      .alerts();
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsController>();
+    final auth = context.watch<AuthController>();
+    final firebase = context.read<FirebaseService>();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Предупреждения'),
+        actions: [
+          IconButton(
+            tooltip: 'Обновить историю',
+            onPressed: () =>
+                setState(() => _history = context.read<LocalStore>().alerts()),
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: PageBody(
+        children: [
+          const Eyebrow('ВАШ ЛИЧНЫЙ ПОРОГ'),
+          const SizedBox(height: 16),
+          Text(
+            'Будьте в курсе',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          const SizedBox(height: 24),
+          Surface(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Предупреждать начиная с'),
+                const SizedBox(height: 12),
+                Text(
+                  '${_threshold.round()} US AQI',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                Slider(
+                  min: 25,
+                  max: 300,
+                  divisions: 55,
+                  value: _threshold,
+                  semanticFormatterCallback: (value) =>
+                      '${value.round()} US AQI',
+                  onChanged: (value) => setState(() => _threshold = value),
+                  onChangeEnd: (value) => settings.setThreshold(value.round()),
+                ),
+                const Text(
+                  'Порог — личная настройка, он не меняет категорию качества воздуха.',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('При обновлении в приложении'),
+            subtitle: const Text(
+              'Уведомление при загрузке свежего AQI выше порога',
+            ),
+            value: settings.alertsEnabled,
+            onChanged: (enabled) async {
+              if (enabled) {
+                final granted = await context
+                    .read<NotificationService>()
+                    .requestPermission();
+                if (!granted) {
+                  if (context.mounted) {
+                    showMessage(
+                      context,
+                      'Разрешите уведомления в настройках Android.',
+                    );
+                  }
+                  return;
+                }
+              }
+              await settings.setAlerts(enabled);
+            },
+          ),
+          const SectionTitle('В фоне'),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Фоновые предупреждения'),
+            subtitle: Text(
+              firebase.schedulerConfigured && auth.account != null
+                  ? 'Проверка выбранного места сервером каждый час'
+                  : 'Нужны аккаунт и активированный серверный сервис',
+            ),
+            value: settings.backgroundAlerts,
+            onChanged: !firebase.schedulerConfigured || auth.account == null
+                ? null
+                : (enabled) async {
+                    try {
+                      if (enabled &&
+                          !await firebase.enablePush(auth.account!)) {
+                        if (context.mounted) {
+                          showMessage(
+                            context,
+                            'Не удалось разрешить push-уведомления.',
+                          );
+                        }
+                        return;
+                      }
+                      if (!enabled) await firebase.unregisterDevice();
+                      await settings.setBackgroundAlerts(enabled);
+                    } catch (_) {
+                      if (context.mounted) {
+                        showMessage(
+                          context,
+                          'Не удалось сохранить настройки push.',
+                        );
+                      }
+                    }
+                  },
+          ),
+          if (auth.account == null)
+            TextButton(
+              onPressed: () => context.push('/login'),
+              child: const Text('Перейти к аккаунту'),
+            ),
+          if (!firebase.schedulerConfigured)
+            const Text(
+              'Автоматическая проверка при закрытом приложении ещё не активирована. Получение FCM-токена само по себе не запускает проверку AQI.',
+            ),
+          const SectionTitle('История на устройстве'),
+          FutureBuilder<List<Map<String, Object?>>>(
+            future: _history,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text('Не удалось загрузить историю.');
+              }
+              if (!snapshot.hasData) return const LinearProgressIndicator();
+              if (snapshot.data!.isEmpty) {
+                return const Text('Предупреждений пока не было.');
+              }
+              return Column(
+                children: snapshot.data!
+                    .map(
+                      (item) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(item['title'] as String),
+                        subtitle: Text(
+                          '${item['body']}\n${dateLabel(DateTime.fromMillisecondsSinceEpoch(item['created'] as int))}',
+                        ),
+                        isThreeLine: true,
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
