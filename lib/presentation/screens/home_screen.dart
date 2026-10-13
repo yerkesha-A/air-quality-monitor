@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../core/theme/app_theme.dart';
+import 'cities_screen.dart';
+import '../widgets/nature_components.dart';
 import '../../domain/entities/air_quality.dart';
 import '../../domain/usecases/air_advice.dart';
 import '../bloc/air_bloc.dart';
@@ -18,24 +19,29 @@ class HomeScreen extends StatelessWidget {
     builder: (context, state) {
       final report = state.report;
       return Scaffold(
+        backgroundColor: Theme.of(context).brightness == Brightness.light
+            ? NatureStyle.milk
+            : Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          title: const Text(
-            'Air Quality',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
+          toolbarHeight: 72,
+          backgroundColor: Theme.of(context).brightness == Brightness.light
+              ? NatureStyle.milk
+              : Theme.of(context).colorScheme.surface,
+          title: const AirWordmark(),
+          titleSpacing: 20,
           actions: [
-            IconButton(
-              tooltip: 'Местоположение',
-              onPressed: state.busy
-                  ? null
-                  : () => context.read<AirBloc>().add(const LocateAir()),
-              icon: const Icon(Icons.my_location_outlined),
-            ),
-            IconButton(
+            QuietIconButton(
               tooltip: 'Предупреждения',
               onPressed: () => context.push('/alerts'),
-              icon: const Icon(Icons.notifications_none_rounded),
+              icon: Icons.notifications_none_rounded,
             ),
+            const SizedBox(width: 8),
+            QuietIconButton(
+              tooltip: 'Настройки',
+              onPressed: () => context.go('/profile'),
+              icon: Icons.tune_rounded,
+            ),
+            const SizedBox(width: 16),
           ],
         ),
         body: PageBody(
@@ -47,22 +53,58 @@ class HomeScreen extends StatelessWidget {
             await done;
           },
           children: [
-            const Eyebrow('СЕГОДНЯ · US AQI'),
-            const SizedBox(height: 14),
-            Text(
-              'Ваш воздух.\nВаш день.',
-              style: Theme.of(context).textTheme.headlineLarge,
+            Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      key: const ValueKey('home-city-picker'),
+                      onPressed: () => showCityPicker(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 8,
+                        ),
+                      ),
+                      icon: const Icon(Icons.place_outlined, size: 18),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              state.place?.name ?? 'Выбрать город',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Местоположение',
+                  onPressed: state.busy
+                      ? null
+                      : () => context.read<AirBloc>().add(const LocateAir()),
+                  icon: const Icon(Icons.near_me_outlined, size: 21),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ActionChip(
-                avatar: const Icon(Icons.place_outlined, size: 18),
-                label: Text(state.place?.name ?? 'Выбрать город'),
-                onPressed: () => context.go('/cities'),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             if (state.busy)
               const Padding(
                 padding: EdgeInsets.only(bottom: 16),
@@ -84,7 +126,7 @@ class HomeScreen extends StatelessWidget {
                           child: const Text('Повторить'),
                         ),
                         TextButton(
-                          onPressed: () => context.go('/cities'),
+                          onPressed: () => showCityPicker(context),
                           child: const Text('Выбрать город'),
                         ),
                       ],
@@ -92,14 +134,67 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+            if (report == null && state.busy)
+              const _NatureHero(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Узнаём, чем дышит ваш город',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Загружаем актуальную оценку качества воздуха.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
             if (report == null && !state.busy && state.message == null)
-              EmptyMessage(
-                title: 'Начнём с вашего города',
-                message: 'Найдите город или используйте местоположение. Здесь появится актуальная оценка качества воздуха.',
-                action: FilledButton.icon(
-                  onPressed: () => context.go('/cities'),
-                  icon: const Icon(Icons.search),
-                  label: const Text('Найти город'),
+              _NatureHero(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Eyebrow(
+                      'ВАШ ВОЗДУХ · ВАШ РИТМ',
+                      color: Colors.white70,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Начнём с вашего города',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Выберите место, чтобы узнать качество воздуха и спланировать день.',
+                      style: TextStyle(color: Colors.white, height: 1.5),
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: () => showCityPicker(context),
+                      icon: const Icon(Icons.search_rounded),
+                      label: const Text('Найти город'),
+                    ),
+                  ],
                 ),
               ),
             if (report != null) ...[
@@ -123,10 +218,7 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                AirAdvice.summary(report.current.aqi),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+              _QuickPollutants(report: report),
               SectionTitle(
                 'Ближайшие 24 часа',
                 action: const Icon(Icons.schedule_outlined, size: 20),
@@ -215,118 +307,306 @@ class HomeScreen extends StatelessWidget {
   );
 }
 
+class _NatureHero extends StatelessWidget {
+  const _NatureHero({required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(32),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              NatureStyle.forestSun,
+              fit: BoxFit.cover,
+              alignment: const Alignment(.15, -.4),
+              cacheWidth: 1000,
+              excludeFromSemantics: true,
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xff122c22).withValues(alpha: .08),
+                    const Color(0xff122c22).withValues(alpha: .35),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  child: Text(
+                    'Ближе к природе. Ближе к себе.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      shadows: [Shadow(blurRadius: 12, color: Colors.black54)],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 105),
+                GlassSurface(child: child),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
 class _AqiCard extends StatelessWidget {
   const _AqiCard({required this.report});
   final AirReport report;
   @override
-  Widget build(BuildContext context) => Surface(
-    color: AppTheme.forest,
-    padding: const EdgeInsets.all(26),
+  Widget build(BuildContext context) => _NatureHero(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             const Expanded(
-              child: Eyebrow('КАЧЕСТВО ВОЗДУХА', color: Color(0xffd5dfc9)),
-            ),
-            Icon(
-              Icons.air_rounded,
-              color: Color(report.current.band?.color ?? 0xffa8bc87),
-              size: 26,
-            ),
-          ],
-        ),
-        const SizedBox(height: 18),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  report.current.aqi?.round().toString() ?? '—',
-                  style: const TextStyle(
-                    fontFamily: 'Lora',
-                    fontSize: 86,
-                    height: 1.1,
-                    color: AppTheme.cream,
-                  ),
-                ),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 14, bottom: 12),
-              child: Text(
-                'US AQI',
-                style: TextStyle(color: Color(0xffb7c9b0), fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 10,
-          runSpacing: 8,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Color(report.current.band?.color ?? 0xffa8bc87),
-                shape: BoxShape.circle,
-              ),
+              child: Eyebrow('ВОЗДУХ СЕЙЧАС', color: Color(0xffe4efe5)),
             ),
             Text(
-              report.current.band?.label ?? 'Нет данных',
-              style: const TextStyle(
-                color: AppTheme.cream,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Container(
-          height: 4,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            gradient: LinearGradient(
-              colors: AirBand.values.map((b) => Color(b.color)).toList(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Expanded(
-              child: Text(
-                '0 · Хороший',
-                style: TextStyle(color: Color(0xffb7c9b0), fontSize: 10),
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                '500 · Опасный',
-                textAlign: TextAlign.right,
-                style: TextStyle(color: Color(0xffb7c9b0), fontSize: 10),
-              ),
+              clockLabel(report.cityTime(report.current.time)),
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
             ),
           ],
         ),
         const SizedBox(height: 16),
+        Wrap(
+          spacing: 20,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  report.current.aqi?.round().toString() ?? '—',
+                  style: const TextStyle(
+                    fontSize: 88,
+                    height: 1,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: -5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'US AQI',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ],
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 160),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: Color(report.current.band?.color ?? 0xffa8bc87),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    report.current.band?.label ?? 'Нет данных',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    'Качество воздуха',
+                    style: TextStyle(color: Colors.white70, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _AqiScale(aqi: report.current.aqi),
+        const SizedBox(height: 18),
         Text(
-          'На ${clockLabel(report.cityTime(report.current.time))} · оценка модели',
-          style: const TextStyle(color: Color(0xffb7c9b0), fontSize: 11),
+          AirAdvice.summary(report.current.aqi),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            height: 1.6,
+          ),
         ),
       ],
     ),
   );
+}
+
+class _AqiScale extends StatelessWidget {
+  const _AqiScale({this.aqi});
+  final double? aqi;
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: 13,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: SizedBox(
+                  height: 4,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < AirBand.values.length; i++)
+                        Expanded(
+                          flex: const [1, 1, 1, 1, 2, 4][i],
+                          child: ColoredBox(
+                            color: Color(AirBand.values[i].color),
+                            child: const SizedBox.expand(),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              if (aqi != null)
+                Positioned(
+                  left:
+                      (constraints.maxWidth - 10) *
+                      (aqi! / 500).clamp(0.0, 1.0),
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Color(AirBand.forAqi(aqi!).color),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 3),
+      const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              '0 · Хороший',
+              style: TextStyle(color: Colors.white70, fontSize: 9),
+            ),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '500 · Опасный',
+              textAlign: TextAlign.right,
+              style: TextStyle(color: Colors.white70, fontSize: 9),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+class _QuickPollutants extends StatelessWidget {
+  const _QuickPollutants({required this.report});
+  final AirReport report;
+  @override
+  Widget build(BuildContext context) {
+    final mg = context.watch<SettingsController>().milligrams;
+    return Row(
+      children: [
+        for (final entry in const {'pm2_5': 'PM₂.₅', 'pm10': 'PM₁₀'}.entries)
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: entry.key == 'pm2_5' ? 10 : 0),
+              child: Surface(
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).brightness == Brightness.light
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.surfaceContainerLow,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.value,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.blur_on_rounded, size: 16),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      report.current.values[entry.key] == null
+                          ? '—'
+                          : (report.current.values[entry.key]! /
+                                    (mg ? 1000 : 1))
+                                .toStringAsFixed(mg ? 3 : 1),
+                      style: const TextStyle(
+                        fontSize: 27,
+                        fontWeight: FontWeight.w500,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      report.current.values[entry.key] == null
+                          ? 'Нет данных'
+                          : mg
+                          ? 'мг/м³'
+                          : 'мкг/м³',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 class _Pollutants extends StatelessWidget {
@@ -354,7 +634,11 @@ class _Pollutants extends StatelessWidget {
                     value == null
                         ? '—'
                         : (value / (mg ? 1000 : 1)).toStringAsFixed(mg ? 3 : 1),
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    style: const TextStyle(
+                      fontSize: 27,
+                      height: 1.2,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   Text(
                     value == null
@@ -450,9 +734,19 @@ class _BestHour extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Лучший час: ${clockLabel(report.cityTime(best.time))}',
+                    'Лучшее время для прогулки',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    clockLabel(report.cityTime(best.time)),
+                    style: const TextStyle(
+                      fontSize: 28,
+                      height: 1.2,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
                   Text(
                     '${best.aqi!.round()} US AQI · минимум в прогнозе на 24 часа',
                   ),

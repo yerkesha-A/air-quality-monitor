@@ -24,7 +24,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(settings.onboarded, isTrue);
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Ваш воздух.\nВаш день.'), findsOneWidget);
+    expect(find.text('AIR'), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-city-picker')), findsOneWidget);
     await tester.tap(find.text('Профиль'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Тёмная тема'));

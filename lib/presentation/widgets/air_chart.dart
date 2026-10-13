@@ -50,8 +50,8 @@ class _AirChartState extends State<AirChart> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 32,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 32),
             child: selected == null
                 ? const Text('Коснитесь графика, чтобы увидеть значение')
                 : Text(

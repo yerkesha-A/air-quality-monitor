@@ -13,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/test_dependencies.dart';
 
+import 'package:air_quality_monitor/presentation/widgets/air_chart.dart';
+
 Future<(SettingsController, AppDependencies)> start(
   WidgetTester tester, {
   bool selected = true,
@@ -41,13 +43,21 @@ void main() {
       await start(tester);
       final bloc = tester.element(find.byType(HomeScreen)).read<AirBloc>();
       expect(bloc.state.status, LoadStatus.success);
+      final chart = find.descendant(
+        of: find.byType(AirChart),
+        matching: find.byType(CustomPaint),
+      );
       await tester.scrollUntilVisible(
-        find.text('Коснитесь графика, чтобы увидеть значение'),
+        chart.hitTestable(),
         180,
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Коснитесь графика, чтобы увидеть значение'));
+      await tester.tap(chart);
       await tester.pump();
+      expect(
+        find.text('Коснитесь графика, чтобы увидеть значение'),
+        findsNothing,
+      );
       await tester.scrollUntilVisible(
         find.text('Все рекомендации →').hitTestable(),
         200,
@@ -97,6 +107,69 @@ void main() {
         isNotNull,
       );
       expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'Home city sheet searches, saves favorite, selects and resets on reopen',
+    (tester) async {
+      final (_, dependencies) = await start(tester, selected: false);
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
+      await tester.pumpAndSettle();
+      expect(find.text('Выберите город'), findsOneWidget);
+      expect(find.byType(NavigationBar).hitTestable(), findsNothing);
+      expect(find.text('Моё местоположение'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'Алматы');
+      await tester.pump(const Duration(milliseconds: 450));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('В избранное'));
+      await tester.pumpAndSettle();
+      verify(() => dependencies.places.setFavorite(fixturePlace, true))
+          .called(1);
+      await tester.tap(find.widgetWithText(ListTile, 'Алматы'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNothing);
+      expect(
+        tester
+            .element(find.byType(HomeScreen))
+            .read<AirBloc>()
+            .state
+            .report
+            ?.place
+            .id,
+        fixturePlace.id,
+      );
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        isEmpty,
+      );
+      await tester.tap(find.byTooltip('Закрыть выбор города'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'City sheet fits narrow screen with large text and keyboard inset',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 700);
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      addTearDown(tester.view.resetViewInsets);
+      await start(tester);
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
+      await tester.pumpAndSettle();
+      tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Алматы');
+      await tester.pump(const Duration(milliseconds: 450));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.widgetWithText(ListTile, 'Алматы'), findsOneWidget);
     },
   );
   testWidgets('Alert threshold, consent and persistence work', (tester) async {

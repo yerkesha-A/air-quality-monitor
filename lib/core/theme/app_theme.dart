@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
-  static const forest = Color(0xff203f33);
-  static const cream = Color(0xfff5f2e9);
+  static const forest = Color(0xff183e32);
+  static const cream = Color(0xfff4f6f2);
   static ThemeData create(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
@@ -12,7 +12,7 @@ abstract final class AppTheme {
       surface: dark ? const Color(0xff16231e) : cream,
       primaryContainer: dark
           ? const Color(0xff314b3c)
-          : const Color(0xffdde3d2),
+          : const Color(0xffd5e9da),
       onPrimaryContainer: dark ? cream : forest,
     );
     return ThemeData(
