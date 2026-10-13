@@ -23,8 +23,20 @@ The photographs are decorative atmosphere, not images of the currently selected 
 - License: CC0 1.0 (published on Unsplash in 2015, before its 2017 license change);
   also available under the current Unsplash License. Commercial use and modification permitted.
 - Processing: portrait crop, 1000 × 1333, WebP quality 70; approximately 141 KiB.
-- Reserved for the History redesign after approval of the homepage. Not used on every screen.
+- Used as the full-screen History background after approval of the homepage. Not used on every screen.
 
 The Flutter hero decodes the photograph at at most 1000 px width (about 4.8 MiB RGBA for
-forest_sun), isolates repainting and uses one clipped 12 px backdrop blur. Both compressed
+forest_sun), isolates repainting and uses one clipped 12 px backdrop blur. The original two compressed
 photographs together add about 404 KiB to the application's assets.
+
+## misty_hills.webp
+
+- Source: https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05
+- Provider: Unsplash, original identifier `photo-1470071459604-3b5ec3a7fe05`.
+- License: https://unsplash.com/license (commercial application backgrounds permitted).
+- Downloaded 2026-10-13. Real mountain, cloud and sky photograph, independently selected; not a reference screenshot.
+- Optimized to 1000 × 1250, WebP quality 74. Used by the homepage hero.
+- `forest_mist.webp` now supplies the full-screen History background.
+
+Current third asset misty_hills.webp: 105,994 bytes (~104 KiB); all three photographs together ~507 KiB.
+History groups its non-overlapping 10 px blurs with BackdropGroup. Actual frame-rate profiling is still pending.

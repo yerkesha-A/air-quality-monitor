@@ -77,9 +77,11 @@ class ProfileScreen extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bookmark_outline),
             title: const Text('Избранные города'),
-            subtitle: Text('${places.favorites.length} сохранено'),
+            subtitle: Text(
+              '${places.favorites.length} сохранено · выбор на главной',
+            ),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.go('/cities'),
+            onTap: () => context.go('/'),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,

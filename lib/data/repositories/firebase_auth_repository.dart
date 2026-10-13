@@ -14,6 +14,8 @@ class FirebaseAuthRepository implements AuthRepository {
   bool _googleInitialized = false;
   @override
   bool get configured => auth != null;
+  @override
+  bool get googleConfigured => configured && googleClientId.isNotEmpty;
   FirebaseAuth get _auth =>
       auth ??
       (throw const AuthFailure(
@@ -41,6 +43,9 @@ class FirebaseAuthRepository implements AuthRepository {
         'wrong-password' ||
         'user-not-found' => 'Проверьте email и пароль.',
         'email-already-in-use' => 'Этот email уже зарегистрирован.',
+        'user-disabled' => 'Этот аккаунт отключён. Обратитесь в поддержку.',
+        'requires-recent-login' =>
+          'Войдите повторно, чтобы выполнить это действие.',
         'invalid-email' => 'Введите корректный email.',
         'weak-password' => 'Выберите более надёжный пароль.',
         'too-many-requests' => 'Слишком много попыток. Подождите и повторите.',
@@ -69,6 +74,9 @@ class FirebaseAuthRepository implements AuthRepository {
       _run(() => _auth.sendPasswordResetEmail(email: email));
   @override
   Future<void> google() => _run(() async {
+    if (!googleConfigured) {
+      throw const AuthFailure('Google Sign-In ещё не настроен для Android.');
+    }
     if (!_googleInitialized) {
       await GoogleSignIn.instance.initialize(
         serverClientId: googleClientId.isEmpty ? null : googleClientId,
@@ -106,7 +114,13 @@ class FirebaseAuthRepository implements AuthRepository {
   });
   @override
   Future<void> logout() async {
-    if (_googleInitialized) await GoogleSignIn.instance.signOut();
-    await _auth.signOut();
+    await _run(_auth.signOut);
+    if (_googleInitialized) {
+      try {
+        await GoogleSignIn.instance.signOut();
+      } catch (_) {
+        /* Firebase session has already ended. */
+      }
+    }
   }
 }

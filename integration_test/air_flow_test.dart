@@ -43,12 +43,7 @@ void main() {
         await tester.tap(find.text('Начать'));
         await tester.pumpAndSettle();
       }
-      await tester.tap(
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text('Города'),
-        ),
-      );
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Алматы');
       await until(

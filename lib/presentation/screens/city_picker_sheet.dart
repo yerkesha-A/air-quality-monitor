@@ -48,20 +48,19 @@ Future<void> showCityPicker(BuildContext context) async {
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: FractionallySizedBox(
         heightFactor: .88,
-        child: const CitiesScreen(inSheet: true),
+        child: const CityPickerSheet(),
       ),
     ),
   );
 }
 
-class CitiesScreen extends StatefulWidget {
-  const CitiesScreen({super.key, this.inSheet = false});
-  final bool inSheet;
+class CityPickerSheet extends StatefulWidget {
+  const CityPickerSheet({super.key});
   @override
-  State<CitiesScreen> createState() => _CitiesScreenState();
+  State<CityPickerSheet> createState() => _CityPickerSheetState();
 }
 
-class _CitiesScreenState extends State<CitiesScreen> {
+class _CityPickerSheetState extends State<CityPickerSheet> {
   final _search = TextEditingController();
   @override
   void initState() {
@@ -79,25 +78,24 @@ class _CitiesScreenState extends State<CitiesScreen> {
   Widget build(BuildContext context) {
     final places = context.watch<PlacesController>();
     return Scaffold(
-      resizeToAvoidBottomInset: !widget.inSheet,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        automaticallyImplyLeading: !widget.inSheet,
-        title: Text(widget.inSheet ? 'Выберите город' : 'Города'),
+        automaticallyImplyLeading: false,
+        title: const Text('Выберите город'),
         actions: [
           IconButton(
             tooltip: 'Сравнить города',
             onPressed: () {
-              if (widget.inSheet) Navigator.pop(context);
+              Navigator.pop(context);
               context.push('/compare');
             },
             icon: const Icon(Icons.compare_arrows_rounded),
           ),
-          if (widget.inSheet)
-            IconButton(
-              tooltip: 'Закрыть выбор города',
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.close_rounded),
-            ),
+          IconButton(
+            tooltip: 'Закрыть выбор города',
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.close_rounded),
+          ),
         ],
       ),
       body: SafeArea(
@@ -109,15 +107,6 @@ class _CitiesScreenState extends State<CitiesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!widget.inSheet) ...[
-                    const Eyebrow('Найдите своё место'),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Воздух без границ',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 20),
-                  ],
                   TextField(
                     controller: _search,
                     textInputAction: TextInputAction.search,
@@ -143,7 +132,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
                   TextButton.icon(
                     onPressed: () {
                       context.read<AirBloc>().add(const LocateAir());
-                      if (widget.inSheet) Navigator.pop(context);
+                      Navigator.pop(context);
                       context.go('/');
                     },
                     icon: const Icon(Icons.my_location, size: 18),
@@ -252,7 +241,7 @@ class _CitiesScreenState extends State<CitiesScreen> {
     onTap: () {
       FocusScope.of(context).unfocus();
       context.read<AirBloc>().add(LoadAir(place));
-      if (widget.inSheet) Navigator.pop(context);
+      Navigator.pop(context);
       context.go('/');
     },
   );

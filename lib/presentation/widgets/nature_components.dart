@@ -8,6 +8,7 @@ abstract final class NatureStyle {
   static const mint = Color(0xffd5e9da);
   static const milk = Color(0xfff4f6f2);
   static const ink = Color(0xff1c2924);
+  static const mistyHills = 'assets/images/misty_hills.webp';
   static const forestSun = 'assets/images/forest_sun.webp';
   static const forestMist = 'assets/images/forest_mist.webp';
 }
@@ -108,35 +109,43 @@ class GlassSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(22),
+    this.tint = NatureStyle.forest,
+    this.grouped = false,
   });
   final Widget child;
   final EdgeInsets padding;
+  final Color tint;
+  final bool grouped;
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(26),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: NatureStyle.forest.withValues(alpha: .62),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withValues(alpha: .16),
-              Colors.white.withValues(alpha: .04),
-            ],
-          ),
-          border: Border.all(color: Colors.white.withValues(alpha: .24)),
-          borderRadius: BorderRadius.circular(26),
+  Widget build(BuildContext context) {
+    final content = DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [tint.withValues(alpha: .70), tint.withValues(alpha: .52)],
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: Padding(padding: padding, child: child),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: .24)),
+        borderRadius: BorderRadius.circular(26),
       ),
-    ),
-  );
+      child: Material(
+        color: Colors.transparent,
+        child: Padding(padding: padding, child: child),
+      ),
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(26),
+      child: grouped
+          ? BackdropFilter.grouped(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: content,
+            )
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: content,
+            ),
+    );
+  }
 }
 
 class QuietIconButton extends StatelessWidget {

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'cities_screen.dart';
+import 'city_picker_sheet.dart';
 import '../widgets/nature_components.dart';
 import '../../domain/entities/air_quality.dart';
 import '../../domain/usecases/air_advice.dart';
@@ -318,7 +318,7 @@ class _NatureHero extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              NatureStyle.forestSun,
+              NatureStyle.mistyHills,
               fit: BoxFit.cover,
               alignment: const Alignment(.15, -.4),
               cacheWidth: 1000,
@@ -357,7 +357,7 @@ class _NatureHero extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 105),
-                GlassSurface(child: child),
+                GlassSurface(tint: const Color(0xff284f55), child: child),
               ],
             ),
           ),

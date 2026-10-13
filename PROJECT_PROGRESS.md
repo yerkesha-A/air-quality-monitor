@@ -3,7 +3,7 @@
 Обновлено: 13 октября 2026. Рабочая платформа: Android. iOS отложен по прямому указанию пользователя.
 Статус «код готов» не равен подтверждённой облачной интеграции.
 
-Новый редизайн: первый этап (логотип, главная, bottom sheet города) реализован; analyze чистый, 30 тестов пройдены, Android debug APK собран и установлен на API 37; главная и шторка проверены визуально, снимки сохранены в docs/screenshots/android-redesign-*.png. До редизайна сделан Git checkpoint `c6277ad`. Подробности: [DESIGN_REVIEW.md](docs/DESIGN_REVIEW.md). История и новая навигация ожидают одобрения первого этапа по прямому требованию пользователя. Firebase/Google Maps сейчас отложены до утверждения дизайна.
+Текущий этап: четыре вкладки **Сегодня / Карта / История / Профиль**, отдельный маршрут `/cities` удалён. Главная сохранена с новым воздушным фото гор/облаков; история полностью переработана с лесным фоном, групповым blur, графиком реальных сохранённых точек, статистикой, календарём, записями и заметками. Формы авторизации обновлены; Firebase SDK-вызовы и обработка сессии/ошибок проверены unit-тестами, **облачный вход ещё не проверен**. `flutter analyze` без замечаний, **41 тест пройден**, Android debug APK собран. Git checkpoint перед этим этапом: `537815d`. Следующий шаг пользователя — создать Firebase project, включить Email/Password и предоставить настоящую Android-конфигурацию: [инструкция](docs/ANDROID_FIREBASE_SETUP.md). Maps и iOS отложены.
 
 | Неделя | Статус и доказательства |
 |---|---|
@@ -22,7 +22,7 @@
 |---|---|
 | 1. Продукт | Код мониторинга выбранного города и GPS на настоящем API |
 | 2. Дизайн | Кремовый/лесной стиль, локальные шрифты, custom forecast graph, светлая/тёмная темы. 320 px + large text test пройден; планшет и весь landscape ещё не проверены |
-| 3. Основные экраны | Onboarding, Login/Register, Home, Cities, Map, History, Health, Alerts, Profile; дополнительно Insights/Compare/Notes/Privacy/Account |
+| 3. Основные экраны | Onboarding, Login/Register, Home с CityPickerSheet, Map, History, Health, Alerts, Profile; дополнительно Insights/Compare/Notes/Privacy/Account |
 | 4. Фишки | Activity Advisor, лучший час, сравнение 2 городов, персональный порог, календарь доступной истории, pollutant insights, favorites, cache, share текста. Визуальная share-карточка и автоматический daily push summary ещё не реализованы |
 | 5. Архитектура | Три слоя, Repository/DI, бизнес-логика AQI и рекомендации вне screens |
 | 6. State | Provider + BLoC, явные statuses, защита от старых ответов; отдельные учебные примеры |
@@ -57,7 +57,7 @@
 
 ## Внешний следующий шаг
 
-Создать Firebase project, добавить Android package com.example.air_quality_monitor, положить google-services.json в android/app, включить Email/Password + Google, добавить SHA fingerprints, создать Firestore/Storage и опубликовать rules. Отдельно подготовить restricted Google Maps key. Инструкция — README. Backend deployment и billing не выполнялись.
+Создать Firebase project, добавить Android package `com.example.air_quality_monitor`, положить настоящий `google-services.json` в `android/app`, включить Email/Password. Сообщить Project ID и готовность файла. Пошаговая инструкция — [ANDROID_FIREBASE_SETUP.md](docs/ANDROID_FIREBASE_SETUP.md). Google Sign-In подготовлен, его приёмка будет отдельной; Firestore/Storage/FCM/Maps сейчас не подключаются. Backend deployment и billing не выполнялись.
 
 ## Обновление мобильной приёмки
 
@@ -76,3 +76,11 @@
 - Финальный native Android APK пересобран/установлен. Debug APK поддерживает тестирование; release keystore/AAB и публикация ещё не готовы.
 
 Все тестовые изменения сети эмулятора восстановлены (Wi-Fi/mobile data enabled); персональный порог возвращён к 100, локальные alerts выключены. Приложение оставлено открытым на главной.
+
+## Среда проверки текущего редизайна
+
+При повторной установке возник сбой графического режима API 37 и системного activity service (Broken pipe/DEAD_OBJECT). Перезапуск первоначально остановился на crash consent dialog SDK. Для приёмки тот же AVD запущен без wipe/snapshots с 4 CPU, SwiftShader, отключённым guest Vulkan, без метрик и отчётов. Системная загрузка подтверждена sys.boot_completed=1. Постоянный config.ini AVD не менялся; данные приложения сохранены. Gradle daemon завершён после сборки для освобождения памяти.
+
+Мобильная приёмка этапа 2: Сегодня/История/Карта/Профиль открываются, city sheet с главной работает. Выбор Алматы загрузил реальный AQI 64 на 22:00 и свежий fetchedAt; затем исходно выбранный Шымкент восстановлен. История Шымкента показала две сохранённые оценки 74/73, среднее 73.5 и максимум 74.0. Форма входа проверена визуально в состоянии отсутствующей Firebase-конфигурации. Фиктивная регистрация не выполнялась. Финальная правка контраста оси прошла analyze и все 41 тест; APK пересобран.
+
+Календарь проверен на Android: нажатие 13 октября открыло настоящий результат `73.5 US AQI`, среднее по 2 сохранённым точкам, «Умеренный». Фиктивные значения не добавлялись. Финальная сборка установлена, Шымкент восстановился после перезапуска; приложение оставлено на «Сегодня». Актуальные снимки — android-atmospheric-home/history, android-history-calendar, android-auth-ready в docs/screenshots.

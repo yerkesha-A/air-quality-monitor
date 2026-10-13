@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth_controller.dart';
 import '../widgets/primitives.dart';
+import '../widgets/nature_components.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -57,7 +58,7 @@ class _AuthScreenState extends State<AuthScreen> {
         context,
         success
             ? 'Если аккаунт существует, письмо для восстановления отправлено.'
-            : auth.error!,
+            : auth.error ?? 'Не удалось отправить письмо. Повторите попытку.',
       );
     }
   }
@@ -76,15 +77,21 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       body: PageBody(
         children: [
+          const Align(alignment: Alignment.centerLeft, child: AirWordmark()),
+          const SizedBox(height: 28),
           const Eyebrow('ВАШЕ ПРОСТРАНСТВО'),
           const SizedBox(height: 16),
           Text(
             _register ? 'Начните с себя' : 'С возвращением',
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: const TextStyle(
+              fontSize: 30,
+              height: 1.2,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 12),
           const Text(
-            'Аккаунт нужен для облачного профиля и фоновых предупреждений. Мониторинг воздуха доступен без входа.',
+            'Ваш аккаунт для Air Quality. Следите за воздухом в своём ритме — мониторинг доступен и без входа.',
           ),
           const SizedBox(height: 24),
           if (!auth.configured)
@@ -123,6 +130,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     controller: _email,
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
+                    textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.email],
                     validator: _emailError,
                     decoration: const InputDecoration(labelText: 'Email'),
@@ -131,6 +139,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   TextFormField(
                     controller: _password,
                     obscureText: !_visible,
+                    enableSuggestions: false,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) {
+                      if (auth.configured && !auth.busy) _submit();
+                    },
                     autocorrect: false,
                     autofillHints: [
                       _register
@@ -159,6 +172,11 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
           const SizedBox(height: 20),
+          if (auth.busy)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: LinearProgressIndicator(minHeight: 2),
+            ),
           FilledButton(
             onPressed: auth.busy || !auth.configured ? null : _submit,
             child: Text(
@@ -171,7 +189,7 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           const SizedBox(height: 12),
           OutlinedButton(
-            onPressed: auth.busy || !auth.configured
+            onPressed: auth.busy || !auth.googleConfigured
                 ? null
                 : () async {
                     final success = await auth.google();
@@ -179,6 +197,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   },
             child: const Text('Продолжить с Google'),
           ),
+          if (auth.configured && !auth.googleConfigured)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(
+                'Google Sign-In ещё не подключён.',
+                style: TextStyle(fontSize: 11),
+              ),
+            ),
           TextButton(
             onPressed: auth.busy || !auth.configured ? null : _reset,
             child: const Text('Забыли пароль?'),

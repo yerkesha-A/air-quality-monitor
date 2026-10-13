@@ -112,7 +112,7 @@ node tools/firebase-tests/node_modules/firebase-tools/lib/bin/firebase.js emulat
 
 Для Firebase Emulator нужна Java 21+; можно использовать JBR Android Studio через JAVA_HOME. Node используется **только инструментами и тестами правил**, Android UI написан на Dart/Flutter. Demo project не обращается к настоящему облачному Firebase.
 
-Текущие подтверждённые результаты: analyze без замечаний; 30 unit/widget-тестов после первого этапа редизайна; предыдущий Flutter LCOV до редизайна — 63,00% (1362/2162 строк), 42 библиотеки. `main.dart`/bootstrap и декларативный interface places_repository не вошли в этот отчёт; сгенерированные JSON-модели входят. Моки и синтетические fixtures используются только в тестах. Firestore Rules: 6/6; Python logic: 3/3. Тест onboarding/navigation/theme прошёл на Android 17 API 37. Расширенный live Android-тест также прошёл: настоящий API, SQLite, fallback кеша, заметки, MethodChannel и вызов/история уведомления. Дополнительно проверены GPS permission/координаты, настоящая camera capture/save, отображение локального предупреждения в шторке и cold start с кешем без сети на эмуляторе. Физический смартфон и реальный FCM ещё не проверены.
+Текущие подтверждённые результаты: analyze без замечаний; 41 unit/widget-тест после этапа истории/авторизации; предыдущий Flutter LCOV до редизайна — 63,00% (1362/2162 строк), 42 библиотеки. `main.dart`/bootstrap и декларативный interface places_repository не вошли в этот отчёт; сгенерированные JSON-модели входят. Моки и синтетические fixtures используются только в тестах. Firestore Rules: 6/6; Python logic: 3/3. Тест onboarding/navigation/theme прошёл на Android 17 API 37. Расширенный live Android-тест также прошёл: настоящий API, SQLite, fallback кеша, заметки, MethodChannel и вызов/история уведомления. Дополнительно проверены GPS permission/координаты, настоящая camera capture/save, отображение локального предупреждения в шторке и cold start с кешем без сети на эмуляторе. Физический смартфон и реальный FCM ещё не проверены.
 
 GitHub Actions запускает зависимости, форматирование, analyze, test/coverage >40%, Android debug build, Python logic и Firestore Rules. Workflow подготовлен локально; удалённого GitHub repository/CI run ещё нет.
 
@@ -126,6 +126,17 @@ Release APK/AAB требует настоящего keystore и `android/key.pro
 
 [Onboarding](docs/screenshots/android-onboarding.png), [главная](docs/screenshots/android-home.png), [города](docs/screenshots/android-cities.png), [заметка с камерой](docs/screenshots/android-notes.png), [локальное уведомление](docs/screenshots/android-notification.png), [офлайн после перезапуска](docs/screenshots/android-offline.png). Скриншоты сняты с Android Emulator, не являются HTML-макетами.
 
-## Новый дизайн: этап 1
+## Новый дизайн: главная и история
 
-[Новая главная](docs/screenshots/android-redesign-home.png), [выбор города](docs/screenshots/android-redesign-city-sheet.png) — реальные снимки Android Emulator. Реализованы AIR quality, фотографическая главная со стеклянным AQI и выбор города в bottom sheet. Две оптимизированные локальные фотографии: [источники и лицензии](assets/images/CREDITS.md). [Дизайн и проверка](docs/DESIGN_REVIEW.md). История, новая нижняя навигация и остальные экраны переходят к редизайну после одобрения главной, согласно заданному порядку. Firebase/Maps и iOS отложены.
+Четыре вкладки: Сегодня, Карта, История, Профиль. Выбор города только в шторке главной;
+`/cities` удалён, поиск/GPS/избранное/недавние сохранены. Главная использует оптимизированную
+фотографию гор, неба и облаков. История — лесной фон на весь экран и стеклянные карточки
+с групповым blur, компактным empty state, реальным календарём сохранённых оценок и заметками.
+Фотографии: [источники и лицензии](assets/images/CREDITS.md). [Дизайн и проверки](docs/DESIGN_REVIEW.md).
+Firebase Authentication SDK и формы подготовлены; настоящей конфигурации нет, облачный вход
+пока не проверен. [Следующий шаг пользователя](docs/ANDROID_FIREBASE_SETUP.md). Maps и iOS отложены.
+
+Актуальные реальные снимки этого этапа: [главная](docs/screenshots/android-atmospheric-home.png),
+[история](docs/screenshots/android-atmospheric-history.png), [календарь](docs/screenshots/android-history-calendar.png),
+[подготовленная авторизация](docs/screenshots/android-auth-ready.png). APK установлен с сохранением данных.
+На API 37 проверены четыре вкладки, смена города и возврат, график/календарь/записи; облачная авторизация ожидает реального JSON.

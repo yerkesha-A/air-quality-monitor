@@ -58,7 +58,7 @@ class _CityLinkScreenState extends State<CityLinkScreen> {
                 title: 'Город недоступен',
                 message: _error!,
                 action: FilledButton(
-                  onPressed: () => context.go('/cities'),
+                  onPressed: () => context.go('/'),
                   child: const Text('Найти город'),
                 ),
               ),

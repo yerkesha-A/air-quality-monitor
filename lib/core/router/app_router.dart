@@ -3,10 +3,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../presentation/providers/auth_controller.dart';
 import '../../presentation/providers/settings_controller.dart';
+import '../../presentation/widgets/nature_components.dart';
 import '../../presentation/screens/account_screen.dart';
 import '../../presentation/screens/alerts_screen.dart';
 import '../../presentation/screens/auth_screen.dart';
-import '../../presentation/screens/cities_screen.dart';
 import '../../presentation/screens/city_link_screen.dart';
 import '../../presentation/screens/compare_screen.dart';
 import '../../presentation/screens/health_screen.dart';
@@ -100,35 +100,43 @@ GoRouter createRouter(SettingsController settings, AuthController auth) =>
         ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, shell) => Scaffold(
+            backgroundColor: shell.currentIndex == 2
+                ? NatureStyle.forest
+                : Theme.of(context).colorScheme.surface,
             body: shell,
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: shell.currentIndex,
-              onDestinationSelected: (index) => shell.goBranch(
-                index,
-                initialLocation: index == shell.currentIndex,
+            bottomNavigationBar: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(26),
+                  child: NavigationBar(
+                    selectedIndex: shell.currentIndex,
+                    onDestinationSelected: (index) => shell.goBranch(
+                      index,
+                      initialLocation: index == shell.currentIndex,
+                    ),
+                    destinations: const [
+                      NavigationDestination(
+                        icon: Icon(Icons.air_rounded),
+                        label: 'Сегодня',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.map_outlined),
+                        label: 'Карта',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.timeline_rounded),
+                        label: 'История',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.person_outline_rounded),
+                        label: 'Профиль',
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.air_rounded),
-                  label: 'Сегодня',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.location_city_outlined),
-                  label: 'Города',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.map_outlined),
-                  label: 'Карта',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.timeline_rounded),
-                  label: 'История',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.person_outline_rounded),
-                  label: 'Профиль',
-                ),
-              ],
             ),
           ),
           branches: [
@@ -138,15 +146,6 @@ GoRouter createRouter(SettingsController settings, AuthController auth) =>
                   path: '/',
                   name: 'home',
                   builder: (_, _) => const HomeScreen(),
-                ),
-              ],
-            ),
-            StatefulShellBranch(
-              routes: [
-                GoRoute(
-                  path: '/cities',
-                  name: 'cities',
-                  builder: (_, _) => const CitiesScreen(),
                 ),
               ],
             ),

@@ -89,6 +89,7 @@ flutter:
   assets:
     - assets/images/forest_sun.webp
     - assets/images/forest_mist.webp
+    - assets/images/misty_hills.webp
   fonts:
     - family: Manrope
       fonts:

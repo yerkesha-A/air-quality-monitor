@@ -5,6 +5,7 @@ import 'package:air_quality_monitor/presentation/providers/settings_controller.d
 import 'package:air_quality_monitor/presentation/screens/home_screen.dart';
 import 'package:air_quality_monitor/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -79,7 +80,14 @@ void main() {
       await tester.tap(find.text('PM₂.₅'));
       await tester.pumpAndSettle();
       expect(find.text('Среднее'), findsOneWidget);
-      await tab(tester, 'Города');
+      await tab(tester, 'Сегодня');
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('home-city-picker')).hitTestable(),
+        -300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Сравнить города'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Сравнить воздух'));
@@ -92,7 +100,14 @@ void main() {
     'Debounced city search, favorite action and selection load actual repository',
     (tester) async {
       final (_, dependencies) = await start(tester, selected: false);
-      await tab(tester, 'Города');
+      await tab(tester, 'Сегодня');
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('home-city-picker')).hitTestable(),
+        -300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.byKey(const ValueKey('home-city-picker')));
+      await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Алматы');
       await tester.pump(const Duration(milliseconds: 450));
       await tester.pumpAndSettle();
@@ -265,6 +280,96 @@ void main() {
         180,
         scrollable: find.byType(Scrollable).first,
       );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'Four tabs, removed cities route and real empty history fit narrow large text',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 700);
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      const channel = MethodChannel('air_quality_monitor/device');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            channel,
+            (_) async => {'mapsConfigured': false},
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null),
+      );
+      final (_, dependencies) = await start(tester);
+      expect(
+        tester
+            .widget<NavigationBar>(find.byType(NavigationBar))
+            .destinations
+            .length,
+        4,
+      );
+      expect(find.text('Города'), findsNothing);
+      await tab(tester, 'Карта');
+      await tab(tester, 'История');
+      expect(find.text('Первая точка уже сохранена'), findsOneWidget);
+      await tester.tap(find.text('30 дней'));
+      await tester.pumpAndSettle();
+      verify(() => dependencies.air.history(fixturePlace, 30)).called(1);
+      await tester.scrollUntilVisible(
+        find.text('Календарь воздуха').hitTestable(),
+        140,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tab(tester, 'Профиль');
+      final router = GoRouter.of(tester.element(find.byType(ProfileScreen)));
+      router.go('/cities');
+      await tester.pumpAndSettle();
+      expect(find.text('Страница не найдена'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'Auth form validates email, required name and registration password before SDK submission',
+    (tester) async {
+      await start(tester);
+      GoRouter.of(tester.element(find.byType(HomeScreen))).go('/login');
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'invalid-email',
+      );
+      expect(tester.state<FormState>(find.byType(Form)).validate(), isFalse);
+      await tester.pumpAndSettle();
+      expect(find.text('Введите корректный email'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Нет аккаунта? Зарегистрироваться').hitTestable(),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('Нет аккаунта? Зарегистрироваться'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Пароль'),
+        'short',
+      );
+      expect(tester.state<FormState>(find.byType(Form)).validate(), isFalse);
+      await tester.pumpAndSettle();
+      expect(find.text('Минимум 8 символов'), findsOneWidget);
+      expect(find.text('Введите имя'), findsOneWidget);
+      await tester.enterText(find.widgetWithText(TextFormField, 'Имя'), 'Имя');
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'person@example.test',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Пароль'),
+        'a-password',
+      );
+      expect(tester.state<FormState>(find.byType(Form)).validate(), isTrue);
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     },

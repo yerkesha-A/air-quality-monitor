@@ -11,10 +11,12 @@ class AirChart extends StatefulWidget {
     required this.points,
     this.variable = 'us_aqi',
     this.offsetSeconds = 0,
+    this.gridColor,
   });
   final List<AirPoint> points;
   final String variable;
   final int offsetSeconds;
+  final Color? gridColor;
   @override
   State<AirChart> createState() => _AirChartState();
 }
@@ -81,7 +83,8 @@ class _AirChartState extends State<AirChart> {
                     points,
                     widget.variable,
                     color,
-                    Theme.of(context).colorScheme.outlineVariant,
+                    widget.gridColor ??
+                        Theme.of(context).colorScheme.onSurfaceVariant,
                     _selected,
                   ),
                 ),
@@ -140,7 +143,7 @@ class _AirChartPainter extends CustomPainter {
       values.reduce(math.max) * 1.15,
     );
     final gridPaint = Paint()
-      ..color = grid.withValues(alpha: .5)
+      ..color = grid.withValues(alpha: .22)
       ..strokeWidth = 1;
     for (var row = 0; row < 4; row++) {
       final y = 12 + (size.height - 24) * row / 3;

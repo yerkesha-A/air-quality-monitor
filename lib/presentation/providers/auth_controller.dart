@@ -8,7 +8,7 @@ class AuthController extends ChangeNotifier {
   AuthController(this.repository) {
     _subscription = repository.changes.listen((user) {
       account = user;
-      notifyListeners();
+      _notify();
     });
   }
   final AuthRepository repository;
@@ -17,12 +17,18 @@ class AuthController extends ChangeNotifier {
   Future<void> Function()? beforeLogout;
   bool busy = false;
   String? error;
+  bool _disposed = false;
   bool get configured => repository.configured;
+  bool get googleConfigured => repository.googleConfigured;
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
+
   Future<bool> _perform(Future<void> Function() action) async {
     if (busy) return false;
     busy = true;
     error = null;
-    notifyListeners();
+    _notify();
     try {
       await action();
       return true;
@@ -31,7 +37,7 @@ class AuthController extends ChangeNotifier {
       return false;
     } finally {
       busy = false;
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -46,11 +52,16 @@ class AuthController extends ChangeNotifier {
   Future<bool> updateAvatar(Uint8List bytes) =>
       _perform(() => repository.updateAvatar(bytes));
   Future<bool> logout() => _perform(() async {
-    await beforeLogout?.call();
+    try {
+      await beforeLogout?.call().timeout(const Duration(seconds: 3));
+    } catch (_) {
+      /* Cloud cleanup must not prevent native sign-out. */
+    }
     await repository.logout();
   });
   @override
   void dispose() {
+    _disposed = true;
     _subscription.cancel();
     super.dispose();
   }

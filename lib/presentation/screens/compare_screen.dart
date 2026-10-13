@@ -5,7 +5,7 @@ import '../../domain/entities/air_quality.dart';
 import '../../domain/repositories/air_repository.dart';
 import '../providers/places_controller.dart';
 import '../widgets/primitives.dart';
-import 'cities_screen.dart';
+import 'city_picker_sheet.dart';
 
 class CompareScreen extends StatefulWidget {
   const CompareScreen({super.key});
