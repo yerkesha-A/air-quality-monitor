@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 abstract final class AppTheme {
-  static const forest = Color(0xff285964);
-  static const cream = Color(0xfff3f7f9);
+  static const forest = Color(0xff246978);
+  static const cream = Color(0xffe8f3f7);
   static ThemeData create(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
@@ -43,7 +44,7 @@ abstract final class AppTheme {
           color: scheme.onSurface,
         ),
         titleLarge: TextStyle(
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
           color: scheme.onSurface,
         ),
@@ -59,23 +60,28 @@ abstract final class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
+        systemOverlayStyle: dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        backgroundColor: Colors.transparent,
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.surface,
+        backgroundColor: dark
+            ? const Color(0xf21b3542)
+            : const Color(0xeef1f9fc),
         indicatorColor: scheme.primaryContainer,
-        height: 76,
+        height: 66,
         labelTextStyle: WidgetStateProperty.all(
           const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(48, 54),
+          minimumSize: const Size(48, 50),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
@@ -84,7 +90,9 @@ abstract final class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerHighest.withValues(alpha: .5),
+        fillColor: dark
+            ? const Color(0xdd24414e)
+            : Colors.white.withValues(alpha: .78),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,

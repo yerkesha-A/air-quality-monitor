@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -12,13 +15,26 @@ class AccountScreen extends StatelessWidget {
     final auth = context.watch<AuthController>();
     final account = auth.account;
     if (account == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const AirScaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
-    return Scaffold(
+    return AirScaffold(
       appBar: AppBar(title: const Text('Профиль аккаунта')),
       body: PageBody(
         children: [
-          const Eyebrow('ВАШ АККАУНТ'),
+          const AirSurface(
+            child: Row(
+              children: [
+                Icon(Icons.person_outline),
+                SizedBox(width: 12),
+                Text(
+                  'Ваш аккаунт',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           if (account.photoUrl != null)
             ClipRRect(
@@ -57,6 +73,7 @@ class AccountScreen extends StatelessWidget {
                       builder: (context) => AlertDialog(
                         title: const Text('Ваше имя'),
                         content: TextField(
+                          stylusHandwritingEnabled: false,
                           controller: controller,
                           maxLength: 80,
                         ),

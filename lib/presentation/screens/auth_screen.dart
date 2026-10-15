@@ -66,7 +66,8 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthController>();
-    return Scaffold(
+    return AirScaffold(
+      immersive: true,
       appBar: AppBar(
         title: const Text('Аккаунт'),
         leading: IconButton(
@@ -77,29 +78,18 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       body: PageBody(
         children: [
-          const Align(alignment: Alignment.centerLeft, child: AirWordmark()),
-          const SizedBox(height: 28),
-          AirSurface(
-            accent: const Color(0xffc1ddeb),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Eyebrow('ВАШЕ ПРОСТРАНСТВО'),
-                const SizedBox(height: 16),
-                Text(
-                  _register ? 'Начните с себя' : 'С возвращением',
-                  style: const TextStyle(
-                    fontSize: 30,
-                    height: 1.2,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Ваш аккаунт для Air Quality. Следите за воздухом в своём ритме — мониторинг доступен и без входа.',
-                ),
-              ],
-            ),
+          const SizedBox(height: 38),
+          const Center(child: AirWordmark()),
+          const SizedBox(height: 36),
+          Text(
+            _register ? 'Создайте аккаунт' : 'С возвращением!',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _register
+                ? 'Начните следить за воздухом в своём городе'
+                : 'Войдите в свой аккаунт',
           ),
           const SizedBox(height: 24),
           if (!auth.configured)
@@ -128,7 +118,10 @@ class _AuthScreenState extends State<AuthScreen> {
                       controller: _name,
                       textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.name],
-                      decoration: const InputDecoration(labelText: 'Имя'),
+                      decoration: const InputDecoration(
+                        labelText: 'Имя',
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
                           ? 'Введите имя'
@@ -144,7 +137,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.email],
                     validator: _emailError,
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.mail_outline),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -173,6 +169,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         : null,
                     decoration: InputDecoration(
                       labelText: 'Пароль',
+                      prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         tooltip: _visible ? 'Скрыть пароль' : 'Показать пароль',
                         onPressed: () => setState(() => _visible = !_visible),

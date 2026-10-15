@@ -60,7 +60,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Positioned.fill(
                 child: RepaintBoundary(
                   child: Image.asset(
-                    NatureStyle.mistyHills,
+                    NatureStyle.alpineLake,
                     fit: BoxFit.cover,
                     cacheWidth: 1000,
                     excludeFromSemantics: true,
@@ -74,9 +74,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0x99203f54),
-                        Color(0x332e6170),
-                        Color(0xd0183448),
+                        Color(0x66203f54),
+                        Color(0x222e6170),
+                        Color(0xaa183448),
                       ],
                       stops: [0, .45, 1],
                     ),

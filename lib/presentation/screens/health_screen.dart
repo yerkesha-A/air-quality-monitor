@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/air_advice.dart';
@@ -11,7 +14,7 @@ class HealthScreen extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<AirBloc, AirState>(
     builder: (context, state) {
       final aqi = state.report?.current.aqi;
-      return Scaffold(
+      return AirScaffold(
         appBar: AppBar(title: const Text('Рекомендации')),
         body: PageBody(
           children: [
@@ -32,10 +35,23 @@ class HealthScreen extends StatelessWidget {
               ('Пробежка', true),
               ('Тренировка', true),
             ].map(
-              (activity) => ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(activity.$1),
-                subtitle: Text(AirAdvice.activity(aqi, intense: activity.$2)),
+              (activity) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: AirSurface(
+                  padding: const EdgeInsets.all(12),
+                  child: ListTile(
+                    leading: Icon(
+                      activity.$2
+                          ? Icons.directions_run_outlined
+                          : Icons.directions_walk_outlined,
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(activity.$1),
+                    subtitle: Text(
+                      AirAdvice.activity(aqi, intense: activity.$2),
+                    ),
+                  ),
+                ),
               ),
             ),
             const SectionTitle('Дома'),

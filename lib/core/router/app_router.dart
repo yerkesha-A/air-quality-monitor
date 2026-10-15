@@ -99,10 +99,7 @@ GoRouter createRouter(SettingsController settings, AuthController auth) =>
               CityLinkScreen(id: state.pathParameters['id']!),
         ),
         StatefulShellRoute.indexedStack(
-          builder: (context, state, shell) => Scaffold(
-            backgroundColor: shell.currentIndex == 2
-                ? NatureStyle.forest
-                : Theme.of(context).colorScheme.surface,
+          builder: (context, state, shell) => AirScaffold(
             body: shell,
             bottomNavigationBar: SafeArea(
               top: false,
@@ -118,7 +115,7 @@ GoRouter createRouter(SettingsController settings, AuthController auth) =>
                     ),
                     destinations: const [
                       NavigationDestination(
-                        icon: Icon(Icons.air_rounded),
+                        icon: Icon(Icons.home_outlined),
                         label: 'Сегодня',
                       ),
                       NavigationDestination(
@@ -126,7 +123,7 @@ GoRouter createRouter(SettingsController settings, AuthController auth) =>
                         label: 'Карта',
                       ),
                       NavigationDestination(
-                        icon: Icon(Icons.timeline_rounded),
+                        icon: Icon(Icons.insights_outlined),
                         label: 'История',
                       ),
                       NavigationDestination(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'nature_components.dart';
+
 class PageBody extends StatelessWidget {
   const PageBody({super.key, required this.children, this.onRefresh});
   final List<Widget> children;
@@ -7,7 +9,7 @@ class PageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final view = ListView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
       physics: const AlwaysScrollableScrollPhysics(),
       children: children,
     );
@@ -42,7 +44,7 @@ class SectionTitle extends StatelessWidget {
   final Widget? action;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 28, bottom: 14),
+    padding: const EdgeInsets.only(top: 22, bottom: 10),
     child: Row(
       children: [
         Expanded(
@@ -65,11 +67,10 @@ class Surface extends StatelessWidget {
   final Color? color;
   final EdgeInsets padding;
   @override
-  Widget build(BuildContext context) => Material(
-    color: color ?? Theme.of(context).colorScheme.surfaceContainerLow,
-    borderRadius: BorderRadius.circular(24),
-    clipBehavior: Clip.antiAlias,
-    child: Padding(padding: padding, child: child),
+  Widget build(BuildContext context) => AirSurface(
+    accent: color ?? const Color(0xffbedee9),
+    padding: padding,
+    child: child,
   );
 }
 

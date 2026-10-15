@@ -40,3 +40,21 @@ photographs together add about 404 KiB to the application's assets.
 
 Current third asset misty_hills.webp: 105,994 bytes (~104 KiB); all three photographs together ~507 KiB.
 History groups its non-overlapping 10 px blurs with BackdropGroup. Actual frame-rate profiling is still pending.
+
+
+## Reference redesign — 2026-10-15
+
+Two independently selected photographs, not the supplied UI reference:
+
+- `alpine_clouds.webp`: Unsplash image identifier `photo-1506905925346-21bda4d32df4`.
+  Source: https://images.unsplash.com/photo-1506905925346-21bda4d32df4
+  License: https://unsplash.com/license (free application use and modification).
+  Snowy mountains over clouds, independently selected; WebP quality 78, 1000 × 667.
+- `blue_mountains.webp`: Francesco Ungaro, Pexels photo 5061127.
+  Original: https://www.pexels.com/photo/mountains-and-rippling-lake-under-blue-sky-5061127/
+  Download: https://images.pexels.com/photos/5061127/pexels-photo-5061127.jpeg
+  Optimized WebP quality 78, 1000 × 750, 62,760 bytes.
+
+Blue mountains license: https://www.pexels.com/license/ — free application use and modification.
+These are atmospheric landscapes, not photographs of the selected city or user.
+No runtime downloads. Decode width is limited to 1000 px; tiny decorative thumbnails to 160 px.

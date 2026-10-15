@@ -7,6 +7,7 @@ import '../bloc/air_bloc.dart';
 import '../bloc/city_search_bloc.dart';
 import '../providers/places_controller.dart';
 import '../widgets/primitives.dart';
+import '../widgets/nature_components.dart';
 
 const suggestedPlaces = [
   Place(
@@ -115,7 +116,7 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
                       SearchChanged(value),
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Город, например Алматы',
+                      hintText: 'Поиск города…',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: IconButton(
                         tooltip: 'Очистить поиск',
@@ -210,16 +211,10 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
   Widget _tile(Place place, PlacesController places) => ListTile(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    leading: Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer
-            .withValues(alpha: .5),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: const Icon(Icons.place_outlined, size: 20),
-    ),
+    tileColor: context.watch<AirBloc>().state.place?.id == place.id
+        ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .55)
+        : null,
+    leading: const LandscapeAvatar(),
     title: Text(place.name),
     subtitle: Text(place.subtitle),
     trailing: IconButton(

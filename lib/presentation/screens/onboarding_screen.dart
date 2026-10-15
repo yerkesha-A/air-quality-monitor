@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/theme/app_theme.dart';
+import '../widgets/nature_components.dart';
 import '../providers/settings_controller.dart';
-import '../widgets/primitives.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -32,7 +31,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AirScaffold(
+    immersive: true,
     body: SafeArea(
       child: Column(
         children: [
@@ -40,9 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                const Icon(Icons.air_rounded, color: AppTheme.forest),
-                const SizedBox(width: 10),
-                const Expanded(child: Eyebrow('AIR QUALITY MONITOR')),
+                const Expanded(child: AirWordmark()),
                 Text('${_page + 1} / 3'),
               ],
             ),
@@ -58,10 +56,47 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AspectRatio(
-                      aspectRatio: 1.35,
+                      aspectRatio: .95,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(28),
-                        child: CustomPaint(painter: _LandscapePainter(index)),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.asset(
+                              index == 1
+                                  ? NatureStyle.blueMountains
+                                  : NatureStyle.alpineLake,
+                              fit: BoxFit.cover,
+                              cacheWidth: 1000,
+                              excludeFromSemantics: true,
+                            ),
+                            const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0x11e9f7ff),
+                                    Color(0xaa194554),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Positioned(
+                              left: 24,
+                              right: 24,
+                              bottom: 24,
+                              child: Text(
+                                'Чистый воздух\nдля лучшей жизни',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  height: 1.25,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -130,64 +165,4 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     ),
   );
-}
-
-class _LandscapePainter extends CustomPainter {
-  _LandscapePainter(this.page);
-  final int page;
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = const Color(0xffe4e5d5),
-    );
-    canvas.drawCircle(
-      Offset(size.width * .75, size.height * .25),
-      26,
-      Paint()..color = const Color(0xffc7cba8),
-    );
-    for (var layer = 0; layer < 4; layer++) {
-      final path = Path()..moveTo(0, size.height * (.48 + layer * .13));
-      path.cubicTo(
-        size.width * .28,
-        size.height * (.15 + layer * .2),
-        size.width * .55,
-        size.height * (.95 - layer * .05),
-        size.width,
-        size.height * (.4 + layer * .13),
-      );
-      path.lineTo(size.width, size.height);
-      path.lineTo(0, size.height);
-      path.close();
-      canvas.drawPath(
-        path,
-        Paint()
-          ..color = [
-            const Color(0xffb7c1a3),
-            const Color(0xff899e7b),
-            const Color(0xff54715b),
-            AppTheme.forest,
-          ][layer],
-      );
-    }
-    final paint = Paint()
-      ..color = const Color(0xfff5f2e9).withValues(alpha: .32)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    for (var line = 0; line < 8; line++) {
-      final path = Path()..moveTo(0, size.height * .7 + line * 12);
-      path.cubicTo(
-        size.width * .3,
-        size.height * .35 + line * 12,
-        size.width * .65,
-        size.height + line * 12,
-        size.width,
-        size.height * .62 + line * 12,
-      );
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_LandscapePainter oldDelegate) => oldDelegate.page != page;
 }

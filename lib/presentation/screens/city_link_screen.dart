@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,7 +51,7 @@ class _CityLinkScreenState extends State<CityLinkScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AirScaffold(
     appBar: AppBar(title: const Text('Открыть город')),
     body: _error == null
         ? const Center(child: CircularProgressIndicator())

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:provider/provider.dart';
 
 import '../../domain/entities/air_quality.dart';
@@ -52,7 +55,7 @@ class _CompareScreenState extends State<CompareScreen> {
       for (final p in [...suggestedPlaces, ...saved.recent, ...saved.favorites])
         p.id: p,
     }.values.toList();
-    return Scaffold(
+    return AirScaffold(
       appBar: AppBar(title: const Text('Сравнение')),
       body: PageBody(
         children: [
@@ -123,9 +126,17 @@ class _CompareScreenState extends State<CompareScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      result.$1.name,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                    Row(
+                      children: [
+                        const LandscapeAvatar(),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            result.$1.name,
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     if (result.$2 == null)

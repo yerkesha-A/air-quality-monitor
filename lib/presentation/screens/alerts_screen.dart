@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,9 +32,9 @@ class _AlertsScreenState extends State<AlertsScreen> {
     final settings = context.watch<SettingsController>();
     final auth = context.watch<AuthController>();
     final firebase = context.read<FirebaseService>();
-    return Scaffold(
+    return AirScaffold(
       appBar: AppBar(
-        title: const Text('Предупреждения'),
+        title: const Text('Уведомления'),
         actions: [
           IconButton(
             tooltip: 'Обновить историю',
@@ -43,13 +46,31 @@ class _AlertsScreenState extends State<AlertsScreen> {
       ),
       body: PageBody(
         children: [
-          const Eyebrow('ВАШ ЛИЧНЫЙ ПОРОГ'),
-          const SizedBox(height: 16),
-          Text(
-            'Будьте в курсе',
-            style: Theme.of(context).textTheme.headlineLarge,
+          const AirSurface(
+            child: Row(
+              children: [
+                Icon(Icons.notifications_active_outlined, size: 30),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ваш воздух — под контролем',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Выберите личный порог качества воздуха',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Surface(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,66 +98,72 @@ class _AlertsScreenState extends State<AlertsScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('При обновлении в приложении'),
-            subtitle: const Text(
-              'Уведомление при загрузке свежего AQI выше порога',
-            ),
-            value: settings.alertsEnabled,
-            onChanged: (enabled) async {
-              if (enabled) {
-                final granted = await context
-                    .read<NotificationService>()
-                    .requestPermission();
-                if (!granted) {
-                  if (context.mounted) {
-                    showMessage(
-                      context,
-                      'Разрешите уведомления в настройках Android.',
-                    );
+          AirSurface(
+            padding: const EdgeInsets.all(12),
+            child: SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('При обновлении в приложении'),
+              subtitle: const Text(
+                'Уведомление при загрузке свежего AQI выше порога',
+              ),
+              value: settings.alertsEnabled,
+              onChanged: (enabled) async {
+                if (enabled) {
+                  final granted = await context
+                      .read<NotificationService>()
+                      .requestPermission();
+                  if (!granted) {
+                    if (context.mounted) {
+                      showMessage(
+                        context,
+                        'Разрешите уведомления в настройках Android.',
+                      );
+                    }
+                    return;
                   }
-                  return;
                 }
-              }
-              await settings.setAlerts(enabled);
-            },
+                await settings.setAlerts(enabled);
+              },
+            ),
           ),
           const SectionTitle('В фоне'),
-          SwitchListTile.adaptive(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Фоновые предупреждения'),
-            subtitle: Text(
-              firebase.schedulerConfigured && auth.account != null
-                  ? 'Проверка выбранного места сервером каждый час'
-                  : 'Нужны аккаунт и активированный серверный сервис',
-            ),
-            value: settings.backgroundAlerts,
-            onChanged: !firebase.schedulerConfigured || auth.account == null
-                ? null
-                : (enabled) async {
-                    try {
-                      if (enabled &&
-                          !await firebase.enablePush(auth.account!)) {
+          AirSurface(
+            padding: const EdgeInsets.all(12),
+            child: SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Фоновые предупреждения'),
+              subtitle: Text(
+                firebase.schedulerConfigured && auth.account != null
+                    ? 'Проверка выбранного места сервером каждый час'
+                    : 'Нужны аккаунт и активированный серверный сервис',
+              ),
+              value: settings.backgroundAlerts,
+              onChanged: !firebase.schedulerConfigured || auth.account == null
+                  ? null
+                  : (enabled) async {
+                      try {
+                        if (enabled &&
+                            !await firebase.enablePush(auth.account!)) {
+                          if (context.mounted) {
+                            showMessage(
+                              context,
+                              'Не удалось разрешить push-уведомления.',
+                            );
+                          }
+                          return;
+                        }
+                        if (!enabled) await firebase.unregisterDevice();
+                        await settings.setBackgroundAlerts(enabled);
+                      } catch (_) {
                         if (context.mounted) {
                           showMessage(
                             context,
-                            'Не удалось разрешить push-уведомления.',
+                            'Не удалось сохранить настройки push.',
                           );
                         }
-                        return;
                       }
-                      if (!enabled) await firebase.unregisterDevice();
-                      await settings.setBackgroundAlerts(enabled);
-                    } catch (_) {
-                      if (context.mounted) {
-                        showMessage(
-                          context,
-                          'Не удалось сохранить настройки push.',
-                        );
-                      }
-                    }
-                  },
+                    },
+            ),
           ),
           if (auth.account == null)
             TextButton(

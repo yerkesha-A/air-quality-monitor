@@ -8,6 +8,7 @@ import '../providers/places_controller.dart';
 import '../providers/settings_controller.dart';
 import '../widgets/primitives.dart';
 import '../widgets/nature_components.dart';
+import 'city_picker_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,47 +17,14 @@ class ProfileScreen extends StatelessWidget {
     final settings = context.watch<SettingsController>();
     final auth = context.watch<AuthController>();
     final places = context.watch<PlacesController>();
-    return Scaffold(
+    return AirScaffold(
       appBar: AppBar(title: const Text('Профиль')),
       body: PageBody(
         children: [
-          AtmosphereHeader(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Eyebrow('ВАШЕ ПРОСТРАНСТВО', color: Colors.white70),
-                const SizedBox(height: 14),
-                const Text(
-                  'В вашем ритме',
-                  style: TextStyle(
-                    fontSize: 29,
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'Ваши места. Ваши привычки.\nСвежий взгляд на каждый день.',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    height: 1.6,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
           AirSurface(
             child: ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.person_outline,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+              leading: const LandscapeAvatar(size: 48),
               title: Text(
                 auth.account?.name.isNotEmpty == true
                     ? auth.account!.name
@@ -73,9 +41,34 @@ class ProfileScreen extends StatelessWidget {
                   context.push(auth.account == null ? '/login' : '/account'),
             ),
           ),
+          const SizedBox(height: 12),
+          AirSurface(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ваше пространство',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Следите за воздухом\nв своём ритме',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                const LandscapeAvatar(size: 56),
+              ],
+            ),
+          ),
           const SectionTitle('Оформление'),
           AirSurface(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(4),
             child: Column(
               children: ThemeMode.values
                   .map(
@@ -110,7 +103,9 @@ class ProfileScreen extends StatelessWidget {
           AirSurface(
             child: SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Миллиграммы на м³'),
+              title: Text(
+                settings.milligrams ? 'Миллиграммы на м³' : 'Микрограммы на м³',
+              ),
               subtitle: Text(
                 settings.milligrams
                     ? 'мг/м³ · состав воздуха на главной'
@@ -132,7 +127,7 @@ class ProfileScreen extends StatelessWidget {
                     '${places.favorites.length} сохранено · выбор на главной',
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => context.go('/'),
+                  onTap: () => showCityPicker(context),
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,

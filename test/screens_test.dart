@@ -61,7 +61,7 @@ void main() {
       );
       await tester.scrollUntilVisible(
         find.text('Все рекомендации →').hitTestable(),
-        200,
+        -180,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.tap(find.text('Все рекомендации →'));
@@ -213,7 +213,7 @@ void main() {
       final router = GoRouter.of(tester.element(find.byType(ProfileScreen)));
       router.go('/account');
       await tester.pumpAndSettle();
-      expect(find.text('С возвращением'), findsOneWidget);
+      expect(find.text('С возвращением!'), findsOneWidget);
       expect(
         find.textContaining('Сервис аккаунтов ещё не подключён'),
         findsOneWidget,
@@ -226,11 +226,11 @@ void main() {
       await tester.tap(find.text('Нет аккаунта? Зарегистрироваться'));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
-        find.text('Начните с себя'),
+        find.text('Создайте аккаунт'),
         -180,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('Начните с себя'), findsOneWidget);
+      expect(find.text('Создайте аккаунт'), findsOneWidget);
       router.go('/does-not-exist');
       await tester.pumpAndSettle();
       expect(find.text('Страница не найдена'), findsOneWidget);
@@ -429,13 +429,53 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('Secondary screens fit narrow large text in both themes', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 700);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final (settings, _) = await start(tester);
+    final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      await settings.setTheme(mode);
+      for (final route in [
+        '/health',
+        '/insights',
+        '/compare',
+        '/notes',
+        '/privacy',
+        '/alerts',
+        '/profile',
+      ]) {
+        router.go(route);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: '$route in $mode');
+        for (var i = 0; i < 3; i++) {
+          await tester.drag(
+            find.byType(Scrollable).first,
+            const Offset(0, -400),
+          );
+          await tester.pumpAndSettle();
+          expect(
+            tester.takeException(),
+            isNull,
+            reason: '$route scrolled in $mode',
+          );
+        }
+      }
+    }
+  });
   testWidgets('Notification tap preserves a route back to the dashboard', (
     tester,
   ) async {
     final (_, dependencies) = await start(tester);
     dependencies.notifications.onOpen!('/alerts');
     await tester.pumpAndSettle();
-    expect(find.text('Будьте в курсе'), findsOneWidget);
+    expect(find.text('Ваш воздух — под контролем'), findsOneWidget);
     await tester.tap(find.byTooltip('Назад'));
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);

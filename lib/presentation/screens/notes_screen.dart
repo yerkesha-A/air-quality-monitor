@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
@@ -96,7 +99,7 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   Widget build(BuildContext context) {
     final place = context.watch<AirBloc>().state.place;
-    return Scaffold(
+    return AirScaffold(
       appBar: AppBar(title: const Text('Заметки о месте')),
       body: PageBody(
         children: [
@@ -112,6 +115,7 @@ class _NotesScreenState extends State<NotesScreen> {
           ),
           const SizedBox(height: 24),
           TextField(
+            stylusHandwritingEnabled: false,
             controller: _text,
             onChanged: (_) => setState(() {}),
             maxLength: 1000,

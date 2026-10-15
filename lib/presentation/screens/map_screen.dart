@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import '../widgets/nature_components.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +14,7 @@ import '../../domain/repositories/air_repository.dart';
 import '../bloc/air_bloc.dart';
 import '../providers/places_controller.dart';
 import '../widgets/primitives.dart';
+import 'city_picker_sheet.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -26,6 +30,7 @@ class _MapScreenState extends State<MapScreen> {
   String? _error;
   bool _loading = false;
   int _revision = 0;
+  String _variable = 'us_aqi';
   final Map<String, AirReport> _reports = {};
   @override
   void initState() {
@@ -86,13 +91,22 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
+  String _value(AirReport report) {
+    final value = report.current.values[_variable];
+    final unit = _variable == 'us_aqi' ? 'US AQI' : 'мкг/м³';
+    return value == null
+        ? 'Нет данных'
+        : '${value.toStringAsFixed(_variable == 'us_aqi' ? 0 : 1)} $unit';
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AirScaffold(
     appBar: AppBar(
       title: const Text('Карта воздуха'),
       actions: [
         IconButton(
           tooltip: 'Моё местоположение',
+          icon: const Icon(Icons.my_location_outlined),
           onPressed: () async {
             try {
               final place = await context.read<AirRepository>().locate();
@@ -108,7 +122,6 @@ class _MapScreenState extends State<MapScreen> {
               if (context.mounted) showMessage(context, e.toString());
             }
           },
-          icon: const Icon(Icons.my_location_outlined),
         ),
       ],
     ),
@@ -119,12 +132,24 @@ class _MapScreenState extends State<MapScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.data?['mapsConfigured'] != true) {
-          return const PageBody(
+          return PageBody(
             children: [
-              EmptyMessage(
-                title: 'Карта ещё не подключена',
-                message: 'Для карты требуется подключение сервиса Google Maps. Поиск городов, GPS и показатели воздуха доступны на соседних экранах.',
-                icon: Icons.map_outlined,
+              AirSurface(
+                padding: EdgeInsets.zero,
+                child: ListTile(
+                  leading: const Icon(Icons.search_rounded),
+                  title: const Text('Поиск города…'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showCityPicker(context),
+                ),
+              ),
+              const SizedBox(height: 18),
+              const AirSurface(
+                child: EmptyMessage(
+                  title: 'Карта ещё не подключена',
+                  message: 'Для карты требуется подключение сервиса Google Maps. Поиск городов, GPS и показатели воздуха доступны на соседних экранах.',
+                  icon: Icons.map_outlined,
+                ),
               ),
             ],
           );
@@ -134,14 +159,13 @@ class _MapScreenState extends State<MapScreen> {
             ? const LatLng(43.25249, 76.9115)
             : LatLng(current.place.latitude, current.place.longitude);
         final reports = <String, AirReport>{..._reports};
-        if (current != null) {
-          reports[current.place.id] = current;
-        }
+        if (current != null) reports[current.place.id] = current;
+        final selected = _preview ?? current;
         return SafeArea(
           top: false,
-          child: Column(
+          child: Stack(
             children: [
-              Expanded(
+              Positioned.fill(
                 child: GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: target,
@@ -161,7 +185,9 @@ class _MapScreenState extends State<MapScreen> {
                           markerId: MarkerId(r.place.id),
                           position: LatLng(r.place.latitude, r.place.longitude),
                           icon: BitmapDescriptor.defaultMarkerWithHue(
-                            r.current.aqi! <= 50
+                            _variable != 'us_aqi' || r.current.aqi == null
+                                ? BitmapDescriptor.hueAzure
+                                : r.current.aqi! <= 50
                                 ? BitmapDescriptor.hueGreen
                                 : r.current.aqi! <= 100
                                 ? BitmapDescriptor.hueYellow
@@ -172,7 +198,7 @@ class _MapScreenState extends State<MapScreen> {
                           infoWindow: InfoWindow(
                             title: r.place.name,
                             snippet:
-                                '${r.current.aqi!.round()} US AQI${r.offline || r.isStale(DateTime.now()) ? ' · кеш' : ''}',
+                                '${_value(r)}${r.offline || r.isStale(DateTime.now()) ? ' · кеш' : ''}',
                           ),
                           onTap: () => setState(() => _preview = r),
                         ),
@@ -180,44 +206,96 @@ class _MapScreenState extends State<MapScreen> {
                       .toSet(),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
+              Positioned(
+                top: 12,
+                left: 18,
+                right: 18,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_loading) const LinearProgressIndicator(),
-                    if (_error != null) Text(_error!),
-                    if (_preview != null) ...[
-                      Text(
-                        '${_preview!.current.aqi!.round()} US AQI · ${_preview!.current.band!.label}',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Text('${_preview!.place.subtitle} · оценка модели'),
-                      Text(
-                        '${_preview!.offline ? 'Офлайн · ' : ''}${dateLabel(_preview!.fetchedAt.toLocal())} ${clockLabel(_preview!.fetchedAt.toLocal())}',
-                      ),
-                      TextButton(
-                        onPressed: () => context.read<AirBloc>().add(
-                          LoadAir(_preview!.place),
-                        ),
-                        child: const Text('Выбрать это место'),
-                      ),
-                    ],
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: _loading
-                            ? null
-                            : () => _select(_center ?? target),
-                        child: const Text('Проверить воздух в центре карты'),
+                    AirSurface(
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        leading: const Icon(Icons.search_rounded),
+                        title: const Text('Поиск места…'),
+                        onTap: () => showCityPicker(context),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Нажмите на карту для выбора места. Данные: Open-Meteo / CAMS.',
-                      style: TextStyle(fontSize: 11),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final variable in ['us_aqi', 'pm2_5', 'pm10'])
+                          ChoiceChip(
+                            label: Text(
+                              variable == 'us_aqi'
+                                  ? 'US AQI'
+                                  : pollutantLabels[variable]!,
+                            ),
+                            selected: _variable == variable,
+                            showCheckmark: false,
+                            onSelected: (_) =>
+                                setState(() => _variable = variable),
+                          ),
+                      ],
                     ),
                   ],
+                ),
+              ),
+              Positioned(
+                bottom: 12,
+                left: 18,
+                right: 18,
+                child: AirSurface(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_loading) const LinearProgressIndicator(),
+                      if (_error != null) Text(_error!),
+                      if (selected != null) ...[
+                        Row(
+                          children: [
+                            const LandscapeAvatar(),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    selected.place.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(_value(selected)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${selected.offline ? 'Офлайн · ' : ''}${dateLabel(selected.fetchedAt.toLocal())} ${clockLabel(selected.fetchedAt.toLocal())} · модель CAMS',
+                          style: const TextStyle(fontSize: 11),
+                        ),
+                        TextButton(
+                          onPressed: () => context.read<AirBloc>().add(
+                            LoadAir(selected.place),
+                          ),
+                          child: const Text('Выбрать это место'),
+                        ),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _loading
+                              ? null
+                              : () => _select(_center ?? target),
+                          child: const Text('Проверить центр карты'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Visual tokens for the first, reviewable stage of the nature redesign.
 abstract final class NatureStyle {
@@ -8,6 +9,8 @@ abstract final class NatureStyle {
   static const mint = Color(0xffd5eaf0);
   static const milk = Color(0xfff3f7f9);
   static const ink = Color(0xff1d3540);
+  static const alpineLake = 'assets/images/alpine_clouds.webp';
+  static const blueMountains = 'assets/images/blue_mountains.webp';
   static const mistyHills = 'assets/images/misty_hills.webp';
   static const forestSun = 'assets/images/forest_sun.webp';
   static const forestMist = 'assets/images/forest_mist.webp';
@@ -28,19 +31,6 @@ class AirWordmark extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: NatureStyle.forest,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8),
-                child: CustomPaint(painter: AirMarkPainter()),
-              ),
-            ),
-            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -48,8 +38,8 @@ class AirWordmark extends StatelessWidget {
                   'AIR',
                   style: TextStyle(
                     color: color,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
                     letterSpacing: 2.5,
                     height: 1,
                   ),
@@ -126,7 +116,7 @@ class GlassSurface extends StatelessWidget {
           colors: [tint.withValues(alpha: .70), tint.withValues(alpha: .52)],
         ),
         border: Border.all(color: Colors.white.withValues(alpha: .24)),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Material(
         color: Colors.transparent,
@@ -134,7 +124,7 @@ class GlassSurface extends StatelessWidget {
       ),
     );
     return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(22),
       child: grouped
           ? BackdropFilter.grouped(
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
@@ -178,7 +168,7 @@ class AirSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.accent = const Color(0xffb9dce9),
-    this.padding = const EdgeInsets.all(18),
+    this.padding = const EdgeInsets.all(16),
   });
   final Widget child;
   final Color accent;
@@ -188,7 +178,7 @@ class AirSurface extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: const Color(0xff275b75).withValues(alpha: dark ? .12 : .045),
@@ -199,17 +189,24 @@ class AirSurface extends StatelessWidget {
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(22),
         clipBehavior: Clip.antiAlias,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(22),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: dark
                   ? [const Color(0xff254451), const Color(0xff1a303e)]
-                  : [Colors.white, Color.lerp(Colors.white, accent, .55)!],
+                  : [
+                      Colors.white.withValues(alpha: .86),
+                      Color.lerp(
+                        Colors.white,
+                        accent,
+                        .6,
+                      )!.withValues(alpha: .78),
+                    ],
             ),
             border: Border.all(
               color: dark ? Colors.white12 : Colors.white.withValues(alpha: .9),
@@ -232,7 +229,7 @@ class AtmosphereHeader extends StatelessWidget {
       children: [
         Positioned.fill(
           child: Image.asset(
-            NatureStyle.mistyHills,
+            NatureStyle.blueMountains,
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
             cacheWidth: 1000,
@@ -258,6 +255,103 @@ class AtmosphereHeader extends StatelessWidget {
           ),
         ),
       ],
+    ),
+  );
+}
+
+/// Shared native scaffold: local photography, legible milky veil and an opaque
+/// dark-mode veil. The Scaffold still owns insets, keyboard and navigation.
+class AirScaffold extends StatelessWidget {
+  const AirScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.bottomNavigationBar,
+    this.resizeToAvoidBottomInset,
+    this.immersive = false,
+  });
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+  final Widget? bottomNavigationBar;
+  final bool? resizeToAvoidBottomInset;
+  final bool immersive;
+  @override
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+    value: Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark,
+    child: Stack(
+      children: [
+        Positioned.fill(child: AirBackdrop(immersive: immersive)),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          appBar: appBar,
+          body: body,
+          bottomNavigationBar: bottomNavigationBar,
+        ),
+      ],
+    ),
+  );
+}
+
+class AirBackdrop extends StatelessWidget {
+  const AirBackdrop({super.key, this.immersive = false});
+  final bool immersive;
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return RepaintBoundary(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            immersive ? NatureStyle.alpineLake : NatureStyle.blueMountains,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            cacheWidth: 1000,
+            excludeFromSemantics: true,
+          ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: dark
+                    ? [const Color(0xd9102b39), const Color(0xf2112631)]
+                    : immersive
+                    ? [
+                        const Color(0x99e1f2f8),
+                        const Color(0x66eaf5f9),
+                        const Color(0xe6e1edf2),
+                      ]
+                    : [
+                        const Color(0xbbe0f3fa),
+                        const Color(0xe6e5f1f5),
+                        const Color(0xf2e6f0f4),
+                      ],
+                stops: dark ? null : const [0, .48, 1],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LandscapeAvatar extends StatelessWidget {
+  const LandscapeAvatar({super.key, this.size = 42});
+  final double size;
+  @override
+  Widget build(BuildContext context) => ClipOval(
+    child: Image.asset(
+      NatureStyle.alpineLake,
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      cacheWidth: 160,
+      excludeFromSemantics: true,
     ),
   );
 }

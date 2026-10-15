@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +6,6 @@ import 'package:share_plus/share_plus.dart';
 import 'city_picker_sheet.dart';
 import '../widgets/nature_components.dart';
 import '../../domain/entities/air_quality.dart';
-import '../../core/theme/app_theme.dart';
 import '../../domain/usecases/air_advice.dart';
 import '../bloc/air_bloc.dart';
 import '../providers/settings_controller.dart';
@@ -21,15 +18,9 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<AirBloc, AirState>(
     builder: (context, state) {
       final report = state.report;
-      return Scaffold(
-        backgroundColor: Theme.of(context).brightness == Brightness.light
-            ? NatureStyle.milk
-            : Theme.of(context).colorScheme.surface,
+      return AirScaffold(
         appBar: AppBar(
-          toolbarHeight: 72,
-          backgroundColor: Theme.of(context).brightness == Brightness.light
-              ? NatureStyle.milk
-              : Theme.of(context).colorScheme.surface,
+          toolbarHeight: 64,
           title: const AirWordmark(),
           titleSpacing: 20,
           actions: [
@@ -56,56 +47,59 @@ class HomeScreen extends StatelessWidget {
             await done;
           },
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton.icon(
-                      key: const ValueKey('home-city-picker'),
-                      onPressed: () => showCityPicker(context),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Theme.of(context)
-                            .colorScheme
-                            .onSurface,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 8,
+            AirSurface(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        key: const ValueKey('home-city-picker'),
+                        onPressed: () => showCityPicker(context),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Theme.of(context)
+                              .colorScheme
+                              .onSurface,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 8,
+                          ),
                         ),
-                      ),
-                      icon: const Icon(Icons.place_outlined, size: 18),
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              state.place?.name ?? 'Выбрать город',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                        icon: const Icon(Icons.place_outlined, size: 18),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                state.place?.name ?? 'Выбрать город',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            size: 20,
-                          ),
-                        ],
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Местоположение',
-                  onPressed: state.busy
-                      ? null
-                      : () => context.read<AirBloc>().add(const LocateAir()),
-                  icon: const Icon(Icons.near_me_outlined, size: 21),
-                ),
-              ],
+                  IconButton(
+                    tooltip: 'Местоположение',
+                    onPressed: state.busy
+                        ? null
+                        : () => context.read<AirBloc>().add(const LocateAir()),
+                    icon: const Icon(Icons.near_me_outlined, size: 21),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             if (state.busy)
@@ -221,20 +215,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              _QuickPollutants(report: report),
-              SectionTitle(
-                'Ближайшие 24 часа',
-                action: const Icon(Icons.schedule_outlined, size: 20),
-              ),
-              Surface(
-                child: AirChart(
-                  points: report.upcoming(DateTime.now().toUtc()),
-                  offsetSeconds: report.utcOffsetSeconds,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _ForecastHours(report: report),
-              _BestHour(report: report),
               SectionTitle(
                 'Состав воздуха',
                 action: IconButton(
@@ -274,6 +254,19 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              SectionTitle(
+                'Ближайшие 24 часа',
+                action: const Icon(Icons.schedule_outlined, size: 20),
+              ),
+              Surface(
+                child: AirChart(
+                  points: report.upcoming(DateTime.now().toUtc()),
+                  offsetSeconds: report.utcOffsetSeconds,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _ForecastHours(report: report),
+              _BestHour(report: report),
               const SizedBox(height: 20),
               Wrap(
                 spacing: 8,
@@ -315,58 +308,24 @@ class _NatureHero extends StatelessWidget {
   const _NatureHero({required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => RepaintBoundary(
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(32),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              NatureStyle.mistyHills,
-              fit: BoxFit.cover,
-              alignment: const Alignment(.15, -.4),
-              cacheWidth: 1000,
-              excludeFromSemantics: true,
-            ),
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(24),
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            NatureStyle.blueMountains,
+            fit: BoxFit.cover,
+            cacheWidth: 1000,
+            excludeFromSemantics: true,
           ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    const Color(0xff122c22).withValues(alpha: .08),
-                    const Color(0xff122c22).withValues(alpha: .35),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: Text(
-                    'Ближе к природе. Ближе к себе.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      shadows: [Shadow(blurRadius: 12, color: Colors.black54)],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 105),
-                GlassSurface(tint: const Color(0xff284f55), child: child),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        GlassSurface(
+          tint: const Color(0xff285f6b),
+          padding: const EdgeInsets.all(20),
+          child: child,
+        ),
+      ],
     ),
   );
 }
@@ -402,11 +361,11 @@ class _AqiCard extends StatelessWidget {
                 Text(
                   report.current.aqi?.round().toString() ?? '—',
                   style: const TextStyle(
-                    fontSize: 88,
+                    fontSize: 70,
                     height: 1,
                     color: Colors.white,
                     fontWeight: FontWeight.w300,
-                    letterSpacing: -5,
+                    letterSpacing: -3,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -453,9 +412,9 @@ class _AqiCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 12),
         _AqiScale(aqi: report.current.aqi),
-        const SizedBox(height: 18),
+        const SizedBox(height: 10),
         Text(
           AirAdvice.summary(report.current.aqi),
           style: const TextStyle(
@@ -542,221 +501,85 @@ class _AqiScale extends StatelessWidget {
   );
 }
 
-class _QuickPollutants extends StatelessWidget {
-  const _QuickPollutants({required this.report});
-  final AirReport report;
-  @override
-  Widget build(BuildContext context) {
-    final mg = context.watch<SettingsController>().milligrams;
-    return Row(
-      children: [
-        for (final entry in const {'pm2_5': 'PM₂.₅', 'pm10': 'PM₁₀'}.entries)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: entry.key == 'pm2_5' ? 10 : 0),
-              child: Surface(
-                padding: const EdgeInsets.all(16),
-                color: Theme.of(context).brightness == Brightness.light
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.surfaceContainerLow,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            entry.value,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        const Icon(Icons.blur_on_rounded, size: 16),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      report.current.values[entry.key] == null
-                          ? '—'
-                          : (report.current.values[entry.key]! /
-                                    (mg ? 1000 : 1))
-                                .toStringAsFixed(mg ? 3 : 1),
-                      style: const TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w500,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      report.current.values[entry.key] == null
-                          ? 'Нет данных'
-                          : mg
-                          ? 'мг/м³'
-                          : 'мкг/м³',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _Pollutants extends StatelessWidget {
   const _Pollutants({required this.report});
   final AirReport report;
   @override
   Widget build(BuildContext context) {
     final mg = context.watch<SettingsController>().milligrams;
-    final hours = report.upcoming(DateTime.now().toUtc()).take(8).toList();
-    const accents = [
-      Color(0xffb8dce9),
-      Color(0xffc8e6e7),
-      Color(0xffcbd9ef),
-      Color(0xffd7e8f4),
-      Color(0xffbcd5df),
-      Color(0xffd9e4ed),
-    ];
     return LayoutBuilder(
-      builder: (context, constraints) => Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: pollutantLabels.entries.toList().asMap().entries.map((item) {
-          final e = item.value;
-          final value = report.current.values[e.key];
-          final forecast = hours
-              .map((p) => p.values[e.key])
-              .whereType<double>()
-              .toList();
-          final featured = e.key == 'pm2_5';
-          return SizedBox(
-            width: (featured || item.key == pollutantLabels.length - 1)
-                ? constraints.maxWidth
-                : (constraints.maxWidth - 12) / 2,
-            child: Theme(
-              data: featured
-                  ? AppTheme.create(Brightness.dark)
-                  : Theme.of(context),
-              child: Builder(
-                builder: (context) => AirSurface(
-                  accent: accents[item.key % accents.length],
+      builder: (context, constraints) {
+        final columns =
+            constraints.maxWidth >= 340 &&
+                MediaQuery.textScalerOf(context).scale(12) <= 15
+            ? 3
+            : 2;
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final e in pollutantLabels.entries)
+              SizedBox(
+                width: (constraints.maxWidth - 8 * (columns - 1)) / columns,
+                child: AirSurface(
+                  padding: const EdgeInsets.all(12),
+                  accent: const Color(0xffc7e8ef),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Eyebrow(e.value)),
+                          Expanded(
+                            child: Text(
+                              e.value,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                           Icon(
-                            featured
-                                ? Icons.grain_rounded
-                                : Icons.scatter_plot_outlined,
-                            size: 17,
+                            Icons.air_rounded,
+                            size: 14,
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        value == null
-                            ? '—'
-                            : (value / (mg ? 1000 : 1)).toStringAsFixed(
-                                mg ? 3 : 1,
-                              ),
-                        style: TextStyle(
-                          fontSize: featured ? 36 : 28,
-                          fontWeight: FontWeight.w500,
-                          height: 1.15,
-                          letterSpacing: -.6,
+                      const SizedBox(height: 10),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          report.current.values[e.key] == null
+                              ? '—'
+                              : (report.current.values[e.key]! /
+                                        (mg ? 1000 : 1))
+                                    .toStringAsFixed(mg ? 3 : 1),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            height: 1.1,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        value == null
+                        report.current.values[e.key] == null
                             ? 'Нет данных'
                             : mg
                             ? 'мг/м³'
                             : 'мкг/м³',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: const TextStyle(fontSize: 10),
                       ),
-                      const SizedBox(height: 16),
-                      if (forecast.length >= 2 &&
-                          forecast.length == hours.length) ...[
-                        SizedBox(
-                          height: 30,
-                          width: double.infinity,
-                          child: CustomPaint(
-                            painter: _Sparkline(
-                              forecast,
-                              Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Прогноз · до 8 часов',
-                          style: TextStyle(fontSize: 9),
-                        ),
-                      ] else
-                        const Text(
-                          'Текущая оценка модели',
-                          style: TextStyle(fontSize: 9),
-                        ),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
-      ),
+          ],
+        );
+      },
     );
   }
-}
-
-class _Sparkline extends CustomPainter {
-  const _Sparkline(this.values, this.color);
-  final List<double> values;
-  final Color color;
-  @override
-  void paint(Canvas canvas, Size size) {
-    final low = values.reduce(math.min), high = values.reduce(math.max);
-    final path = Path();
-    for (var i = 0; i < values.length; i++) {
-      final x = i * size.width / (values.length - 1);
-      final y = high == low
-          ? size.height / 2
-          : 3 + (size.height - 6) * (1 - (values[i] - low) / (high - low));
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color.withValues(alpha: .65)
-        ..strokeWidth = 1.8
-        ..style = PaintingStyle.stroke
-        ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_Sparkline oldDelegate) =>
-      oldDelegate.values != values || oldDelegate.color != color;
 }
 
 class _ForecastHours extends StatelessWidget {

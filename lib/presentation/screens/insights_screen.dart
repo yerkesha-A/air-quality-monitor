@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/nature_components.dart';
+
 import '../widgets/primitives.dart';
 
 const pollutantDescriptions = <String, String>{
@@ -14,7 +16,7 @@ const pollutantDescriptions = <String, String>{
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AirScaffold(
     appBar: AppBar(title: const Text('О воздухе')),
     body: PageBody(
       children: [
@@ -30,11 +32,20 @@ class InsightsScreen extends StatelessWidget {
         ),
         const SectionTitle('Загрязнители'),
         ...pollutantDescriptions.entries.map(
-          (e) => ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(e.key, style: Theme.of(context).textTheme.titleLarge),
-            childrenPadding: const EdgeInsets.only(bottom: 20),
-            children: [Text(e.value)],
+          (e) => Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: AirSurface(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(
+                  e.key,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                childrenPadding: const EdgeInsets.only(bottom: 20),
+                children: [Text(e.value)],
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 24),
