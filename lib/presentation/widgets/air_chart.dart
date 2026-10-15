@@ -48,7 +48,7 @@ class _AirChartState extends State<AirChart> {
     final offset = Duration(seconds: widget.offsetSeconds);
     return Semantics(
       label:
-          '${widget.variable == 'us_aqi' ? 'US AQI' : pollutantLabels[widget.variable]}. График ${points.length} точек.',
+          '${widget.variable == 'us_aqi' ? 'US AQI' : pollutantLabels[widget.variable]}. График: ${pointCountLabel(points.length)}.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

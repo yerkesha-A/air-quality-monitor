@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
-  static const forest = Color(0xff183e32);
-  static const cream = Color(0xfff4f6f2);
+  static const forest = Color(0xff285964);
+  static const cream = Color(0xfff3f7f9);
   static ThemeData create(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
       seedColor: forest,
       brightness: brightness,
-      primary: dark ? const Color(0xffbdd0ab) : forest,
-      surface: dark ? const Color(0xff16231e) : cream,
+      primary: dark ? const Color(0xffa9d7e4) : forest,
+      surface: dark ? const Color(0xff142630) : cream,
       primaryContainer: dark
-          ? const Color(0xff314b3c)
-          : const Color(0xffd5e9da),
+          ? const Color(0xff284b59)
+          : const Color(0xffd5eaf0),
       onPrimaryContainer: dark ? cream : forest,
     );
     return ThemeData(
@@ -22,19 +22,22 @@ abstract final class AppTheme {
       fontFamily: 'Manrope',
       textTheme: TextTheme(
         displayLarge: TextStyle(
-          fontFamily: 'Lora',
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.w500,
           fontSize: 72,
           height: 1.05,
           color: scheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontFamily: 'Lora',
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.w500,
           fontSize: 36,
           height: 1.15,
           color: scheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontFamily: 'Lora',
+          fontFamily: 'Manrope',
+          fontWeight: FontWeight.w500,
           fontSize: 27,
           height: 1.2,
           color: scheme.onSurface,

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import 'city_picker_sheet.dart';
 import '../widgets/nature_components.dart';
 import '../../domain/entities/air_quality.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/usecases/air_advice.dart';
 import '../bloc/air_bloc.dart';
 import '../providers/settings_controller.dart';
@@ -242,7 +245,8 @@ class HomeScreen extends StatelessWidget {
               ),
               _Pollutants(report: report),
               const SectionTitle('Планы на сегодня'),
-              Surface(
+              AirSurface(
+                accent: const Color(0xffb6d7e8),
                 child: Column(
                   children: [
                     _ActivityRow(
@@ -615,40 +619,102 @@ class _Pollutants extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mg = context.watch<SettingsController>().milligrams;
+    final hours = report.upcoming(DateTime.now().toUtc()).take(8).toList();
+    const accents = [
+      Color(0xffb8dce9),
+      Color(0xffc8e6e7),
+      Color(0xffcbd9ef),
+      Color(0xffd7e8f4),
+      Color(0xffbcd5df),
+      Color(0xffd9e4ed),
+    ];
     return LayoutBuilder(
       builder: (context, constraints) => Wrap(
         spacing: 12,
         runSpacing: 12,
-        children: pollutantLabels.entries.map((e) {
+        children: pollutantLabels.entries.toList().asMap().entries.map((item) {
+          final e = item.value;
           final value = report.current.values[e.key];
+          final forecast = hours
+              .map((p) => p.values[e.key])
+              .whereType<double>()
+              .toList();
+          final featured = e.key == 'pm2_5';
           return SizedBox(
-            width: (constraints.maxWidth - 12) / 2,
-            child: Surface(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Eyebrow(e.value),
-                  const SizedBox(height: 12),
-                  Text(
-                    value == null
-                        ? '—'
-                        : (value / (mg ? 1000 : 1)).toStringAsFixed(mg ? 3 : 1),
-                    style: const TextStyle(
-                      fontSize: 27,
-                      height: 1.2,
-                      fontWeight: FontWeight.w500,
-                    ),
+            width: (featured || item.key == pollutantLabels.length - 1)
+                ? constraints.maxWidth
+                : (constraints.maxWidth - 12) / 2,
+            child: Theme(
+              data: featured
+                  ? AppTheme.create(Brightness.dark)
+                  : Theme.of(context),
+              child: Builder(
+                builder: (context) => AirSurface(
+                  accent: accents[item.key % accents.length],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: Eyebrow(e.value)),
+                          Icon(
+                            featured
+                                ? Icons.grain_rounded
+                                : Icons.scatter_plot_outlined,
+                            size: 17,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        value == null
+                            ? '—'
+                            : (value / (mg ? 1000 : 1)).toStringAsFixed(
+                                mg ? 3 : 1,
+                              ),
+                        style: TextStyle(
+                          fontSize: featured ? 36 : 28,
+                          fontWeight: FontWeight.w500,
+                          height: 1.15,
+                          letterSpacing: -.6,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        value == null
+                            ? 'Нет данных'
+                            : mg
+                            ? 'мг/м³'
+                            : 'мкг/м³',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 16),
+                      if (forecast.length >= 2 &&
+                          forecast.length == hours.length) ...[
+                        SizedBox(
+                          height: 30,
+                          width: double.infinity,
+                          child: CustomPaint(
+                            painter: _Sparkline(
+                              forecast,
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Прогноз · до 8 часов',
+                          style: TextStyle(fontSize: 9),
+                        ),
+                      ] else
+                        const Text(
+                          'Текущая оценка модели',
+                          style: TextStyle(fontSize: 9),
+                        ),
+                    ],
                   ),
-                  Text(
-                    value == null
-                        ? 'Нет данных'
-                        : mg
-                        ? 'мг/м³'
-                        : 'мкг/м³',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+                ),
               ),
             ),
           );
@@ -656,6 +722,41 @@ class _Pollutants extends StatelessWidget {
       ),
     );
   }
+}
+
+class _Sparkline extends CustomPainter {
+  const _Sparkline(this.values, this.color);
+  final List<double> values;
+  final Color color;
+  @override
+  void paint(Canvas canvas, Size size) {
+    final low = values.reduce(math.min), high = values.reduce(math.max);
+    final path = Path();
+    for (var i = 0; i < values.length; i++) {
+      final x = i * size.width / (values.length - 1);
+      final y = high == low
+          ? size.height / 2
+          : 3 + (size.height - 6) * (1 - (values[i] - low) / (high - low));
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color.withValues(alpha: .65)
+        ..strokeWidth = 1.8
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_Sparkline oldDelegate) =>
+      oldDelegate.values != values || oldDelegate.color != color;
 }
 
 class _ForecastHours extends StatelessWidget {
@@ -772,7 +873,19 @@ class _ActivityRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Icon(icon, size: 26),
+      Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Icon(
+          icon,
+          size: 24,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
       const SizedBox(width: 16),
       Expanded(
         child: Column(

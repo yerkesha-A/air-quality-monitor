@@ -28,6 +28,11 @@ void main() {
     expect(find.byKey(const ValueKey('home-city-picker')), findsOneWidget);
     await tester.tap(find.text('Профиль'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Тёмная тема').hitTestable(),
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Тёмная тема'));
     await tester.pumpAndSettle();
     expect(settings.themeMode, ThemeMode.dark);

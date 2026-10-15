@@ -60,7 +60,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Positioned.fill(
                 child: RepaintBoundary(
                   child: Image.asset(
-                    NatureStyle.forestMist,
+                    NatureStyle.mistyHills,
                     fit: BoxFit.cover,
                     cacheWidth: 1000,
                     excludeFromSemantics: true,
@@ -74,9 +74,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xa6163327),
-                        Color(0x451c3825),
-                        Color(0xd010281f),
+                        Color(0x99203f54),
+                        Color(0x332e6170),
+                        Color(0xd0183448),
                       ],
                       stops: [0, .45, 1],
                     ),
@@ -136,7 +136,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       Text(
                                         place?.name ?? 'Сначала выберите город',
                                         style: const TextStyle(
-                                          color: Color(0xffe0ebd9),
+                                          color: Color(0xffe0eef5),
                                           fontSize: 13,
                                         ),
                                       ),
@@ -156,7 +156,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             GlassSurface(
                               grouped: true,
                               padding: const EdgeInsets.all(5),
-                              tint: const Color(0xff496044),
+                              tint: const Color(0xff547b87),
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
                                   final wide =
@@ -211,8 +211,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                     showCheckmark: false,
                                     selected: _variable == variable,
-                                    backgroundColor: const Color(0x55465940),
-                                    selectedColor: const Color(0xffe3e9d8),
+                                    backgroundColor: const Color(0x55436175),
+                                    selectedColor: const Color(0xffe1f0f5),
                                     labelStyle: TextStyle(
                                       color: _variable == variable
                                           ? NatureStyle.ink
@@ -230,7 +230,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const SizedBox(height: 12),
                             GlassSurface(
                               grouped: true,
-                              tint: const Color(0xff526146),
+                              tint: const Color(0xff507783),
                               padding: const EdgeInsets.all(18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +247,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                         ),
                                       ),
                                       Text(
-                                        '$validCount точек',
+                                        pointCountLabel(validCount),
                                         style: const TextStyle(
                                           color: Colors.white70,
                                           fontSize: 11,
@@ -285,7 +285,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       points: points,
                                       variable: _variable,
                                       offsetSeconds: offset,
-                                      gridColor: const Color(0xffe0ead9),
+                                      gridColor: const Color(0xffdfedf4),
                                     ),
                                 ],
                               ),
@@ -298,7 +298,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     'Среднее',
                                     average,
                                     _variable,
-                                    const Color(0xff66764d),
+                                    const Color(0xff688d9d),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -307,7 +307,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     'Максимум',
                                     maximum,
                                     _variable,
-                                    const Color(0xff354e40),
+                                    const Color(0xff325c72),
                                   ),
                                 ),
                               ],
@@ -315,7 +315,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const SizedBox(height: 16),
                             GlassSurface(
                               grouped: true,
-                              tint: const Color(0xff485f3c),
+                              tint: const Color(0xff4e7789),
                               padding: const EdgeInsets.all(18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +352,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const SizedBox(height: 16),
                             GlassSurface(
                               grouped: true,
-                              tint: const Color(0xff324e40),
+                              tint: const Color(0xff2d5469),
                               padding: const EdgeInsets.all(18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +435,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const SizedBox(height: 12),
                             GlassSurface(
                               grouped: true,
-                              tint: const Color(0xff526650),
+                              tint: const Color(0xff527e8b),
                               padding: const EdgeInsets.all(18),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,7 +531,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             const Text(
                               'Open-Meteo / CAMS · сохранённые оценки модели. Средние рассчитаны по доступным точкам, а не по всему периоду. Прогноз не записывается как прошедшие измерения.',
                               style: TextStyle(
-                                color: Color(0xffe0ebd9),
+                                color: Color(0xffe0eef5),
                                 fontSize: 10,
                                 height: 1.6,
                               ),
@@ -769,7 +769,7 @@ class _CalendarState extends State<_Calendar> {
                       return Tooltip(
                         message: aqi == null
                             ? '${dateLabel(date)}: нет сохранённых данных'
-                            : '${dateLabel(date)}: ${aqi.round()} US AQI, ${values!.length} точек',
+                            : '${dateLabel(date)}: ${aqi.round()} US AQI, ${pointCountLabel(values!.length)}',
                         child: Material(
                           color: aqi == null
                               ? Colors.white.withValues(alpha: .06)

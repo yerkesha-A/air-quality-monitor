@@ -374,6 +374,61 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'Registration fields accept edits, Next changes focus and Done dismisses keyboard',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 700);
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      addTearDown(tester.view.resetViewInsets);
+      await start(tester);
+      GoRouter.of(tester.element(find.byType(HomeScreen))).go('/login');
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('Нет аккаунта? Зарегистрироваться').hitTestable(),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.text('Нет аккаунта? Зарегистрироваться'));
+      await tester.pumpAndSettle();
+      tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+      await tester.enterText(find.widgetWithText(TextFormField, 'Имя'), 'Имя');
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pump();
+      final email = find.descendant(
+        of: find.widgetWithText(TextFormField, 'Email'),
+        matching: find.byType(EditableText),
+      );
+      expect(tester.widget<EditableText>(email).focusNode.hasFocus, isTrue);
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'person@example.test',
+      );
+      await tester.enterText(find.widgetWithText(TextFormField, 'Email'), '');
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'person@example.test',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.next);
+      await tester.pump();
+      final password = find.descendant(
+        of: find.widgetWithText(TextFormField, 'Пароль'),
+        matching: find.byType(EditableText),
+      );
+      expect(tester.widget<EditableText>(password).focusNode.hasFocus, isTrue);
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Пароль'),
+        'a-password',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(tester.widget<EditableText>(password).focusNode.hasFocus, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets('Notification tap preserves a route back to the dashboard', (
     tester,
   ) async {

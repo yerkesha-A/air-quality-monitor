@@ -112,7 +112,7 @@ node tools/firebase-tests/node_modules/firebase-tools/lib/bin/firebase.js emulat
 
 Для Firebase Emulator нужна Java 21+; можно использовать JBR Android Studio через JAVA_HOME. Node используется **только инструментами и тестами правил**, Android UI написан на Dart/Flutter. Demo project не обращается к настоящему облачному Firebase.
 
-Текущие подтверждённые результаты: analyze без замечаний; 41 unit/widget-тест после этапа истории/авторизации; предыдущий Flutter LCOV до редизайна — 63,00% (1362/2162 строк), 42 библиотеки. `main.dart`/bootstrap и декларативный interface places_repository не вошли в этот отчёт; сгенерированные JSON-модели входят. Моки и синтетические fixtures используются только в тестах. Firestore Rules: 6/6; Python logic: 3/3. Тест onboarding/navigation/theme прошёл на Android 17 API 37. Расширенный live Android-тест также прошёл: настоящий API, SQLite, fallback кеша, заметки, MethodChannel и вызов/история уведомления. Дополнительно проверены GPS permission/координаты, настоящая camera capture/save, отображение локального предупреждения в шторке и cold start с кешем без сети на эмуляторе. Физический смартфон и реальный FCM ещё не проверены.
+Текущие подтверждённые результаты: analyze без замечаний; 42 unit/widget-теста после Fresh Air доработки; предыдущий Flutter LCOV до редизайна — 63,00% (1362/2162 строк), 42 библиотеки. `main.dart`/bootstrap и декларативный interface places_repository не вошли в этот отчёт; сгенерированные JSON-модели входят. Моки и синтетические fixtures используются только в тестах. Firestore Rules: 6/6; Python logic: 3/3. Тест onboarding/navigation/theme прошёл на Android 17 API 37. Расширенный live Android-тест также прошёл: настоящий API, SQLite, fallback кеша, заметки, MethodChannel и вызов/история уведомления. Дополнительно проверены GPS permission/координаты, настоящая camera capture/save, отображение локального предупреждения в шторке и cold start с кешем без сети на эмуляторе. Физический смартфон и реальный FCM ещё не проверены.
 
 GitHub Actions запускает зависимости, форматирование, analyze, test/coverage >40%, Android debug build, Python logic и Firestore Rules. Workflow подготовлен локально; удалённого GitHub repository/CI run ещё нет.
 
@@ -140,3 +140,11 @@ Firebase Authentication SDK и формы подготовлены; настоя
 [история](docs/screenshots/android-atmospheric-history.png), [календарь](docs/screenshots/android-history-calendar.png),
 [подготовленная авторизация](docs/screenshots/android-auth-ready.png). APK установлен с сохранением данных.
 На API 37 проверены четыре вкладки, смена города и возврат, график/календарь/записи; облачная авторизация ожидает реального JSON.
+
+## Fresh Air доработка
+
+Единая голубая палитра, холодные поверхности, обновлённые состав воздуха/планы и профиль.
+История использует горы/небо вместо леса, структура и настоящие данные сохранены.
+В формах отключена рукописная панель, проверены Next/Done, редактирование и адаптация под клавиатуру.
+Firebase CLI проверен, FlutterFire CLI установлен; вход и облачная конфигурация отложены
+по ответу пользователя «Пока закончить только редизайн».

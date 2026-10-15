@@ -112,3 +112,16 @@ void showMessage(BuildContext context, String message) =>
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
+
+String pointCountLabel(int count) {
+  final lastTwo = count % 100;
+  final last = count % 10;
+  final noun = lastTwo >= 11 && lastTwo <= 14
+      ? 'точек'
+      : last == 1
+      ? 'точка'
+      : last >= 2 && last <= 4
+      ? 'точки'
+      : 'точек';
+  return '$count $noun';
+}

@@ -63,3 +63,7 @@ config/*.json
 *-debug.log
 functions/venv/
 functions/.venv/
+
+# Local FlutterFire configuration (generated only after account authorization)
+lib/firebase_options.dart
+.firebase/

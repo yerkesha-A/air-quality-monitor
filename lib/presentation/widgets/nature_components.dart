@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 /// Visual tokens for the first, reviewable stage of the nature redesign.
 abstract final class NatureStyle {
-  static const forest = Color(0xff183e32);
-  static const mint = Color(0xffd5e9da);
-  static const milk = Color(0xfff4f6f2);
-  static const ink = Color(0xff1c2924);
+  static const forest = Color(0xff285964);
+  static const mint = Color(0xffd5eaf0);
+  static const milk = Color(0xfff3f7f9);
+  static const ink = Color(0xff1d3540);
   static const mistyHills = 'assets/images/misty_hills.webp';
   static const forestSun = 'assets/images/forest_sun.webp';
   static const forestMist = 'assets/images/forest_mist.webp';
@@ -169,5 +169,95 @@ class QuietIconButton extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     ),
     icon: Icon(icon, size: 22),
+  );
+}
+
+/// Lightweight frosted surfaces over a quiet background, without per-tile blur.
+class AirSurface extends StatelessWidget {
+  const AirSurface({
+    super.key,
+    required this.child,
+    this.accent = const Color(0xffb9dce9),
+    this.padding = const EdgeInsets.all(18),
+  });
+  final Widget child;
+  final Color accent;
+  final EdgeInsets padding;
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xff275b75).withValues(alpha: dark ? .12 : .045),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(26),
+        clipBehavior: Clip.antiAlias,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(26),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: dark
+                  ? [const Color(0xff254451), const Color(0xff1a303e)]
+                  : [Colors.white, Color.lerp(Colors.white, accent, .55)!],
+            ),
+            border: Border.all(
+              color: dark ? Colors.white12 : Colors.white.withValues(alpha: .9),
+            ),
+          ),
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+class AtmosphereHeader extends StatelessWidget {
+  const AtmosphereHeader({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(30),
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            NatureStyle.mistyHills,
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+            cacheWidth: 1000,
+            excludeFromSemantics: true,
+          ),
+        ),
+        const Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xb321485e), Color(0x88255966)],
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: DefaultTextStyle.merge(
+            style: const TextStyle(color: Colors.white),
+            child: child,
+          ),
+        ),
+      ],
+    ),
   );
 }

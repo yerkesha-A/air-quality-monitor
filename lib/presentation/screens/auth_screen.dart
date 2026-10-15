@@ -79,19 +79,27 @@ class _AuthScreenState extends State<AuthScreen> {
         children: [
           const Align(alignment: Alignment.centerLeft, child: AirWordmark()),
           const SizedBox(height: 28),
-          const Eyebrow('ВАШЕ ПРОСТРАНСТВО'),
-          const SizedBox(height: 16),
-          Text(
-            _register ? 'Начните с себя' : 'С возвращением',
-            style: const TextStyle(
-              fontSize: 30,
-              height: 1.2,
-              fontWeight: FontWeight.w600,
+          AirSurface(
+            accent: const Color(0xffc1ddeb),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Eyebrow('ВАШЕ ПРОСТРАНСТВО'),
+                const SizedBox(height: 16),
+                Text(
+                  _register ? 'Начните с себя' : 'С возвращением',
+                  style: const TextStyle(
+                    fontSize: 30,
+                    height: 1.2,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Ваш аккаунт для Air Quality. Следите за воздухом в своём ритме — мониторинг доступен и без входа.',
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Ваш аккаунт для Air Quality. Следите за воздухом в своём ритме — мониторинг доступен и без входа.',
           ),
           const SizedBox(height: 24),
           if (!auth.configured)
@@ -116,7 +124,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   if (_register) ...[
                     TextFormField(
+                      stylusHandwritingEnabled: false,
                       controller: _name,
+                      textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.name],
                       decoration: const InputDecoration(labelText: 'Имя'),
                       validator: (value) =>
@@ -127,6 +137,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     const SizedBox(height: 16),
                   ],
                   TextFormField(
+                    stylusHandwritingEnabled: false,
                     controller: _email,
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
@@ -137,12 +148,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    stylusHandwritingEnabled: false,
                     controller: _password,
                     obscureText: !_visible,
                     enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
                     textInputAction: TextInputAction.done,
                     onFieldSubmitted: (_) {
-                      if (auth.configured && !auth.busy) _submit();
+                      if (auth.configured && !auth.busy) {
+                        _submit();
+                      } else {
+                        FocusScope.of(context).unfocus();
+                      }
                     },
                     autocorrect: false,
                     autofillHints: [

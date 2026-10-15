@@ -108,6 +108,7 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
+                    stylusHandwritingEnabled: false,
                     controller: _search,
                     textInputAction: TextInputAction.search,
                     onChanged: (value) => context.read<CitySearchBloc>().add(
