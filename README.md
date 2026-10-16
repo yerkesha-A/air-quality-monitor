@@ -1,6 +1,6 @@
 # Air Quality Monitor
 
-> **Комплект РК1, 16.10.2026:** [отчёт по неделям 1–8](RK1_REPORT.md), [проверки](docs/rk1/VALIDATION.md), [сценарий защиты 5 минут](docs/rk1/DEFENSE_5_MIN.md), [что отправить преподавателю](docs/rk1/SUBMISSION.md), [скриншоты](docs/rk1/SCREENSHOTS.md), [эскизы](docs/rk1/wireframes.svg). Firebase недели 8 включён сверх ранее указанной границы РК1 (недели 1–7). GitHub-публикация ожидает разрешения владельца.
+> **Комплект РК1, 16.10.2026:** [отчёт по неделям 1–8](RK1_REPORT.md), [проверки](docs/rk1/VALIDATION.md), [сценарий защиты 5 минут](docs/rk1/DEFENSE_5_MIN.md), [что отправить преподавателю](docs/rk1/SUBMISSION.md), [скриншоты](docs/rk1/SCREENSHOTS.md), [эскизы](docs/rk1/wireframes.svg). Firebase недели 8 включён сверх ранее указанной границы РК1 (недели 1–7). [Публичный GitHub](https://github.com/yerkesha-A/air-quality-monitor) опубликован с разрешения владельца; доступ к README и материалам проверен без авторизации.
 
 Нативное мобильное приложение на Dart + Flutter. Сейчас разрабатываем и проверяем **только Android**. iOS отложен по просьбе пользователя. Веб-интерфейс не создавался.
 
@@ -146,7 +146,7 @@ node tools/firebase-tests/node_modules/firebase-tools/lib/bin/firebase.js emulat
 
 Ранее на эмуляторе проверялись GPS, camera capture/save, уведомление в шторке и cold start без сети. Эти проверки не заменяют приёмку на физическом смартфоне и реальную FCM-доставку. Firestore Rules и Python имеют отдельные локальные тесты; новый облачный проект для них не нужен.
 
-GitHub Actions запускает зависимости, форматирование, analyze, test/coverage >40%, Android debug build, Python logic и Firestore Rules. Workflow подготовлен локально; удалённого GitHub repository/CI run ещё нет.
+GitHub Actions запускает зависимости, форматирование, analyze, test/coverage >40%, Android debug build, Python logic и Firestore Rules. Workflow опубликован; [GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions) запускается при push. Локальные результаты приведены в VALIDATION; состояние удалённых запусков проверяйте по ссылке Actions.
 
 ## Релиз и ограничения
 

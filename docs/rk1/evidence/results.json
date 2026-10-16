@@ -30,6 +30,8 @@
   "release_google_login": true,
   "release_session_after_full_process_restart": true,
   "signing_files_unchanged": true,
-  "github_published": false,
-  "maps_native_acceptance": false
+  "github_published": true,
+  "maps_native_acceptance": false,
+  "github_public_access_verified": true,
+  "github_url": "https://github.com/yerkesha-A/air-quality-monitor"
 }

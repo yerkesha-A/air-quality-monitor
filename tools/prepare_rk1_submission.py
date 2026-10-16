@@ -49,7 +49,7 @@ def main():
         'Защита: [source/docs/rk1/DEFENSE_5_MIN.md](source/docs/rk1/DEFENSE_5_MIN.md).\n\n'
         'source.zip содержит исходники без приватной конфигурации и данных. '
         'AAB — дополнительный артефакт, напрямую на телефон не устанавливается. '
-        'GitHub-ссылка добавляется после разрешённой публикации и проверки доступа.\n',
+        'GitHub: https://github.com/yerkesha-A/air-quality-monitor (публичный доступ проверен).\n',
         encoding='utf-8')
     hashes = {}
     for name in ['source.zip', *artifacts, 'README_FOR_TEACHER.md']:

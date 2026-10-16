@@ -4,7 +4,7 @@
 
 Основание: сохранённый владельцем перечень тем недель 1–8. Дословная методичка преподавателя в доступных документах проекта не найдена. Ранее РК1 обозначался как контроль недель 1–7; Firebase недели 8 включён в этот комплект дополнительно по запросу владельца. Дата подготовки новых учебных материалов указана явно. Это подтверждение реализации, а не заявление о своевременной сдаче каждой прошлой недели.
 
-**Статус:** технические доказательства собраны; GitHub-публикация и проверка доступности ссылки ожидают разрешения владельца. До этого весь комплект не объявляется закрытым на 100%.
+**Статус:** темы известного перечня недель 1–8 подтверждены реализацией и проверками. [Публичный GitHub](https://github.com/yerkesha-A/air-quality-monitor) опубликован с разрешения владельца; README, отчёт, задания, эскизы и снимки доступны без авторизации. Это не заменяет оценку преподавателя по оригинальной методичке.
 
 ## Продукт и демонстрация
 
@@ -18,7 +18,7 @@
 
 | Неделя | Реализовано и чем доказано | Как показать |
 | --- | --- | --- |
-| 1 | Flutter/Dart/Android toolchain; [исходный Dart-пример](docs/dart_basics.dart); [отдельные задания](coursework/week01/README.md): null safety, классы, коллекции, async/await, исключения, Stream; Git с локальной историей; README с целью/аудиторией/аналогами/экранами. **GitHub remote/push пока ожидает разрешения.** | `dart run coursework/week01/exercises.dart`; открыть README и историю Git |
+| 1 | Flutter/Dart/Android toolchain; [исходный Dart-пример](docs/dart_basics.dart); [отдельные задания](coursework/week01/README.md): null safety, классы, коллекции, async/await, исключения, Stream; Git с локальной историей; README с целью/аудиторией/аналогами/экранами. [GitHub](https://github.com/yerkesha-A/air-quality-monitor) опубликован, публичный доступ проверен. | `dart run coursework/week01/exercises.dart`; открыть README и историю Git |
 | 2 | Более 4 экранов; Material 3 в [теме](lib/core/theme/app_theme.dart); светлая/тёмная/системная темы; [эскизы](docs/rk1/wireframes.svg), составленные сегодня по утверждённому интерфейсу; реальные [скриншоты](docs/rk1/SCREENSHOTS.md) | Сегодня → История → Профиль; переключение темы |
 | 3 | setState в формах/графике; Provider для настроек/аккаунта/мест; отдельный настоящий InheritedWidget в [учебном примере](docs/state_examples.dart); сравнение подходов в README; [widget-тест](test/coursework_test.dart) проверяет независимые обновления и сохранение модели при rebuild | Открыть пример в исходниках; запускать отдельный target только на учебном AVD, чтобы не заменять основное приложение |
 | 4 | [presentation](lib/presentation), [domain](lib/domain), [data](lib/data); Air/Search/History BLoC; Repository interfaces и реализации; constructor DI через [AppDependencies](lib/core/di/app_dependencies.dart); [BLoC-тесты](test/bloc_test.dart) | Показать путь Screen → BLoC → Repository → API/SQLite и внедрение mock в тестах |
@@ -51,4 +51,4 @@ Private logs, UID, токены, app data и личные скриншоты х�
 
 ## Что отправить
 
-[Памятка сдачи](docs/rk1/SUBMISSION.md) и [сценарий на 5 минут](docs/rk1/DEFENSE_5_MIN.md). Ссылка GitHub добавляется после разрешённого push и проверки доступа. Публикация в Google Play не нужна и не выполнялась.
+[Памятка сдачи](docs/rk1/SUBMISSION.md) и [сценарий на 5 минут](docs/rk1/DEFENSE_5_MIN.md). [GitHub](https://github.com/yerkesha-A/air-quality-monitor) доступен без авторизации; [проверка публикации](docs/rk1/GITHUB.md). Публикация в Google Play не нужна и не выполнялась.
