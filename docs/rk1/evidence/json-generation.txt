@@ -1,0 +1,3 @@
+dart run build_runner build
+Built with build_runner/aot in 36s; wrote 2 outputs.
+Generated air_dto.g.dart has no changes relative to Git: serializer is reproducible.

@@ -1,14 +1,14 @@
 # Финальные проверки РК1
 
-16 октября 2026. Команды выполнены локально на Mac, Android API 37 arm64. Репозиторий опубликован; [GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions) запущен. Локальные результаты ниже не выдаются за результат удалённого CI.
+16 октября 2026. Команды выполнены локально на Mac, Android API 37 arm64. [Удалённый GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/38946181056) завершился **success** на `a1a1b78`: оба jobs, Android и Firestore Rules, прошли. Ниже отдельно приведены локальные результаты повторной финальной проверки.
 
 | Проверка | Фактический результат |
 | --- | --- |
-| `flutter analyze --no-pub` | No issues found, 6,8 с |
+| `flutter analyze --no-pub` | No issues found, 7,3 с (повторный финальный прогон) |
 | `dart format --output=none --set-exit-if-changed lib test integration_test docs coursework` | 82 файла, 0 изменений |
 | `dart run coursework/week01/exercises.dart` | Завершился: grade A, частоты dart=2/flutter=1, Future Flutter, Stream [1,3,6] |
 | `dart run docs/dart_basics.dart` | Завершился: null safety, коллекции и Future |
-| `flutter test --coverage --no-pub --concurrency=1` | **73 passed, 0 failed**, 1 мин 48 с |
+| `flutter test --coverage --no-pub --concurrency=1` | **73 passed, 0 failed**, 1 мин 9 с (повторный финальный прогон) |
 | `python3 tools/check_coverage.py` | **2218/3186 = 69,62%**, порог >40% пройден |
 | `python3 -m unittest discover -s functions -p 'test_*.py'` | 3/3; только чистая логика, не развёрнутый сервер |
 | Firestore Emulator `demo-air-quality-monitor` + `rules.test.mjs` | **6/6**, настоящая облачная база не очищалась |
@@ -24,6 +24,8 @@
 | Подпись/секреты | Keystore и обе signing-конфигурации не изменились по hash; private files исключены из Git; scanner истории: 404 blobs, 0 findings |
 
 Полные диагностические логи и персональные app data — только в `.local-backups/`. Для преподавателя оставлены [краткие результаты](evidence/results.json), [analyze](evidence/analyze.txt), [форматирование](evidence/format.txt), [Dart](evidence/dart-exercises.txt), [Flutter](evidence/flutter-tests-summary.txt), [Security Rules](evidence/firestore-rules-summary.txt). История реальных native-проверок: [Android recovery](../ANDROID_RECOVERY_VERIFICATION.md), [Firebase](../STAGE2_FIREBASE_ANDROID.md), [профиль](../PROFILE_FIREBASE_VERIFICATION.md).
+
+Повторная генерация `dart run build_runner build` успешна: generated DTO не изменились относительно Git. Результат — [json-generation.txt](evidence/json-generation.txt). Пагинация/кеш и фактические ограничения DevTools описаны в [PERFORMANCE](../PERFORMANCE.md).
 
 ## Повторить безопасно
 

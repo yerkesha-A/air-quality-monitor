@@ -1,0 +1,33 @@
+{
+  "BUILD": {
+    "samples": 217,
+    "median_ms": 0.24,
+    "p95_ms": 56.05,
+    "max_ms": 416.54,
+    "over_16_67_ms": 23
+  },
+  "GPURasterizer::Draw": {
+    "samples": 42,
+    "median_ms": 904.46,
+    "p95_ms": 1793.68,
+    "max_ms": 2075.8,
+    "over_16_67_ms": 42
+  },
+  "Rasterizer::DoDraw": {
+    "samples": 42,
+    "median_ms": 904.42,
+    "p95_ms": 1793.64,
+    "max_ms": 2075.74,
+    "over_16_67_ms": 42
+  },
+  "memory": {
+    "samples": 20,
+    "duration_seconds": 57,
+    "first_mib": 15.14,
+    "last_mib": 20.1,
+    "peak_mib": 31.03,
+    "after_gc_mib": 18.13
+  },
+  "trace_events": 32566,
+  "trace_sha256": "4f6f82c910b15b6c9b966ba2ece8dbb787e2089260aa430bcee436b85e0bb68f"
+}

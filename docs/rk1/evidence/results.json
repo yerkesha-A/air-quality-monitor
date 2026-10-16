@@ -33,5 +33,19 @@
   "github_published": true,
   "maps_native_acceptance": false,
   "github_public_access_verified": true,
-  "github_url": "https://github.com/yerkesha-A/air-quality-monitor"
+  "github_url": "https://github.com/yerkesha-A/air-quality-monitor",
+  "json_codegen_reproducible": true,
+  "profiling_recording_available": true,
+  "performance_optimization_complete": false,
+  "disk_http_image_cache": false,
+  "github_actions": {
+    "run_id": 38946181056,
+    "commit": "a1a1b78",
+    "conclusion": "success",
+    "jobs": {
+      "android": "success",
+      "firestore-rules": "success"
+    },
+    "url": "https://github.com/yerkesha-A/air-quality-monitor/actions/runs/38946181056"
+  }
 }
