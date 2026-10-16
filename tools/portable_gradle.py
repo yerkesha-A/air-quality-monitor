@@ -1,4 +1,4 @@
-"""CI helper: preserve the developer's local Gradle zip; use HTTPS on clean runners."""
+"""Compatibility helper: normalize older local-file wrappers to the portable HTTPS URL."""
 from pathlib import Path
 path = Path('android/gradle/wrapper/gradle-wrapper.properties')
 content = path.read_text()

@@ -12,13 +12,14 @@ class LocalStore {
   static Future<LocalStore> open() async {
     final db = await openDatabase(
       path.join(await getDatabasesPath(), 'air_quality.db'),
-      version: 2,
+      version: 3,
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute(
             'CREATE TABLE alerts (id TEXT PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, created INTEGER NOT NULL, source TEXT NOT NULL)',
           );
         }
+        if (oldVersion < 3) await _pageIndexes(db);
       },
       onCreate: (db, version) async {
         await db.execute(
@@ -36,9 +37,22 @@ class LocalStore {
         await db.execute(
           'CREATE TABLE notes (id INTEGER PRIMARY KEY AUTOINCREMENT, place_id TEXT NOT NULL, text TEXT NOT NULL, image TEXT, created INTEGER NOT NULL)',
         );
+        await _pageIndexes(db);
       },
     );
     return LocalStore(db);
+  }
+
+  static Future<void> _pageIndexes(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS notes_page ON notes(place_id, created DESC, id DESC)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS alerts_page ON alerts(created DESC, id DESC)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS samples_page ON samples(place_id, time DESC)',
+    );
   }
 
   Future<void> save(Place place, AirPayloadDto dto, DateTime fetched) async {
@@ -174,6 +188,74 @@ class LocalStore {
     orderBy: 'created DESC',
     limit: 50,
   );
+  Future<List<Map<String, Object?>>> notesPage(
+    Place place, {
+    Map<String, Object?>? after,
+  }) => _recordsPage('notes', placeId: place.id, after: after);
+  Future<List<Map<String, Object?>>> alertsPage({
+    Map<String, Object?>? after,
+  }) => _recordsPage('alerts', after: after);
+
+  Future<List<Map<String, Object?>>> _recordsPage(
+    String table, {
+    String? placeId,
+    Map<String, Object?>? after,
+  }) {
+    final clauses = <String>[];
+    final args = <Object?>[];
+    if (placeId != null) {
+      clauses.add('place_id = ?');
+      args.add(placeId);
+    }
+    if (after != null) {
+      clauses.add('(created < ? OR (created = ? AND id < ?))');
+      args.addAll([after['created'], after['created'], after['id']]);
+    }
+    return database.query(
+      table,
+      where: clauses.isEmpty ? null : clauses.join(' AND '),
+      whereArgs: args,
+      orderBy: 'created DESC, id DESC',
+      limit: 21,
+    );
+  }
+
+  Future<List<AirPoint>> historyPage(
+    Place place,
+    int days, {
+    AirPoint? after,
+  }) async {
+    final rows = await database.query(
+      'samples',
+      where:
+          'place_id = ? AND time >= ?${after == null ? '' : ' AND time < ?'}',
+      whereArgs: [
+        place.id,
+        DateTime.now()
+            .toUtc()
+            .subtract(Duration(days: days))
+            .millisecondsSinceEpoch,
+        if (after != null) after.time.millisecondsSinceEpoch,
+      ],
+      orderBy: 'time DESC',
+      limit: 21,
+    );
+    return rows
+        .map(
+          (row) => AirPoint(
+            time: DateTime.fromMillisecondsSinceEpoch(
+              row['time'] as int,
+              isUtc: true,
+            ),
+            values: (jsonDecode(row['data'] as String) as Map<String, dynamic>)
+                .map(
+                  (key, value) => MapEntry(key, (value as num?)?.toDouble()),
+                ),
+          ),
+        )
+        .toList();
+  }
+
   Future<void> deleteNote(int id) =>
       database.delete('notes', where: 'id = ?', whereArgs: [id]);
   Future<void> recordAlert({

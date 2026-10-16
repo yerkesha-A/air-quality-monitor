@@ -1,15 +1,19 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
+import '../local/local_avatar_store.dart';
+
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository({this.auth, this.storage, this.googleClientId = ''});
+  FirebaseAuthRepository({this.auth, this.avatars, this.googleClientId = ''});
   final FirebaseAuth? auth;
-  final FirebaseStorage? storage;
+  final LocalAvatarStore? avatars;
+  final _avatarChanges = StreamController<void>.broadcast();
   final String googleClientId;
   bool _googleInitialized = false;
   @override
@@ -22,18 +26,49 @@ class FirebaseAuthRepository implements AuthRepository {
         'Сервис аккаунтов пока не подключён. Мониторинг доступен без входа.',
       ));
   @override
-  Stream<Account?> get changes =>
-      auth?.userChanges().map(
-        (user) => user == null
-            ? null
-            : Account(
-                id: user.uid,
-                email: user.email ?? '',
-                name: user.displayName ?? '',
-                photoUrl: user.photoURL,
-              ),
-      ) ??
-      Stream.value(null);
+  Stream<Account?> get changes {
+    final sdk = auth;
+    if (sdk == null) return Stream.value(null);
+    return Stream.multi((controller) {
+      var version = 0;
+      var active = true;
+      Future<void> emit(User? user) async {
+        final currentVersion = ++version;
+        String? localPhoto;
+        if (user != null) {
+          try {
+            localPhoto = await avatars?.readPath(user.uid);
+          } catch (_) {
+            // An unavailable local file must not prevent session restoration.
+          }
+        }
+        if (!active || currentVersion != version) return;
+        controller.add(
+          user == null
+              ? null
+              : Account(
+                  id: user.uid,
+                  email: user.email ?? '',
+                  name: user.displayName ?? '',
+                  photoUrl: user.photoURL,
+                  localPhotoPath: localPhoto,
+                ),
+        );
+      }
+
+      final session = sdk.userChanges().listen(
+        emit,
+        onError: controller.addError,
+      );
+      final photos = _avatarChanges.stream.listen((_) => emit(sdk.currentUser));
+      controller.onCancel = () async {
+        active = false;
+        await session.cancel();
+        await photos.cancel();
+      };
+    });
+  }
+
   Future<void> _run(Future<void> Function() action) async {
     try {
       await action();
@@ -102,21 +137,30 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> updateAvatar(Uint8List bytes) => _run(() async {
     final user = _auth.currentUser;
-    if (user == null || storage == null) {
+    final local = avatars;
+    if (user == null || local == null) {
+      throw const AuthFailure('Войдите в аккаунт, чтобы сохранить фото.');
+    }
+    try {
+      await local.save(user.uid, bytes);
+    } catch (_) {
       throw const AuthFailure(
-        'Войдите в аккаунт и подключите хранилище профиля.',
+        'Не удалось сохранить фото. Проверьте свободное место и выберите изображение до 5 МБ.',
       );
     }
-    final ref = storage!.ref('avatars/${user.uid}/profile.jpg');
-    await ref.putData(bytes, SettableMetadata(contentType: 'image/jpeg'));
-    await user.updatePhotoURL(await ref.getDownloadURL());
-    await user.reload();
+    _avatarChanges.add(null);
   });
   @override
   Future<void> logout() async {
     await _run(_auth.signOut);
-    if (_googleInitialized) {
+    if (googleConfigured) {
       try {
+        if (!_googleInitialized) {
+          await GoogleSignIn.instance.initialize(
+            serverClientId: googleClientId,
+          );
+          _googleInitialized = true;
+        }
         await GoogleSignIn.instance.signOut();
       } catch (_) {
         /* Firebase session has already ended. */

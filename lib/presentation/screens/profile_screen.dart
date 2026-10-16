@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/services/device_service.dart';
 import '../providers/auth_controller.dart';
+import '../widgets/account_avatar.dart';
 import '../providers/places_controller.dart';
 import '../providers/settings_controller.dart';
 import '../widgets/primitives.dart';
@@ -18,13 +19,16 @@ class ProfileScreen extends StatelessWidget {
     final auth = context.watch<AuthController>();
     final places = context.watch<PlacesController>();
     return AirScaffold(
+      photographic: true,
       appBar: AppBar(title: const Text('Профиль')),
       body: PageBody(
         children: [
           AirSurface(
             child: ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const LandscapeAvatar(size: 48),
+              leading: auth.account == null
+                  ? const LandscapeAvatar(size: 48)
+                  : AccountAvatar(account: auth.account!, size: 48),
               title: Text(
                 auth.account?.name.isNotEmpty == true
                     ? auth.account!.name

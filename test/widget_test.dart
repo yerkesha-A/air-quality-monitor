@@ -16,11 +16,11 @@ void main() {
       AirQualityApp(settings: settings, dependencies: testDependencies()),
     );
     await tester.pumpAndSettle();
-    for (var i = 0; i < 2; i++) {
-      await tester.tap(find.text('Продолжить'));
-      await tester.pumpAndSettle();
-    }
     await tester.tap(find.text('Начать'));
+    await tester.pumpAndSettle();
+    expect(settings.onboarded, isFalse);
+    expect(find.text('Создайте аккаунт'), findsOneWidget);
+    await tester.tap(find.text('Продолжить без аккаунта'));
     await tester.pumpAndSettle();
     expect(settings.onboarded, isTrue);
     expect(find.byType(NavigationBar), findsOneWidget);
@@ -44,6 +44,37 @@ void main() {
     expect(find.textContaining('Мелкие взвешенные'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+  testWidgets(
+    'Welcome registration choice opens the real form and completion survives restart',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = SettingsController(
+        await SharedPreferences.getInstance(),
+      );
+      await tester.pumpWidget(
+        AirQualityApp(settings: settings, dependencies: testDependencies()),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Начать'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Создайте аккаунт'));
+      await tester.tap(find.text('Создайте аккаунт'));
+      await tester.pumpAndSettle();
+      expect(settings.onboarded, isTrue);
+      expect(find.widgetWithText(TextFormField, 'Имя'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Email'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Пароль'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        AirQualityApp(settings: settings, dependencies: testDependencies()),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.text('Начать'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets('Onboarding fits narrow and landscape screens with large text', (
     tester,
   ) async {

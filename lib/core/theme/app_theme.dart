@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 abstract final class AppTheme {
-  static const forest = Color(0xff246978);
-  static const cream = Color(0xffe8f3f7);
+  static const forest = Color(0xff328fa3);
+  static const cream = Color(0xfff7fafc);
   static ThemeData create(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
       seedColor: forest,
       brightness: brightness,
       primary: dark ? const Color(0xffa9d7e4) : forest,
-      surface: dark ? const Color(0xff142630) : cream,
+      surface: dark ? const Color(0xff10191f) : cream,
       primaryContainer: dark
-          ? const Color(0xff284b59)
-          : const Color(0xffd5eaf0),
-      onPrimaryContainer: dark ? cream : forest,
+          ? const Color(0xff213641)
+          : const Color(0xffdceff7),
+      onPrimaryContainer: dark ? cream : const Color(0xff20343c),
+      onSurface: dark ? const Color(0xffe5eff3) : const Color(0xff20343c),
+      onSurfaceVariant: dark
+          ? const Color(0xffb4c5ce)
+          : const Color(0xff526a76),
     );
     return ThemeData(
       useMaterial3: true,
@@ -71,8 +75,8 @@ abstract final class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: dark
-            ? const Color(0xf21b3542)
-            : const Color(0xeef1f9fc),
+            ? const Color(0xf219252e)
+            : const Color(0xeef7fafc),
         indicatorColor: scheme.primaryContainer,
         height: 66,
         labelTextStyle: WidgetStateProperty.all(
@@ -91,7 +95,7 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: dark
-            ? const Color(0xdd24414e)
+            ? const Color(0xdd20303b)
             : Colors.white.withValues(alpha: .78),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),

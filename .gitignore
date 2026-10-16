@@ -67,3 +67,19 @@ functions/.venv/
 # Local FlutterFire configuration (generated only after account authorization)
 lib/firebase_options.dart
 .firebase/
+
+# Private local checkpoints (may include machine-local Android configuration)
+.local-backups/
+
+# Private credentials and generated distribution/profiling files
+.env
+.env.*
+!.env.example
+*.p12
+*.pem
+*.apk
+*.aab
+*.hprof
+
+# Local teacher hand-in bundle (signed APK, source archive, personal data excluded)
+/submission/

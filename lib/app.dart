@@ -7,6 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/app_dependencies.dart';
+import 'data/models/air_dto.dart';
+import 'data/local/favorite_removals.dart';
+import 'data/services/cloud_sync.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/repositories/air_repository.dart';
@@ -38,10 +41,21 @@ class _AirQualityAppState extends State<AirQualityApp> {
   );
   late final GoRouter _router = createRouter(widget.settings, _auth);
   Timer? _syncTimer;
+  bool _syncing = false;
+  bool _syncPending = false;
+  String? _sessionUid;
   @override
   void initState() {
     super.initState();
     _auth.beforeLogout = widget.dependencies.firebase.unregisterDevice;
+    _places.onFavoriteChanged = (place, favorite) async {
+      final uid = _auth.account?.id;
+      if (uid == null) return;
+      await FavoriteRemovals(
+        widget.settings.preferences,
+        uid,
+      ).record(place.id, favorite: favorite);
+    };
     _auth.addListener(_scheduleSync);
     _places.addListener(_scheduleSync);
     widget.settings.addListener(_scheduleSync);
@@ -73,21 +87,78 @@ class _AirQualityAppState extends State<AirQualityApp> {
 
   void _scheduleSync() {
     _syncTimer?.cancel();
+    final firebase = widget.dependencies.firebase;
     final account = _auth.account;
-    if (account == null || _auth.busy) return;
+    if (_sessionUid != account?.id) {
+      _sessionUid = account?.id;
+      firebase.cloudSync.reset();
+    }
+    if (!firebase.configured || account == null || _auth.busy) return;
+    if (_syncing) {
+      _syncPending = true;
+      return;
+    }
     _syncTimer = Timer(const Duration(milliseconds: 600), () async {
+      _syncing = true;
+      _syncPending = false;
+      final queue = FavoriteRemovals(widget.settings.preferences, account.id);
+      var sentRemovals = <String, int>{};
       try {
-        await widget.dependencies.firebase.sync(
-          account: account,
-          place: _air.state.place,
-          favorites: _places.favorites,
-          threshold: widget.settings.threshold,
-          backgroundAlerts: widget.settings.backgroundAlerts,
-          theme: widget.settings.themeMode.index,
-          milligrams: widget.settings.milligrams,
+        await firebase.cloudSync.sync(
+          uid: account.id,
+          isCurrentAccount: () => mounted && _auth.account?.id == account.id,
+          restore: (CloudSnapshot cloud) async {
+            // Merge local guest favorites with cloud favorites, never clear either.
+            for (final place in cloud.favorites) {
+              if (!mounted || _auth.account?.id != account.id) return;
+              if (!queue.snapshot().containsKey(place.id)) {
+                await widget.dependencies.places.setFavorite(place, true);
+              }
+            }
+            if (!mounted || _auth.account?.id != account.id) return;
+            final data = cloud.settings;
+            if (data != null) {
+              await widget.settings.restoreCloud(data);
+              final rawPlace = data['place'];
+              if (rawPlace is Map<String, dynamic>) {
+                final place = PlaceDto.fromJson(rawPlace).toEntity();
+                await widget.dependencies.places.select(place);
+                if (mounted) _air.add(LoadAir(place));
+              }
+            }
+            if (mounted) await _places.reload();
+          },
+          settings: () async => {
+            'name': account.name,
+            'email': account.email,
+            'photoUrl': account.photoUrl,
+            'threshold': widget.settings.threshold,
+            'backgroundAlerts': widget.settings.backgroundAlerts,
+            'place': await widget.dependencies.places.selected().then(
+              (place) =>
+                  place == null ? null : PlaceDto.fromEntity(place).toJson(),
+            ),
+            'theme': widget.settings.themeMode.index,
+            'milligrams': widget.settings.milligrams,
+          },
+          favorites: widget.dependencies.places.favorites,
+          removals: () async {
+            sentRemovals = queue.snapshot();
+            return sentRemovals.keys.toSet();
+          },
+          acknowledge: (_) => queue.acknowledge(sentRemovals),
+        );
+        await firebase.restorePush(
+          account,
+          enabled: widget.settings.backgroundAlerts,
         );
       } catch (_) {
-        /* Cloud configuration/connectivity is shown separately; local data stays usable. */
+        // A failed restore/upload leaves local data and pending removals intact.
+        // Retry on the next local action, rather than an unbounded timer loop.
+        _syncPending = false;
+      } finally {
+        _syncing = false;
+        if (mounted && _syncPending) _scheduleSync();
       }
     });
   }

@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-16",
+  "flutter_unit_widget": {
+    "passed": 73,
+    "failed": 0
+  },
+  "lcov": {
+    "hit": 2218,
+    "found": 3186,
+    "percent": 69.62
+  },
+  "analyze": "No issues found",
+  "format": "82 files, 0 changed",
+  "firestore_rules": {
+    "passed": 6,
+    "failed": 0
+  },
+  "python_logic": {
+    "passed": 3,
+    "failed": 0
+  },
+  "android_debug_build": "success",
+  "release_signature": {
+    "apk_bytes": 62511677,
+    "aab_bytes": 62899386,
+    "apk_existing_key_matches": true,
+    "aab_verified": true,
+    "aab_existing_key_matches": true
+  },
+  "release_google_login": true,
+  "release_session_after_full_process_restart": true,
+  "signing_files_unchanged": true,
+  "github_published": false,
+  "maps_native_acceptance": false
+}

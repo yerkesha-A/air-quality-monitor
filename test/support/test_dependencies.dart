@@ -80,6 +80,12 @@ AppDependencies testDependencies({bool selected = false}) {
   when(() => air.history(any(), any()))
       .thenAnswer((_) async => [fixtureReport().current]);
   when(() => store.alerts()).thenAnswer((_) async => []);
+  when(() => store.alertsPage(after: any(named: 'after')))
+      .thenAnswer((_) async => []);
+  when(() => store.notesPage(any(), after: any(named: 'after')))
+      .thenAnswer((_) async => []);
+  when(() => store.historyPage(any(), any(), after: any(named: 'after')))
+      .thenAnswer((_) async => []);
   when(() => store.notes(any())).thenAnswer((_) async => []);
   when(
     () => notifications.check(

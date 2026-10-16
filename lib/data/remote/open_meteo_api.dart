@@ -35,7 +35,9 @@ class OpenMeteoApi {
     } on TimeoutException {
       throw const AirFailure('Сервер не ответил вовремя. Повторите запрос.');
     } on SocketException {
-      throw const AirFailure('Нет подключения к интернету.');
+      throw const AirFailure(
+        'Не удалось установить сетевое соединение. Проверьте подключение.',
+      );
     } on http.ClientException {
       throw const AirFailure('Не удалось подключиться к источнику данных.');
     } on FormatException {

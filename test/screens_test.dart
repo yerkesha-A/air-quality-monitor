@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'support/test_dependencies.dart';
 
 import 'package:air_quality_monitor/presentation/widgets/air_chart.dart';
+import 'package:air_quality_monitor/presentation/widgets/primitives.dart';
 
 Future<(SettingsController, AppDependencies)> start(
   WidgetTester tester, {
@@ -214,6 +215,11 @@ void main() {
       router.go('/account');
       await tester.pumpAndSettle();
       expect(find.text('С возвращением!'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.textContaining('Сервис аккаунтов ещё не подключён'),
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(
         find.textContaining('Сервис аккаунтов ещё не подключён'),
         findsOneWidget,
@@ -429,6 +435,39 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'Unconfigured auth validates input and never reports successful sign in',
+    (tester) async {
+      await start(tester);
+      final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+      router.go('/login');
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.widgetWithText(FilledButton, 'Войти'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Войти'));
+      await tester.pumpAndSettle();
+      expect(find.text('Введите корректный email'), findsOneWidget);
+      expect(find.text('Введите пароль'), findsOneWidget);
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email'),
+        'review@example.test',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'Пароль'),
+        'example-password',
+      );
+      await tester.ensureVisible(find.widgetWithText(FilledButton, 'Войти'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Войти'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Сервис аккаунтов ещё не подключён. Регистрация и вход пока недоступны.',
+        ),
+        findsOneWidget,
+      );
+      expect(router.routeInformationProvider.value.uri.path, '/login');
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets('Secondary screens fit narrow large text in both themes', (
     tester,
   ) async {
@@ -443,6 +482,7 @@ void main() {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
       await settings.setTheme(mode);
       for (final route in [
+        '/history',
         '/health',
         '/insights',
         '/compare',
@@ -479,6 +519,109 @@ void main() {
     await tester.tap(find.byTooltip('Назад'));
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  for (final size in [
+    const Size(740, 360),
+    const Size(800, 1280),
+    const Size(1280, 800),
+  ]) {
+    testWidgets('All screens fit $size with enlarged text in both themes', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = size;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      const channel = MethodChannel('air_quality_monitor/device');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            channel,
+            (_) async => {'mapsConfigured': false},
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null),
+      );
+      final (settings, _) = await start(tester);
+      final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        await settings.setTheme(mode);
+        for (final route in [
+          '/',
+          '/history',
+          '/map',
+          '/profile',
+          '/health',
+          '/insights',
+          '/compare',
+          '/notes',
+          '/privacy',
+          '/alerts',
+          '/login',
+          '/login?mode=register',
+        ]) {
+          router.go(route);
+          await tester.pumpAndSettle();
+          expect(
+            tester.takeException(),
+            isNull,
+            reason: '$route, $size, $mode',
+          );
+          if (find.byType(Scrollable).evaluate().isNotEmpty) {
+            for (var i = 0; i < 5; i++) {
+              await tester.drag(
+                find.byType(Scrollable).first,
+                const Offset(0, -500),
+              );
+              await tester.pumpAndSettle();
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '$route scrolled, $size, $mode',
+              );
+            }
+          }
+        }
+      }
+    });
+  }
+  testWidgets('Comparison labels cached API failures with the actual reason', (
+    tester,
+  ) async {
+    final (_, dependencies) = await start(tester);
+    when(() => dependencies.air.fetch(any())).thenAnswer(
+      (_) async => fixtureReport().asOffline(
+        reason: 'Источник данных недоступен (HTTP 503).',
+      ),
+    );
+    GoRouter.of(tester.element(find.byType(HomeScreen))).go('/compare');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Сравнить воздух'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.widgetWithText(Surface, 'Алматы'),
+        matching: find.textContaining('HTTP 503'),
+      ),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(
+      find.widgetWithText(Surface, 'Астана').hitTestable(),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(
+      find.descendant(
+        of: find.widgetWithText(Surface, 'Астана'),
+        matching: find.textContaining('HTTP 503'),
+      ),
+      findsOneWidget,
+    );
+    verify(() => dependencies.air.fetch(any())).called(3); // home + both cities
+    expect(find.textContaining('Офлайн'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

@@ -7,7 +7,6 @@ import '../bloc/air_bloc.dart';
 import '../bloc/city_search_bloc.dart';
 import '../providers/places_controller.dart';
 import '../widgets/primitives.dart';
-import '../widgets/nature_components.dart';
 
 const suggestedPlaces = [
   Place(
@@ -214,25 +213,38 @@ class _CityPickerSheetState extends State<CityPickerSheet> {
     tileColor: context.watch<AirBloc>().state.place?.id == place.id
         ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .55)
         : null,
-    leading: const LandscapeAvatar(),
+    leading: const Icon(Icons.location_on_outlined, size: 21),
     title: Text(place.name),
     subtitle: Text(place.subtitle),
-    trailing: IconButton(
-      tooltip: places.isFavorite(place)
-          ? 'Убрать из избранного'
-          : 'В избранное',
-      icon: Icon(
-        places.isFavorite(place)
-            ? Icons.bookmark_rounded
-            : Icons.bookmark_border_rounded,
-      ),
-      onPressed: () async {
-        try {
-          await places.toggle(place);
-        } catch (_) {
-          if (mounted) showMessage(context, 'Не удалось сохранить избранное.');
-        }
-      },
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (context.watch<AirBloc>().state.place?.id == place.id)
+          Icon(
+            Icons.check_rounded,
+            size: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        IconButton(
+          tooltip: places.isFavorite(place)
+              ? 'Убрать из избранного'
+              : 'В избранное',
+          icon: Icon(
+            places.isFavorite(place)
+                ? Icons.bookmark_rounded
+                : Icons.bookmark_border_rounded,
+          ),
+          onPressed: () async {
+            try {
+              await places.toggle(place);
+            } catch (_) {
+              if (mounted) {
+                showMessage(context, 'Не удалось сохранить избранное.');
+              }
+            }
+          },
+        ),
+      ],
     ),
     onTap: () {
       FocusScope.of(context).unfocus();

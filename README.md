@@ -1,12 +1,20 @@
 # Air Quality Monitor
 
+> **Комплект РК1, 16.10.2026:** [отчёт по неделям 1–8](RK1_REPORT.md), [проверки](docs/rk1/VALIDATION.md), [сценарий защиты 5 минут](docs/rk1/DEFENSE_5_MIN.md), [что отправить преподавателю](docs/rk1/SUBMISSION.md), [скриншоты](docs/rk1/SCREENSHOTS.md), [эскизы](docs/rk1/wireframes.svg). Firebase недели 8 включён сверх ранее указанной границы РК1 (недели 1–7). GitHub-публикация ожидает разрешения владельца.
+
 Нативное мобильное приложение на Dart + Flutter. Сейчас разрабатываем и проверяем **только Android**. iOS отложен по просьбе пользователя. Веб-интерфейс не создавался.
 
 Цель — помочь жителям городов, студентам, родителям и спортсменам понимать качество воздуха, сравнивать места и планировать активность.
 
+<p>
+  <img src="docs/rk1/screenshots/01-home.png" width="220" alt="Сегодня: реальные данные Алматы" />
+  <img src="docs/rk1/screenshots/02-history.png" width="220" alt="История сохранённых оценок" />
+  <img src="docs/rk1/screenshots/05-dark-theme-20261015.png" width="220" alt="Тёмная тема: гостевой профиль" />
+</p>
+
 ## Что реализовано
 
-- Onboarding с жестами и сохранением завершения.
+- Первый запуск: «Начать» → вход, регистрация или «Продолжить без аккаунта»; завершение сохраняется.
 - Главный экран: текущая оценка US AQI, шесть загрязнителей при наличии, время данных/получения, обновление и pull-to-refresh.
 - Прогноз на 24 часа, график с выбором точки, лучший час по минимуму доступного AQI.
 - Поиск городов с debounce, избранное, недавние места, сохранение выбора, GPS и reverse geocoding.
@@ -19,17 +27,17 @@
 - Собственный Android Platform Channel: модель устройства, API level, батарея; кнопка «Об устройстве» в профиле.
 - GoRouter: именованные маршруты, StatefulShellRoute, сохранение вкладок, маршрут `/city/:id`, redirect защищённого `/account`, неизвестный маршрут.
 
-Google Maps, Firebase Auth (email/register/Google/reset/session/logout), Firestore, Storage для аватара, FCM и Crashlytics **имеют код интеграции, но ещё не подключены к реальному облачному проекту**. UI явно показывает этот статус; кнопки входа не имитируют успешную авторизацию. Фоновые push не активированы и не проверены.
+Firebase Authentication и Firestore подключены к отдельному проекту Spark `air-quality-monitor-erkezhan`: реальные Android-проверки email/Google-входа, выхода, восстановления сессии и безопасной синхронизации пройдены. Настоящая доставка FCM подтверждена в активном приложении и в фоне. Фото профиля выбирается из галереи/камеры и хранится локально по UID, без Storage. Автоматическая серверная проверка AQI не развёрнута; Google Maps остановлен до решения владельца о billing. Получение нового non-fatal Crashlytics подтверждено серверным API; FCM после завершения процесса и переход по нажатию проверены. [Восстановление Android](docs/ANDROID_RECOVERY_VERIFICATION.md). [Подробная приёмка профиля и Firebase](docs/PROFILE_FIREBASE_VERIFICATION.md).
 
 Полный реестр и подтверждённые проверки: [PROJECT_PROGRESS.md](PROJECT_PROGRESS.md).
 
 ## Дизайн
 
-Текущий полный редизайн по референсу: [описание, проверки и реальные Android-снимки](docs/DESIGN_REVIEW.md).
+Текущая светлая доработка: [описание, проверки и реальные Android-снимки](docs/SOFT_DESIGN_REVIEW.md).
 
-Небесно-голубой, молочный белый и глубокий teal (#246978). Локальные горные фотографии, прозрачные поверхности, Manrope, компактные карточки и четыре вкладки. Фотографии декоративные: они не выдают пейзаж за выбранный город и не иллюстрируют его текущий AQI.
+Небесно-голубой, молочный белый и мягкий teal (#328FA3). Локальные горные фотографии, прозрачные поверхности, Manrope, компактные карточки и четыре вкладки. Фотографии декоративные: они не выдают пейзаж за выбранный город и не иллюстрируют его текущий AQI.
 
-SafeArea, прокрутка, клавиатура, системный back, нижняя навигация и масштабирование текста учитываются в экранах. Тестируется ширина 320 px, альбомная ориентация onboarding и увеличенный текст. Ориентиры продукта: IQAir AirVisual (AQI), Windy (карта), Plume Labs (планирование активности).
+SafeArea, прокрутка, клавиатура, системный back, нижняя навигация и масштабирование текста учитываются в экранах. Widget-проверки охватывают 320 px, телефон 740×360 и планшет 800×1280 / 1280×800, прокрутку экранов и увеличенный текст в обеих темах. Нативная карта с ключом требует отдельной приёмки; защищённый профиль проверен на Android. Ориентиры продукта: IQAir AirVisual (AQI), Windy (карта), Plume Labs (планирование активности).
 
 ## Архитектура
 
@@ -43,7 +51,16 @@ functions/            отдельный Python backend для серверны�
 
 Provider используется для небольших настроек и состояния аккаунта/избранного. BLoC обслуживает Air, CitySearch и History с состояниями Initial / Loading / Success / Empty / Error / Refreshing там, где применимо. Счётчики ревизий защищают от запоздавших ответов. Реализации Repository передаются через конструкторы в `AppDependencies`; production-код не содержит фиктивных значений загрязнения.
 
-`setState` подходит для локального UI (форма, slider, выбранная точка графика), `InheritedWidget` передаёт зависимости по дереву, Provider добавляет удобную подписку и жизненный цикл модели. Отдельный работающий учебный пример всех трёх подходов: [docs/state_examples.dart](docs/state_examples.dart). Запуск: `flutter run -t docs/state_examples.dart -d emulator-5554`. Пример не является частью production-потока AQI.
+`setState` подходит для локального UI (форма, slider, выбранная точка графика), `InheritedWidget` передаёт зависимости по дереву, Provider добавляет удобную подписку и жизненный цикл модели. Отдельный работающий учебный пример всех трёх подходов: [docs/state_examples.dart](docs/state_examples.dart). Проверка без установки: `flutter test test/coursework_test.dart`. Для интерактивного запуска используйте **отдельный учебный AVD**: `flutter run -t docs/state_examples.dart -d <учебный-device-id>`; этот target не устанавливайте поверх основного приложения с данными. Пример не является частью production-потока AQI.
+
+| Подход | Где применяется | Обновление / границы |
+| --- | --- | --- |
+| setState | Состояние формы, выбор точки графика | Локальный rebuild StatefulWidget; не контейнер общих данных |
+| InheritedWidget | Отдельный CounterScope учебного примера | Зависимость через context; updateShouldNotify уведомляет потребителей |
+| Provider / ChangeNotifier | Настройки, аккаунт, избранное и DI | watch/read, notifyListeners; модель отделена от UI |
+| BLoC | Асинхронные AQI, поиск и история | События → состояния; тестируемая обработка ошибок и stale requests |
+
+Отдельные Dart-задания: [coursework/week01](coursework/week01/README.md). Краткий исходный пример сохранён в docs/dart_basics.dart. Расширение заданий и ретроспективные [эскизы](docs/rk1/wireframes.svg) подготовлены 16.10.2026, без заявления о прошлой сдаче.
 
 ## Источник и смысл данных
 
@@ -55,9 +72,13 @@ API-клиент проверяет HTTP, JSON, поля, нечисловые/�
 
 ## Локальные данные и офлайн
 
-SharedPreferences: тема, единицы, пороги/разрешённые сценарии уведомлений, onboarding, выбранное место. SQLite: кеш ответов, избранное/недавние места, текущие оценки по часовым слотам, заметки, история предупреждений. Схема содержит миграцию версии 1 → 2.
+SharedPreferences: тема, единицы, пороги/разрешённые сценарии уведомлений, onboarding, выбранное место. SQLite: кеш ответов, избранное/недавние места, текущие оценки по часовым слотам, заметки, история предупреждений. Схема содержит миграции 1 → 2 → 3; версия 3 добавляет индексы для постраничных выборок, сохраняя существующие записи.
 
-При загрузке сначала показывается кеш, затем сетевой результат. При недоступности источника сохраняется время исходного получения и отмечается кеш/офлайн; данные старше часа помечаются как сохранённые. История записывает **только текущую оценку при запросе**, не прогноз. Она накапливается с использованием приложения, ограничена примерно 31 днём и не представляет непрерывные станционные измерения. Среднее считается по доступным точкам. На новом устройстве 30-дневного архива нет.
+При загрузке сначала показывается кеш, затем сетевой результат. При сбое обновления сохраняются исходные время получения и время модели; интерфейс показывает «Сохранённые данные» и настоящую причину ошибки. HTTP 429/500, неверный JSON или таймаут не выдаются за доказанное отсутствие интернета. Данные требуют обновления, если получены более часа назад, время текущей оценки модели старше двух часов или более чем на час в будущем; время получения более чем на 5 минут в будущем также считается ненадёжным. Для сравнений используется UTC. Эти пределы — защитная политика приложения, не обещание обновления модели каждые два часа. История записывает **только текущую оценку при запросе**, не прогноз. Она накапливается с использованием приложения, ограничена примерно 31 днём и не представляет непрерывные станционные измерения. Среднее считается по доступным точкам. На новом устройстве 30-дневного архива нет.
+
+Заметки, история уведомлений и подробные записи истории читаются из SQLite страницами по 20 строк с одной строкой для проверки продолжения. Используется keyset-cursor: `(created, id)` или `time`, а не постоянно растущий LIMIT. Есть переходы вперёд/назад и повтор после ошибки. График, календарь и статистика истории продолжают использовать весь доступный период до 31 дня; страница не меняет среднее. Поиск городов возвращает до 15 вариантов самого Geocoding API и не имитирует неподдерживаемую серверную пагинацию.
+
+Данные запрашиваются при запуске с выбранным городом, выборе места/GPS и ручном обновлении; карта и сравнение выполняют собственные запросы. Фонового таймера загрузки AQI нет. Прогноз ограничен будущими 24 часами, отсутствующие значения не генерируются.
 
 ## Запуск Android
 
@@ -69,25 +90,28 @@ flutter run -d emulator-5554
 flutter build apk --debug
 ```
 
-APK: `build/app/outputs/flutter-apk/app-debug.apk`. Это debug-сборка для тестирования, не подписанный production-релиз. Локальный Gradle wrapper использует установленный пользователем `/tmp/gradle-9.3.1-all.zip`; на чистом компьютере выполните `python3 tools/portable_gradle.py`, чтобы переключиться на официальный HTTPS-дистрибутив той же версии. CI выполняет этот шаг автоматически.
+APK: `build/app/outputs/flutter-apk/app-debug.apk`. Это debug-сборка для тестирования, не подписанный production-релиз. Gradle wrapper сразу использует `https://services.gradle.org/distributions/gradle-9.3.1-all.zip`; локальных абсолютных путей в wrapper нет. После клонирования установите Flutter/Android SDK и JDK (в CI — 21), примите Android-лицензии и выполните команды выше. `android/local.properties` создаётся Flutter для SDK этой машины, в Git не хранится. Первая сборка требует доступа к серверам Gradle, Google Maven и pub.dev. `tools/portable_gradle.py` оставлен как совместимый нормализатор старых checkout, для текущего wrapper не требуется.
 
 Подробная инструкция с настоящими debug SHA fingerprints: [docs/ANDROID_FIREBASE_SETUP.md](docs/ANDROID_FIREBASE_SETUP.md).
 
-## Firebase: нужны действия владельца проекта
+## Firebase: текущая конфигурация Android
 
-1. Создайте проект Air Quality Monitor в [Firebase Console](https://console.firebase.google.com/).
-2. Добавьте **Android app**, package: `com.example.air_quality_monitor` — существующий идентификатор сохранён.
-3. Скачайте настоящий `google-services.json` в `android/app/google-services.json`.
-4. Authentication → Sign-in method: включите Email/Password и Google; задайте support email. Добавьте SHA-1/SHA-256 вашей debug-подписи; после этого повторно скачайте JSON с OAuth client.
-5. Создайте Firestore. Опубликуйте проверенные `firestore.rules`; для аватара потребуется Firebase Storage и `storage.rules`. Перед включением платных сервисов/серверного scheduler проверьте тариф в Console.
-6. Пересоберите приложение. Google Services и Crashlytics Gradle plugins применяются только при наличии настоящего JSON. Конфигурация без фиктивных ключей.
-7. Проверьте регистрацию, вход, Google, reset, восстановление сессии и выход на Android. После входа код сохраняет профиль/настройки/избранное в Firestore; облачная интеграция и восстановление данных между устройствами требуют отдельной приёмки.
+Используется существующий `air-quality-monitor-erkezhan`, Android package `com.example.air_quality_monitor`.
+Email/Password, Google OAuth и Firestore уже настроены; не создавайте дубликат.
+`android/app/google-services.json` скачан и исключён из Git. После клонирования
+конфигурацию нужно получить у владельца; signing keys и service account credentials не публикуются.
+Нативная инициализация использует ресурсы Google Services Gradle plugin.
 
-[Официальная настройка Android Firebase](https://firebase.google.com/docs/android/setup). Не добавляйте JSON, signing keys и service account credentials в публичный репозиторий: соответствующие пути исключены `.gitignore`.
+Перед upload CloudSync читает данные через `Source.server`, восстанавливает настройки
+и объединяет избранное. Ошибка чтения блокирует upload. Пустой локальный список не
+удаляет облачные документы; удаляются только явные действия пользователя с очередью по UID.
+Реальное облачное восстановление проверено, физическое второе устройство — ещё нет.
+Локальное фото профиля не записывается в Firestore; Google photo URL сохраняется отдельно.
+[Состояние Firebase и проверки](docs/STAGE2_FIREBASE_ANDROID.md).
 
 ## Google Maps
 
-В Google Cloud включите Maps SDK for Android и billing. Создайте Android API key с ограничениями package `com.example.air_quality_monitor` + SHA-1 и ограничением API Maps SDK for Android. Добавьте `maps.apiKey=ВАШ_РЕАЛЬНЫЙ_КЛЮЧ` в игнорируемый `android/local.properties` или передайте `GOOGLE_MAPS_API_KEY` окружению сборки. Пересоберите APK.
+Проверено 16 октября 2026: `billingEnabled: false`, Maps SDK for Android `DISABLED`, локальный API key отсутствует. [Google требует billing для SDK](https://developers.google.com/maps/documentation/android-sdk/usage-and-billing). Подключение остановлено по требованию владельца: billing/API/ключи не создавались и не включались. Другая карта без согласования не подставляется. После отдельного разрешения понадобится Android API key с ограничениями package + SHA-1 и только Maps SDK for Android; ключ передаётся локально, не публикуется.
 
 Карта — `google_maps_flutter` / настоящий Android SDK, без статической подмены. Код поддерживает выбор точки, маркеры текущего/сохранённых мест, проверку центра после перемещения и GPS. Ключ и tiles/gestures пока не проверены: сервиса ещё нет. [Документация пакета](https://pub.dev/packages/google_maps_flutter).
 
@@ -97,7 +121,7 @@ APK: `build/app/outputs/flutter-apk/app-debug.apk`. Это debug-сборка д
 
 `functions/main.py` — отдельный сервер на Python для Cloud Functions + Cloud Scheduler. Он получает настоящий US AQI, проверяет порог и актуальность модели, использует Firestore transaction для дедупликации и отправляет FCM только зарегистрированным устройствам соответствующего пользователя. Успешная отправка в FCM не доказывает доставку на телефон. Код не развёрнут; тесты Python сейчас проверяют только чистую логику порогов/координат/ID, а не весь облачный job.
 
-После настройки Firebase, ревью backend и согласования облачного развёртывания необходимо проверить фактическую доставку foreground/background, токен после переустановки и tap routing. Только после этой проверки используйте `--dart-define=AQI_SCHEDULER_DEPLOYED=true`, чтобы активировать UI фоновых предупреждений. [Cloud Scheduler](https://firebase.google.com/docs/functions/schedule-functions) и [FCM reception](https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages).
+FCM foreground/background и tap routing проверены настоящей отправкой HTTP v1. Получение push доступно независимо от scheduler; при входе/восстановлении настроек обновляется регистрация устройства, после выхода токен не привязывается к пользователю. `AQI_SCHEDULER_DEPLOYED` оставлен false: автоматические AQI-предупреждения требуют отдельного согласованного backend-развёртывания. Переустановка приложения не выполняется для тестирования, чтобы сохранить данные владельца. [Cloud Scheduler](https://firebase.google.com/docs/functions/schedule-functions) и [FCM reception](https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages).
 
 ## Тестирование
 
@@ -105,48 +129,33 @@ APK: `build/app/outputs/flutter-apk/app-debug.apk`. Это debug-сборка д
 flutter analyze
 flutter test --coverage
 python3 tools/check_coverage.py
-flutter test integration_test/mobile_smoke_test.dart -d emulator-5554
-flutter test integration_test/air_flow_test.dart -d emulator-5554
+flutter test integration_test/mobile_smoke_test.dart -d emulator-5554 --no-uninstall
+flutter test integration_test/air_flow_test.dart -d emulator-5554 --no-uninstall
 python3 -m unittest discover -s functions -p 'test_*.py'
 npm ci --prefix tools/firebase-tests
 node tools/firebase-tests/node_modules/firebase-tools/lib/bin/firebase.js emulators:exec --only firestore --project demo-air-quality-monitor 'node --test tools/firebase-tests/rules.test.mjs'
 ```
 
+**Важно для текущего Flutter SDK:** integration runner по умолчанию удаляет приложение после тестов. На AVD с нужными локальными данными всегда используйте `--no-uninstall` и предварительную резервную копию Android app data; источник кода не содержит SQLite/фото устройства.
+
 Для Firebase Emulator нужна Java 21+; можно использовать JBR Android Studio через JAVA_HOME. Node используется **только инструментами и тестами правил**, Android UI написан на Dart/Flutter. Demo project не обращается к настоящему облачному Firebase.
 
-Текущие подтверждённые результаты: analyze без замечаний; 43 unit/widget-теста после полного редизайна по референсу; предыдущий Flutter LCOV до редизайна — 63,00% (1362/2162 строк), 42 библиотеки. `main.dart`/bootstrap и декларативный interface places_repository не вошли в этот отчёт; сгенерированные JSON-модели входят. Моки и синтетические fixtures используются только в тестах. Firestore Rules: 6/6; Python logic: 3/3. Тест onboarding/navigation/theme прошёл на Android 17 API 37. Расширенный live Android-тест также прошёл: настоящий API, SQLite, fallback кеша, заметки, MethodChannel и вызов/история уведомления. Дополнительно проверены GPS permission/координаты, настоящая camera capture/save, отображение локального предупреждения в шторке и cold start с кешем без сети на эмуляторе. Физический смартфон и реальный FCM ещё не проверены.
+Актуальные результаты: [профиль и Firebase](docs/PROFILE_FIREBASE_VERIFICATION.md); история этапа 1: [docs/STAGE1_PREPARATION.md](docs/STAGE1_PREPARATION.md).
+
+Сейчас на AVD сохранена Google-сессия владельца. Для неё используйте `integration_test/profile_session_test.dart` с `--no-uninstall`: сначала capture (без define), затем после остановки процесса verify (`--dart-define=VERIFY_PROFILE_RESTART=true`). Onboarding-тесты рассчитаны на гостевую сессию; Firebase registration/push tests — на отдельный тестовый аккаунт. Не выходите из аккаунта владельца и не очищайте его данные ради общего запуска этих тестов. Покрытие считается по свежему `coverage/lcov.info` после полного `flutter test --coverage`; не следует использовать числа предыдущих редизайнов. Синтетические fixtures и транспортные моки применяются только в тестах, production AQI берётся из Open-Meteo.
+
+Ранее на эмуляторе проверялись GPS, camera capture/save, уведомление в шторке и cold start без сети. Эти проверки не заменяют приёмку на физическом смартфоне и реальную FCM-доставку. Firestore Rules и Python имеют отдельные локальные тесты; новый облачный проект для них не нужен.
 
 GitHub Actions запускает зависимости, форматирование, analyze, test/coverage >40%, Android debug build, Python logic и Firestore Rules. Workflow подготовлен локально; удалённого GitHub repository/CI run ещё нет.
 
 ## Релиз и ограничения
 
-Release APK/AAB требует настоящего keystore и `android/key.properties`; образец — `android/key.properties.example`. Debug-подпись для release больше не подставляется. Crashlytics-код и Gradle plugin подготовлены, сбор диагностик включается в release при настоящем Firebase; отчёт в Console не проверен. Публикация в Google Play не выполнялась.
+Release APK/AAB требует настоящего keystore и `android/key.properties`; образец — `android/key.properties.example`. Debug-подпись для release больше не подставляется. Crashlytics-код и Gradle plugin подготовлены, сбор диагностик включается в release при настоящем Firebase; non-fatal отчёт подтверждён серверным API. Подписанные APK/AAB собраны существующим ключом; исправлен release resource shrinking для иконки уведомлений и Firebase/OAuth-строк. Google Sign-In в release и сохранение сессии после полного перезапуска проверены. [Актуальная проверка](docs/ANDROID_RECOVERY_VERIFICATION.md). Публикация в Google Play не выполнялась.
 
-Остаются внешняя конфигурация/приёмка Firebase и Google Maps, камера/GPS на физическом устройстве, проверка фонового push, английская локализация, сравнение исторических периодов, экспорт визуальной карточки (пока share текста отчёта), полный DevTools-профиль, публичная privacy policy и release signing. Автоматическая ежедневная push-сводка не реализована; на главной есть рекомендации и лучший час по текущим данным/прогнозу. Фото не определяют качество воздуха. iOS не настраивается до завершения Android.
+Остаются решение владельца о billing Google Maps, смена пароля по полученной ссылке и вход с новым паролем, синхронизация на двух устройствах, камера/GPS на физическом устройстве, английская локализация, сравнение исторических периодов, экспорт визуальной карточки (пока share текста отчёта), полный DevTools-профиль, публичная privacy policy. Автоматическая ежедневная push-сводка не реализована; на главной есть рекомендации и лучший час по текущим данным/прогнозу. Фото не определяют качество воздуха. iOS не настраивается до завершения Android.
 
 ## Реальные Android-скриншоты
 
-[Onboarding](docs/screenshots/android-onboarding.png), [главная](docs/screenshots/android-home.png), [города](docs/screenshots/android-cities.png), [заметка с камерой](docs/screenshots/android-notes.png), [локальное уведомление](docs/screenshots/android-notification.png), [офлайн после перезапуска](docs/screenshots/android-offline.png). Скриншоты сняты с Android Emulator, не являются HTML-макетами.
+Текущий светлый дизайн: [главная](docs/screenshots/android-soft-home.png), [история](docs/screenshots/android-soft-history.png), [профиль](docs/screenshots/android-soft-profile.png), [вход](docs/screenshots/android-soft-login.png), [регистрация](docs/screenshots/android-soft-register.png), [выбор города](docs/screenshots/android-soft-city.png). Снимки сняты с Android Emulator.
 
-## Новый дизайн: главная и история
-
-Четыре вкладки: Сегодня, Карта, История, Профиль. Выбор города только в шторке главной;
-`/cities` удалён, поиск/GPS/избранное/недавние сохранены. Главная использует оптимизированную
-фотографию гор, неба и облаков. История — лесной фон на весь экран и стеклянные карточки
-с групповым blur, компактным empty state, реальным календарём сохранённых оценок и заметками.
-Фотографии: [источники и лицензии](assets/images/CREDITS.md). [Дизайн и проверки](docs/DESIGN_REVIEW.md).
-Firebase Authentication SDK и формы подготовлены; настоящей конфигурации нет, облачный вход
-пока не проверен. [Следующий шаг пользователя](docs/ANDROID_FIREBASE_SETUP.md). Maps и iOS отложены.
-
-Актуальные реальные снимки этого этапа: [главная](docs/screenshots/android-atmospheric-home.png),
-[история](docs/screenshots/android-atmospheric-history.png), [календарь](docs/screenshots/android-history-calendar.png),
-[подготовленная авторизация](docs/screenshots/android-auth-ready.png). APK установлен с сохранением данных.
-На API 37 проверены четыре вкладки, смена города и возврат, график/календарь/записи; облачная авторизация ожидает реального JSON.
-
-## Предыдущая Fresh Air доработка (журнал)
-
-Единая голубая палитра, холодные поверхности, обновлённые состав воздуха/планы и профиль.
-История использует горы/небо вместо леса, структура и настоящие данные сохранены.
-В формах отключена рукописная панель, проверены Next/Done, редактирование и адаптация под клавиатуру.
-Firebase CLI проверен, FlutterFire CLI установлен; вход и облачная конфигурация отложены
-по ответу пользователя «Пока закончить только редизайн».
+Главная, история и профиль используют верхнюю фотографию неба/гор с плавным переходом в молочный фон. На остальных экранах спокойные поверхности; у авторизации и первого запуска есть атмосферная фотография. Полноэкранного лесного фона и принудительной тёмной темы истории в текущей версии нет. Фотографии оптимизированы в WebP, локальные шрифты Manrope/Lora. [Источники изображений и лицензии](assets/images/CREDITS.md). [Актуальная дизайн-приёмка](docs/SOFT_DESIGN_REVIEW.md). Документ DESIGN_REVIEW хранит историю предыдущих вариантов.

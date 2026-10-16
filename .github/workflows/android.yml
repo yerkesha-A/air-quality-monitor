@@ -2,13 +2,19 @@ name: Android quality checks
 on:
   push:
   pull_request:
+concurrency:
+  group: android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   android:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -20,9 +26,13 @@ jobs:
           cache: true
       - name: Use portable Gradle distribution on CI
         run: python3 tools/portable_gradle.py
+      - name: Check publishable files for secrets
+        run: python3 tools/secret_scan.py
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test docs
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test docs coursework
       - run: flutter analyze
+      - run: dart run coursework/week01/exercises.dart
+      - run: dart run docs/dart_basics.dart
       - run: flutter test --coverage
       - run: python3 tools/check_coverage.py
       - run: python3 -m unittest discover -s functions -p 'test_*.py'
@@ -31,10 +41,22 @@ jobs:
         with:
           name: android-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-coverage
+          path: coverage/lcov.info
+          if-no-files-found: warn
+          retention-days: 7
   firestore-rules:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
+import '../../data/local/local_avatar_store.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,7 +52,7 @@ class AppDependencies {
       store: store,
       auth: FirebaseAuthRepository(
         auth: firebase.configured ? FirebaseAuth.instance : null,
-        storage: firebase.configured ? FirebaseStorage.instance : null,
+        avatars: await LocalAvatarStore.open(),
         googleClientId: device['googleClientId'] as String? ?? '',
       ),
       firebase: firebase,

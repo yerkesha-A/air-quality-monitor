@@ -1,0 +1,3 @@
+Flutter unit/widget suite: 73 passed, 0 failed.
+LCOV: 2218/3186 lines = 69.62%.
+See test/ and docs/rk1/VALIDATION.md for commands and scope.

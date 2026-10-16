@@ -60,6 +60,7 @@ dependencies:
   firebase_storage: ^13.6.0
 
 dev_dependencies:
+  vm_service: ^15.3.0
   flutter_test:
     sdk: flutter
 

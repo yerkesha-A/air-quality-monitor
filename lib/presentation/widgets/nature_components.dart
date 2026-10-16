@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 
 /// Visual tokens for the first, reviewable stage of the nature redesign.
 abstract final class NatureStyle {
-  static const forest = Color(0xff285964);
-  static const mint = Color(0xffd5eaf0);
-  static const milk = Color(0xfff3f7f9);
-  static const ink = Color(0xff1d3540);
+  static const forest = Color(0xff328fa3);
+  static const mint = Color(0xffdceff7);
+  static const milk = Color(0xfff7fafc);
+  static const ink = Color(0xff20343c);
   static const alpineLake = 'assets/images/alpine_clouds.webp';
   static const blueMountains = 'assets/images/blue_mountains.webp';
   static const mistyHills = 'assets/images/misty_hills.webp';
@@ -39,8 +39,8 @@ class AirWordmark extends StatelessWidget {
                   style: TextStyle(
                     color: color,
                     fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 2.5,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 3,
                     height: 1,
                   ),
                 ),
@@ -198,13 +198,13 @@ class AirSurface extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: dark
-                  ? [const Color(0xff254451), const Color(0xff1a303e)]
+                  ? [const Color(0xff223440), const Color(0xff192630)]
                   : [
                       Colors.white.withValues(alpha: .86),
                       Color.lerp(
                         Colors.white,
                         accent,
-                        .6,
+                        .35,
                       )!.withValues(alpha: .78),
                     ],
             ),
@@ -269,12 +269,14 @@ class AirScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.resizeToAvoidBottomInset,
     this.immersive = false,
+    this.photographic = false,
   });
   final PreferredSizeWidget? appBar;
   final Widget body;
   final Widget? bottomNavigationBar;
   final bool? resizeToAvoidBottomInset;
   final bool immersive;
+  final bool photographic;
   @override
   Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
     value: Theme.of(context).brightness == Brightness.dark
@@ -282,7 +284,9 @@ class AirScaffold extends StatelessWidget {
         : SystemUiOverlayStyle.dark,
     child: Stack(
       children: [
-        Positioned.fill(child: AirBackdrop(immersive: immersive)),
+        Positioned.fill(
+          child: AirBackdrop(immersive: immersive, photographic: photographic),
+        ),
         Scaffold(
           backgroundColor: Colors.transparent,
           resizeToAvoidBottomInset: resizeToAvoidBottomInset,
@@ -296,45 +300,74 @@ class AirScaffold extends StatelessWidget {
 }
 
 class AirBackdrop extends StatelessWidget {
-  const AirBackdrop({super.key, this.immersive = false});
-  final bool immersive;
+  const AirBackdrop({
+    super.key,
+    this.immersive = false,
+    this.photographic = false,
+  });
+  final bool immersive, photographic;
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final base = dark ? const Color(0xff10191f) : const Color(0xfff7fafc);
     return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            immersive ? NatureStyle.alpineLake : NatureStyle.blueMountains,
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            cacheWidth: 1000,
-            excludeFromSemantics: true,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: dark
-                    ? [const Color(0xd9102b39), const Color(0xf2112631)]
-                    : immersive
-                    ? [
-                        const Color(0x99e1f2f8),
-                        const Color(0x66eaf5f9),
-                        const Color(0xe6e1edf2),
-                      ]
-                    : [
-                        const Color(0xbbe0f3fa),
-                        const Color(0xe6e5f1f5),
-                        const Color(0xf2e6f0f4),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final height = immersive ? constraints.maxHeight * .68 : 300.0;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              ColoredBox(color: base),
+              if (photographic || immersive)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: height,
+                  child: ShaderMask(
+                    blendMode: BlendMode.dstIn,
+                    shaderCallback: (bounds) => const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white, Colors.white, Colors.transparent],
+                      stops: [0, .38, 1],
+                    ).createShader(bounds),
+                    child: Opacity(
+                      opacity: dark
+                          ? .22
+                          : immersive
+                          ? .65
+                          : .28,
+                      child: Image.asset(
+                        immersive
+                            ? NatureStyle.alpineLake
+                            : NatureStyle.blueMountains,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        cacheWidth: 1000,
+                        excludeFromSemantics: true,
+                      ),
+                    ),
+                  ),
+                ),
+              if (!photographic && !immersive)
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        dark
+                            ? const Color(0xff16242d)
+                            : const Color(0xfff0f7fa),
+                        base,
                       ],
-                stops: dark ? null : const [0, .48, 1],
-              ),
-            ),
-          ),
-        ],
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }

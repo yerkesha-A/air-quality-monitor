@@ -6,6 +6,7 @@ import '../../domain/repositories/places_repository.dart';
 class PlacesController extends ChangeNotifier {
   PlacesController(this.repository);
   final PlacesRepository repository;
+  Future<void> Function(Place place, bool favorite)? onFavoriteChanged;
   List<Place> favorites = [];
   List<Place> recent = [];
   bool isFavorite(Place place) => favorites.any((p) => p.id == place.id);
@@ -16,7 +17,9 @@ class PlacesController extends ChangeNotifier {
   }
 
   Future<void> toggle(Place place) async {
-    await repository.setFavorite(place, !isFavorite(place));
+    final value = !isFavorite(place);
+    await repository.setFavorite(place, value);
+    await onFavoriteChanged?.call(place, value);
     await reload();
   }
 }

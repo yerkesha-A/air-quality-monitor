@@ -57,24 +57,35 @@ class AirReport {
     required this.fetchedAt,
     this.utcOffsetSeconds = 0,
     this.offline = false,
+    this.cacheReason,
   }) : forecast = List.unmodifiable(forecast);
   final Place place;
   final AirPoint current;
   final List<AirPoint> forecast;
   final DateTime fetchedAt;
   final int utcOffsetSeconds;
+
+  /// True when a failed refresh caused a cached report to be returned.
   final bool offline;
+  final String? cacheReason;
   bool isStale(DateTime now) =>
-      now.difference(fetchedAt) > const Duration(hours: 1);
+      now.difference(fetchedAt) > const Duration(hours: 1) ||
+      now.difference(current.time) > const Duration(hours: 2) ||
+      current.time.difference(now) > const Duration(hours: 1) ||
+      fetchedAt.difference(now) > const Duration(minutes: 5);
+  String get cacheLabel => cacheReason == null
+      ? 'Сохранённые данные'
+      : 'Сохранённые данные · $cacheReason';
   DateTime cityTime(DateTime utc) =>
       utc.toUtc().add(Duration(seconds: utcOffsetSeconds));
-  AirReport asOffline() => AirReport(
+  AirReport asOffline({String? reason}) => AirReport(
     place: place,
     current: current,
     forecast: forecast,
     fetchedAt: fetchedAt,
     utcOffsetSeconds: utcOffsetSeconds,
     offline: true,
+    cacheReason: reason,
   );
   List<AirPoint> upcoming(DateTime now) => forecast
       .where(

@@ -31,9 +31,9 @@ class OpenMeteoRepository implements AirRepository {
       }
       await store.save(place, dto, now);
       return report;
-    } on AirFailure {
+    } on AirFailure catch (error) {
       final saved = await cached(place);
-      if (saved != null) return saved.asOffline();
+      if (saved != null) return saved.asOffline(reason: error.message);
       rethrow;
     }
   }

@@ -156,7 +156,7 @@ class _CompareScreenState extends State<CompareScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '${result.$2!.offline ? 'Кеш · ' : ''}${dateLabel(result.$2!.fetchedAt.toLocal())} ${clockLabel(result.$2!.fetchedAt.toLocal())}',
+                        '${result.$2!.offline ? '${result.$2!.cacheLabel} · ' : ''}${dateLabel(result.$2!.fetchedAt.toLocal())} ${clockLabel(result.$2!.fetchedAt.toLocal())}',
                       ),
                     ],
                   ],

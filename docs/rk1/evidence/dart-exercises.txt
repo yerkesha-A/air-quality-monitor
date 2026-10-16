@@ -1,0 +1,2 @@
+Running build hooks...Running build hooks...{grade: A, words: {dart: 2, flutter: 1}, task: ✓ Изучить Dart, future: Flutter, stream: [1, 3, 6]}
+Running build hooks...Running build hooks...Null safety, коллекции и Future: Алматы; Алматы, Астана

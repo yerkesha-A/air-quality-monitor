@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:air_quality_monitor/data/local/local_avatar_store.dart';
 
 import 'package:air_quality_monitor/data/repositories/firebase_auth_repository.dart';
 import 'package:air_quality_monitor/domain/repositories/auth_repository.dart';
@@ -78,6 +82,32 @@ void main() {
       expect(repo.googleConfigured, isFalse);
     },
   );
+  test('Local avatar is restored by UID without changing Google photo or needing network', () async {
+    final folder = await Directory.systemTemp.createTemp('aq-auth-avatar-');
+    addTearDown(() => folder.delete(recursive: true));
+    final sdk = MockFirebaseAuth();
+    final user = MockUser();
+    when(() => sdk.currentUser).thenReturn(user);
+    when(() => user.uid).thenReturn('account-a');
+    when(() => user.email).thenReturn('person@example.test');
+    when(() => user.displayName).thenReturn('Тест Профиля');
+    when(() => user.photoURL).thenReturn('https://example.test/google.jpg');
+    when(() => sdk.userChanges()).thenAnswer((_) => Stream.value(user));
+    final avatars = LocalAvatarStore(folder);
+    final repo = FirebaseAuthRepository(auth: sdk, avatars: avatars);
+    expect((await repo.changes.first)!.localPhotoPath, isNull);
+    await repo.updateAvatar(Uint8List.fromList([1, 2, 3]));
+    final restored = await FirebaseAuthRepository(
+      auth: sdk,
+      avatars: LocalAvatarStore(folder),
+    ).changes.first;
+    expect(restored!.photoUrl, 'https://example.test/google.jpg');
+    expect(await File(restored.localPhotoPath!).readAsBytes(), [1, 2, 3]);
+    verifyNever(() => user.updatePhotoURL(any()));
+    verifyNever(() => user.reload());
+    when(() => user.uid).thenReturn('account-b');
+    expect((await repo.changes.first)!.localPhotoPath, isNull);
+  });
   for (final entry in {
     'invalid-credential': 'Проверьте email и пароль.',
     'email-already-in-use': 'Этот email уже зарегистрирован.',

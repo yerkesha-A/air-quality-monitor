@@ -12,6 +12,7 @@ import '../../data/local/local_store.dart';
 import '../../data/services/notification_service.dart';
 import '../providers/settings_controller.dart';
 import '../widgets/primitives.dart';
+import '../widgets/paged_records.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -24,9 +25,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
       .read<SettingsController>()
       .threshold
       .toDouble();
-  late Future<List<Map<String, Object?>>> _history = context
-      .read<LocalStore>()
-      .alerts();
+  int _revision = 0;
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsController>();
@@ -38,8 +37,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
         actions: [
           IconButton(
             tooltip: 'Обновить историю',
-            onPressed: () =>
-                setState(() => _history = context.read<LocalStore>().alerts()),
+            onPressed: () => setState(() => _revision++),
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -131,14 +129,14 @@ class _AlertsScreenState extends State<AlertsScreen> {
             padding: const EdgeInsets.all(12),
             child: SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Фоновые предупреждения'),
+              title: const Text('Push-уведомления'),
               subtitle: Text(
-                firebase.schedulerConfigured && auth.account != null
-                    ? 'Проверка выбранного места сервером каждый час'
-                    : 'Нужны аккаунт и активированный серверный сервис',
+                firebase.configured && auth.account != null
+                    ? 'Получать сообщения на этом устройстве'
+                    : 'Войдите в аккаунт, чтобы получать push',
               ),
               value: settings.backgroundAlerts,
-              onChanged: !firebase.schedulerConfigured || auth.account == null
+              onChanged: !firebase.configured || auth.account == null
                   ? null
                   : (enabled) async {
                       try {
@@ -175,31 +173,18 @@ class _AlertsScreenState extends State<AlertsScreen> {
               'Автоматическая проверка при закрытом приложении ещё не активирована. Получение FCM-токена само по себе не запускает проверку AQI.',
             ),
           const SectionTitle('История на устройстве'),
-          FutureBuilder<List<Map<String, Object?>>>(
-            future: _history,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Text('Не удалось загрузить историю.');
-              }
-              if (!snapshot.hasData) return const LinearProgressIndicator();
-              if (snapshot.data!.isEmpty) {
-                return const Text('Предупреждений пока не было.');
-              }
-              return Column(
-                children: snapshot.data!
-                    .map(
-                      (item) => ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(item['title'] as String),
-                        subtitle: Text(
-                          '${item['body']}\n${dateLabel(DateTime.fromMillisecondsSinceEpoch(item['created'] as int))}',
-                        ),
-                        isThreeLine: true,
-                      ),
-                    )
-                    .toList(),
-              );
-            },
+          PagedRecords<Map<String, Object?>>(
+            key: ValueKey(_revision),
+            load: (after) =>
+                context.read<LocalStore>().alertsPage(after: after),
+            emptyMessage: 'Предупреждений пока не было.',
+            itemBuilder: (item) => ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(item['title'] as String),
+              subtitle: Text(
+                '${item['body']}\n${dateLabel(DateTime.fromMillisecondsSinceEpoch(item['created'] as int))}',
+              ),
+            ),
           ),
         ],
       ),

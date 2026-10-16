@@ -1,0 +1,3 @@
+Local Firestore Emulator, project demo-air-quality-monitor
+6 passed, 0 failed; no live database cleared.
+Owner access, cross-account/anonymous denial, invalid data, favorites/token scoping, server-only notifications/claims.

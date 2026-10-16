@@ -12,6 +12,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../local/local_store.dart';
 import '../models/air_dto.dart';
 import 'notification_service.dart';
+import 'cloud_sync.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
@@ -37,6 +38,7 @@ class FirebaseService {
   StreamSubscription<RemoteMessage>? _opened;
   StreamSubscription<String>? _tokens;
   String? initialRoute;
+  bool _pushEnabled = false;
   void Function(String route)? onOpen;
   static Future<FirebaseService> create(bool nativeConfigured) async {
     if (!nativeConfigured) return FirebaseService(configured: false);
@@ -79,7 +81,13 @@ class FirebaseService {
     }
     _tokens = FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
       final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid != null) await _saveToken(uid, token);
+      if (_pushEnabled && uid != null) {
+        try {
+          await _saveToken(uid, token);
+        } catch (_) {
+          // Retry registration on the next sync; keep stream errors contained.
+        }
+      }
     });
   }
 
@@ -91,7 +99,10 @@ class FirebaseService {
       return false;
     }
     final token = await FirebaseMessaging.instance.getToken();
-    if (token != null) await _saveToken(account.id, token);
+    if (token != null) {
+      await _saveToken(account.id, token);
+      _pushEnabled = true;
+    }
     return token != null;
   }
 
@@ -104,6 +115,7 @@ class FirebaseService {
       .set({'token': token, 'updatedAt': FieldValue.serverTimestamp()});
   Future<void> unregisterDevice() async {
     if (!configured) return;
+    _pushEnabled = false;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final token = await FirebaseMessaging.instance.getToken();
     if (uid != null && token != null) {
@@ -116,49 +128,87 @@ class FirebaseService {
     }
   }
 
-  Future<void> sync({
-    required Account account,
-    required Place? place,
-    required List<Place> favorites,
-    required int threshold,
-    required bool backgroundAlerts,
-    required int theme,
-    required bool milligrams,
-  }) async {
-    if (!configured || FirebaseAuth.instance.currentUser?.uid != account.id) {
+  Future<void> restorePush(Account account, {required bool enabled}) async {
+    if (!configured) return;
+    if (!enabled) {
+      if (_pushEnabled) await unregisterDevice();
       return;
     }
-    final db = FirebaseFirestore.instance;
-    final ref = db.collection('users').doc(account.id);
-    await ref.set({
-      'name': account.name,
-      'email': account.email,
-      'photoUrl': account.photoUrl,
-      'threshold': threshold,
-      'backgroundAlerts': backgroundAlerts,
-      'place': place == null ? null : PlaceDto.fromEntity(place).toJson(),
-      'theme': theme,
-      'milligrams': milligrams,
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-    final existing = await ref.collection('favorites').get();
-    final batch = db.batch();
-    final ids = favorites.map((p) => p.id).toSet();
-    for (final doc in existing.docs) {
-      if (!ids.contains(doc.id)) batch.delete(doc.reference);
+    final permission = await FirebaseMessaging.instance
+        .getNotificationSettings();
+    if (permission.authorizationStatus != AuthorizationStatus.authorized &&
+        permission.authorizationStatus != AuthorizationStatus.provisional) {
+      return;
     }
-    for (final favorite in favorites) {
-      batch.set(
-        ref.collection('favorites').doc(favorite.id),
-        PlaceDto.fromEntity(favorite).toJson(),
-      );
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null && FirebaseAuth.instance.currentUser?.uid == account.id) {
+      await _saveToken(account.id, token);
+      _pushEnabled = true;
     }
-    await batch.commit();
   }
+
+  late final CloudSync cloudSync = CloudSync(_FirestoreSyncGateway());
 
   Future<void> dispose() async {
     await _foreground?.cancel();
     await _opened?.cancel();
     await _tokens?.cancel();
+  }
+}
+
+class _FirestoreSyncGateway implements CloudSyncGateway {
+  @override
+  Future<CloudSnapshot> read(String uid) async {
+    final ref = FirebaseFirestore.instance.collection('users').doc(uid);
+    // Do not mistake an empty SDK cache for an empty cloud account.
+    final user = await ref.get(const GetOptions(source: Source.server));
+    final favorites = await ref
+        .collection('favorites')
+        .get(const GetOptions(source: Source.server));
+    return CloudSnapshot(
+      settings: user.data(),
+      favorites: favorites.docs
+          .map((doc) => PlaceDto.fromJson(doc.data()).toEntity())
+          .toList(),
+    );
+  }
+
+  @override
+  Future<void> write(
+    String uid,
+    Map<String, dynamic> settings,
+    List<Place> favorites,
+    Set<String> removedIds,
+  ) async {
+    if (FirebaseAuth.instance.currentUser?.uid != uid) {
+      throw StateError('Account changed during cloud sync');
+    }
+    final db = FirebaseFirestore.instance;
+    final ref = db.collection('users').doc(uid);
+    await ref.set({
+      ...settings,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+    // Never infer deletion from an empty/partial local list. Only explicit
+    // user removals may delete cloud documents. Chunk for Firestore's batch limit.
+    final operations = <void Function(WriteBatch)>[
+      for (final id in removedIds)
+        (batch) => batch.delete(ref.collection('favorites').doc(id)),
+      for (final place in favorites.where((p) => !removedIds.contains(p.id)))
+        (batch) => batch.set(
+          ref.collection('favorites').doc(place.id),
+          PlaceDto.fromEntity(place).toJson(),
+        ),
+    ];
+    for (var start = 0; start < operations.length; start += 400) {
+      final batch = db.batch();
+      for (final operation in operations.skip(start).take(400)) {
+        operation(batch);
+      }
+      if (FirebaseAuth.instance.currentUser?.uid != uid) {
+        throw StateError('Account changed during cloud sync');
+      }
+      await batch.commit();
+    }
   }
 }

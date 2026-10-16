@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="680" viewBox="0 0 1400 680">
+<rect width="1400" height="680" fill="#f5f7f8"/>
+<g font-family="sans-serif" fill="#233941"><text x="30" y="34" font-size="22">Air Quality Monitor — учебные эскизы экранов</text><text x="30" y="62" font-size="15">Составлены 16.10.2026 по утверждённому интерфейсу; не являются ранними эскизами прошлых недель.</text>
+<rect x="30" y="92" width="315" height="540" rx="28" fill="white" stroke="#65818a" stroke-width="2"/>
+<text x="50" y="135" font-size="22">Сегодня</text>
+<rect x="45" y="160" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="55" y="195" font-size="15">AIR quality       Уведомления</text>
+<rect x="45" y="232" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="55" y="267" font-size="15">[ Выбор города / GPS ]</text>
+<rect x="45" y="304" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="55" y="339" font-size="15">[ Текущий US AQI ]</text>
+<rect x="45" y="376" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="55" y="411" font-size="15">[ Состав: PM₂.₅, PM₁₀… ]</text>
+<rect x="45" y="448" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="55" y="483" font-size="15">[ Прогноз / лучший час ]</text>
+<text x="48" y="605" font-size="14">Сегодня · Карта · История · Профиль</text>
+<rect x="375" y="92" width="315" height="540" rx="28" fill="white" stroke="#65818a" stroke-width="2"/>
+<text x="395" y="135" font-size="22">Поиск города</text>
+<rect x="390" y="160" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="400" y="195" font-size="15">Выбор места</text>
+<rect x="390" y="232" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="400" y="267" font-size="15">[ Поиск: Алматы… ]</text>
+<rect x="390" y="304" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="400" y="339" font-size="15">[ Результаты API ]</text>
+<rect x="390" y="376" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="400" y="411" font-size="15">[ ☆ Добавить в избранное ]</text>
+<rect x="390" y="448" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="400" y="483" font-size="15">[ Недавние города ]</text>
+<text x="393" y="605" font-size="14">Сегодня · Карта · История · Профиль</text>
+<rect x="720" y="92" width="315" height="540" rx="28" fill="white" stroke="#65818a" stroke-width="2"/>
+<text x="740" y="135" font-size="22">История</text>
+<rect x="735" y="160" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="745" y="195" font-size="15">История оценок</text>
+<rect x="735" y="232" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="745" y="267" font-size="15">[ 24 ч | 7 д | 30 д ]</text>
+<rect x="735" y="304" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="745" y="339" font-size="15">[ AQI | PM₂.₅ | PM₁₀ ]</text>
+<rect x="735" y="376" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="745" y="411" font-size="15">[ График доступных точек ]</text>
+<rect x="735" y="448" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="745" y="483" font-size="15">[ Статистика / страницы ]</text>
+<text x="738" y="605" font-size="14">Сегодня · Карта · История · Профиль</text>
+<rect x="1065" y="92" width="315" height="540" rx="28" fill="white" stroke="#65818a" stroke-width="2"/>
+<text x="1085" y="135" font-size="22">Профиль</text>
+<rect x="1080" y="160" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="1090" y="195" font-size="15">Аккаунт / вход</text>
+<rect x="1080" y="232" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="1090" y="267" font-size="15">[ Светлая | Тёмная | Система ]</text>
+<rect x="1080" y="304" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="1090" y="339" font-size="15">[ Единицы и порог AQI ]</text>
+<rect x="1080" y="376" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="1090" y="411" font-size="15">[ Избранное / заметки ]</text>
+<rect x="1080" y="448" width="285" height="60" rx="10" fill="#eaf3f5" stroke="#b7cccf"/>
+<text x="1090" y="483" font-size="15">[ Конфиденциальность ]</text>
+<text x="1083" y="605" font-size="14">Сегодня · Карта · История · Профиль</text>
+</g></svg>

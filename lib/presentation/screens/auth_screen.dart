@@ -7,7 +7,8 @@ import '../widgets/primitives.dart';
 import '../widgets/nature_components.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  const AuthScreen({super.key, this.register = false});
+  final bool register;
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
@@ -17,7 +18,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _name = TextEditingController();
-  bool _register = false;
+  late bool _register = widget.register;
   bool _visible = false;
   @override
   void dispose() {
@@ -36,6 +37,13 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     final auth = context.read<AuthController>();
+    if (!auth.configured) {
+      showMessage(
+        context,
+        'Сервис аккаунтов ещё не подключён. Регистрация и вход пока недоступны.',
+      );
+      return;
+    }
     final success = _register
         ? await auth.register(
             _email.text.trim(),
@@ -52,6 +60,13 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
     final auth = context.read<AuthController>();
+    if (!auth.configured) {
+      showMessage(
+        context,
+        'Восстановление пароля станет доступно после подключения сервиса аккаунтов.',
+      );
+      return;
+    }
     final success = await auth.reset(_email.text.trim());
     if (mounted) {
       showMessage(
@@ -69,7 +84,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return AirScaffold(
       immersive: true,
       appBar: AppBar(
-        title: const Text('Аккаунт'),
+        title: const Text(''),
         leading: IconButton(
           tooltip: 'Назад',
           onPressed: () => context.go('/profile'),
@@ -78,9 +93,9 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
       body: PageBody(
         children: [
-          const SizedBox(height: 38),
+          const SizedBox(height: 80),
           const Center(child: AirWordmark()),
-          const SizedBox(height: 36),
+          const SizedBox(height: 30),
           Text(
             _register ? 'Создайте аккаунт' : 'С возвращением!',
             style: Theme.of(context).textTheme.headlineMedium,
@@ -92,12 +107,6 @@ class _AuthScreenState extends State<AuthScreen> {
                 : 'Войдите в свой аккаунт',
           ),
           const SizedBox(height: 24),
-          if (!auth.configured)
-            const Surface(
-              child: Text(
-                'Сервис аккаунтов ещё не подключён. Вход и регистрация станут доступны после настройки Firebase.',
-              ),
-            ),
           if (auth.error != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -191,8 +200,12 @@ class _AuthScreenState extends State<AuthScreen> {
               padding: EdgeInsets.only(bottom: 12),
               child: LinearProgressIndicator(minHeight: 2),
             ),
+          TextButton(
+            onPressed: auth.busy ? null : _reset,
+            child: const Text('Забыли пароль?'),
+          ),
           FilledButton(
-            onPressed: auth.busy || !auth.configured ? null : _submit,
+            onPressed: auth.busy ? null : _submit,
             child: Text(
               auth.busy
                   ? 'Подождите…'
@@ -202,14 +215,22 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: auth.busy || !auth.googleConfigured
+          OutlinedButton.icon(
+            icon: const Icon(Icons.login_rounded, size: 18),
+            onPressed: auth.busy
                 ? null
                 : () async {
+                    if (!auth.googleConfigured) {
+                      showMessage(
+                        context,
+                        'Вход через Google ещё не подключён.',
+                      );
+                      return;
+                    }
                     final success = await auth.google();
                     if (success && context.mounted) context.go('/account');
                   },
-            child: const Text('Продолжить с Google'),
+            label: const Text('Продолжить с Google'),
           ),
           if (auth.configured && !auth.googleConfigured)
             const Padding(
@@ -220,10 +241,6 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           TextButton(
-            onPressed: auth.busy || !auth.configured ? null : _reset,
-            child: const Text('Забыли пароль?'),
-          ),
-          TextButton(
             onPressed: auth.busy
                 ? null
                 : () => setState(() => _register = !_register),
@@ -233,6 +250,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   : 'Нет аккаунта? Зарегистрироваться',
             ),
           ),
+          if (!auth.configured)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'Сервис аккаунтов ещё не подключён. Вход станет доступен после настройки Firebase.',
+                style: TextStyle(fontSize: 11),
+              ),
+            ),
           TextButton(
             onPressed: () => context.go('/'),
             child: const Text('Продолжить без аккаунта'),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,7 @@ class HomeScreen extends StatelessWidget {
     builder: (context, state) {
       final report = state.report;
       return AirScaffold(
+        photographic: true,
         appBar: AppBar(
           toolbarHeight: 64,
           title: const AirWordmark(),
@@ -75,7 +78,7 @@ class HomeScreen extends StatelessWidget {
                                 state.place?.name ?? 'Выбрать город',
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 16,
                                 ),
@@ -132,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             if (report == null && state.busy)
-              const _NatureHero(
+              _NatureHero(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -140,7 +143,7 @@ class HomeScreen extends StatelessWidget {
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         strokeWidth: 2,
                       ),
                     ),
@@ -148,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'Узнаём, чем дышит ваш город',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
                       ),
@@ -156,7 +159,9 @@ class HomeScreen extends StatelessWidget {
                     SizedBox(height: 12),
                     Text(
                       'Загружаем актуальную оценку качества воздуха.',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -166,24 +171,27 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Eyebrow(
+                    Eyebrow(
                       'ВАШ ВОЗДУХ · ВАШ РИТМ',
-                      color: Colors.white70,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Начнём с вашего города',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 28,
                         fontWeight: FontWeight.w600,
                         height: 1.2,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Выберите место, чтобы узнать качество воздуха и спланировать день.',
-                      style: TextStyle(color: Colors.white, height: 1.5),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        height: 1.5,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
@@ -201,7 +209,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      '${report.offline ? 'Офлайн · ' : ''}${report.isStale(DateTime.now().toUtc()) ? 'Сохранённые данные · ' : ''}Получено ${dateLabel(report.fetchedAt.toLocal())} в ${clockLabel(report.fetchedAt.toLocal())}',
+                      '${report.offline ? '${report.cacheLabel} · ' : ''}${report.isStale(DateTime.now().toUtc()) ? 'Данные требуют обновления · ' : ''}Получено ${dateLabel(report.fetchedAt.toLocal())} в ${clockLabel(report.fetchedAt.toLocal())}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -282,7 +290,7 @@ class HomeScreen extends StatelessWidget {
                       await SharePlus.instance.share(
                         ShareParams(
                           text:
-                              '${report.place.name}: ${report.current.aqi?.round()} US AQI, ${report.current.band?.label}.\nОценка атмосферной модели на ${dateLabel(report.cityTime(report.current.time))} ${clockLabel(report.cityTime(report.current.time))}.\n${AirAdvice.summary(report.current.aqi)}\nИсточник: Open-Meteo / CAMS. ${report.offline ? 'Сохранённые офлайн-данные.' : ''}',
+                              '${report.place.name}: ${report.current.aqi?.round()} US AQI, ${report.current.band?.label}.\nОценка атмосферной модели на ${dateLabel(report.cityTime(report.current.time))} ${clockLabel(report.cityTime(report.current.time))}.\n${AirAdvice.summary(report.current.aqi)}\nИсточник: Open-Meteo / CAMS. ${report.offline ? 'Сохранённые данные: обновить источник не удалось.' : ''}',
                         ),
                       );
                     },
@@ -292,7 +300,7 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Источник: Open-Meteo / Copernicus CAMS. Оценка атмосферной модели, не измерение ближайшей станции. Прогноз может отличаться от условий у конкретной дороги.',
                 style: TextStyle(fontSize: 11, height: 1.5),
               ),
@@ -310,22 +318,13 @@ class _NatureHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(24),
-    child: Stack(
-      children: [
-        Positioned.fill(
-          child: Image.asset(
-            NatureStyle.blueMountains,
-            fit: BoxFit.cover,
-            cacheWidth: 1000,
-            excludeFromSemantics: true,
-          ),
-        ),
-        GlassSurface(
-          tint: const Color(0xff285f6b),
-          padding: const EdgeInsets.all(20),
-          child: child,
-        ),
-      ],
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+      child: AirSurface(
+        accent: const Color(0xffb8dfed),
+        padding: const EdgeInsets.all(20),
+        child: child,
+      ),
     ),
   );
 }
@@ -340,12 +339,18 @@ class _AqiCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
-              child: Eyebrow('ВОЗДУХ СЕЙЧАС', color: Color(0xffe4efe5)),
+            Expanded(
+              child: Eyebrow(
+                'ВОЗДУХ СЕЙЧАС',
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             Text(
               clockLabel(report.cityTime(report.current.time)),
-              style: const TextStyle(color: Colors.white70, fontSize: 11),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -360,19 +365,19 @@ class _AqiCard extends StatelessWidget {
               children: [
                 Text(
                   report.current.aqi?.round().toString() ?? '—',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 70,
                     height: 1,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w300,
                     letterSpacing: -3,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'US AQI',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     letterSpacing: 1.5,
                   ),
@@ -395,17 +400,20 @@ class _AqiCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     report.current.band?.label ?? 'Нет данных',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       height: 1.3,
                     ),
                   ),
                   const SizedBox(height: 5),
-                  const Text(
+                  Text(
                     'Качество воздуха',
-                    style: TextStyle(color: Colors.white70, fontSize: 11),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -417,8 +425,8 @@ class _AqiCard extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           AirAdvice.summary(report.current.aqi),
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 12,
             height: 1.6,
           ),
@@ -469,7 +477,10 @@ class _AqiScale extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Color(AirBand.forAqi(aqi!).color),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
@@ -478,13 +489,16 @@ class _AqiScale extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 3),
-      const Row(
+      Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
               '0 · Хороший',
-              style: TextStyle(color: Colors.white70, fontSize: 9),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 9,
+              ),
             ),
           ),
           SizedBox(width: 8),
@@ -492,7 +506,10 @@ class _AqiScale extends StatelessWidget {
             child: Text(
               '500 · Опасный',
               textAlign: TextAlign.right,
-              style: TextStyle(color: Colors.white70, fontSize: 9),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 9,
+              ),
             ),
           ),
         ],
@@ -532,7 +549,7 @@ class _Pollutants extends StatelessWidget {
                           Expanded(
                             child: Text(
                               e.value,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -555,7 +572,7 @@ class _Pollutants extends StatelessWidget {
                               : (report.current.values[e.key]! /
                                         (mg ? 1000 : 1))
                                     .toStringAsFixed(mg ? 3 : 1),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             height: 1.1,
                             fontWeight: FontWeight.w600,
@@ -569,7 +586,7 @@ class _Pollutants extends StatelessWidget {
                             : mg
                             ? 'мг/м³'
                             : 'мкг/м³',
-                        style: const TextStyle(fontSize: 10),
+                        style: TextStyle(fontSize: 10),
                       ),
                     ],
                   ),
@@ -610,7 +627,7 @@ class _ForecastHours extends StatelessWidget {
                   children: [
                     Text(
                       clockLabel(report.cityTime(point.time)),
-                      style: const TextStyle(fontSize: 10),
+                      style: TextStyle(fontSize: 10),
                     ),
                     const SizedBox(height: 7),
                     Container(
@@ -624,7 +641,7 @@ class _ForecastHours extends StatelessWidget {
                     const SizedBox(height: 7),
                     Text(
                       point.aqi?.round().toString() ?? '—',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -659,12 +676,12 @@ class _BestHour extends StatelessWidget {
                 children: [
                   Text(
                     'Лучшее время для прогулки',
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     clockLabel(report.cityTime(best.time)),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       height: 1.2,
                       fontWeight: FontWeight.w500,
@@ -714,7 +731,7 @@ class _ActivityRow extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
             Text(subtitle),
           ],
         ),

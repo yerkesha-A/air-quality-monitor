@@ -1,3 +1,6 @@
+import 'support/first_launch.dart';
+import 'support/sqlite_pagination.dart';
+
 import 'package:air_quality_monitor/main.dart' as app;
 import 'package:air_quality_monitor/data/local/local_store.dart';
 import 'package:air_quality_monitor/data/remote/open_meteo_api.dart';
@@ -30,19 +33,14 @@ Future<void> until(WidgetTester tester, bool Function() predicate) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  WidgetController.hitTestWarningShouldBeFatal = true;
   testWidgets(
     'Live Android API, SQLite offline fallback, notes and native channel',
     (tester) async {
+      await prepareFirstLaunch();
       await app.main();
       await tester.pumpAndSettle();
-      if (find.text('Продолжить').evaluate().isNotEmpty) {
-        for (var i = 0; i < 2; i++) {
-          await tester.tap(find.text('Продолжить'));
-          await tester.pumpAndSettle();
-        }
-        await tester.tap(find.text('Начать'));
-        await tester.pumpAndSettle();
-      }
+      await completeFirstLaunch(tester);
       await tester.tap(find.byKey(const ValueKey('home-city-picker')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Алматы');
@@ -83,7 +81,7 @@ void main() {
       final device = await DeviceService().info();
       expect(device['sdk'], greaterThanOrEqualTo(24));
       expect(device['model'], isNotEmpty);
-      expect(device['firebaseConfigured'], isFalse);
+      expect(device['firebaseConfigured'], isA<bool>());
       final router = GoRouter.of(home);
       router.push('/notes');
       await tester.pumpAndSettle();
@@ -116,6 +114,7 @@ void main() {
         (await store.alerts()).any((row) => row['source'] == 'test'),
         isTrue,
       );
+      await verifySqlitePagination();
       expect(tester.takeException(), isNull);
     },
   );

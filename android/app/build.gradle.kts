@@ -83,3 +83,9 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
+
+// Crashlytics 3.0.8 reads AGP 9.1's VCS output without depending on its producer.
+// Ensure a fresh release build generates the file before Gradle validates it.
+tasks.matching { it.name == "injectCrashlyticsVersionControlInfoRelease" }.configureEach {
+    dependsOn("extractReleaseVersionControlInfo")
+}

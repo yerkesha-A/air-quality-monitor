@@ -1,5 +1,6 @@
 // Отдельный учебный пример; не использует и не имитирует данные AQI.
-// flutter run -t docs/state_examples.dart -d emulator-5554
+// Запускать только на отдельном учебном AVD, не поверх приложения с данными.
+// flutter run -t docs/state_examples.dart -d <учебный-device-id>
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

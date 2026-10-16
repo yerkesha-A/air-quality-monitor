@@ -14,6 +14,23 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Cloud preferences are restored before any upload. Notification permission
+  /// remains device-local; restoring a preference never requests it.
+  Future<void> restoreCloud(Map<String, dynamic> data) async {
+    final theme = data['theme'];
+    if (theme is int && theme >= 0 && theme < ThemeMode.values.length) {
+      await preferences.setInt('theme', theme);
+    }
+    final threshold = data['threshold'];
+    if (threshold is int && threshold >= 25 && threshold <= 300) {
+      await preferences.setInt('threshold', threshold);
+    }
+    for (final key in ['milligrams', 'backgroundAlerts']) {
+      if (data[key] is bool) await preferences.setBool(key, data[key] as bool);
+    }
+    notifyListeners();
+  }
+
   bool get milligrams => preferences.getBool('milligrams') ?? false;
   Future<void> setTheme(ThemeMode mode) async {
     await preferences.setInt('theme', mode.index);

@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../data/local/local_store.dart';
 import '../bloc/air_bloc.dart';
 import '../widgets/primitives.dart';
+import '../widgets/paged_records.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -23,7 +24,7 @@ class _NotesScreenState extends State<NotesScreen> {
   final _text = TextEditingController();
   final _picker = ImagePicker();
   XFile? _photo;
-  List<Map<String, Object?>> _notes = [];
+  int _revision = 0;
   bool _saving = false;
   @override
   void initState() {
@@ -40,10 +41,7 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _reload() async {
-    final place = context.read<AirBloc>().state.place;
-    if (place == null) return;
-    final notes = await context.read<LocalStore>().notes(place);
-    if (mounted) setState(() => _notes = notes);
+    if (mounted) setState(() => _revision++);
   }
 
   @override
@@ -158,79 +156,83 @@ class _NotesScreenState extends State<NotesScreen> {
             ],
           ),
           const SectionTitle('Ваши заметки'),
-          if (_notes.isEmpty) const Text('Здесь появятся сохранённые заметки.'),
-          ..._notes.map(
-            (note) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Surface(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (note['image'] != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.file(
-                          File(note['image'] as String),
-                          height: 180,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              const Text('Фото недоступно'),
+          if (place != null)
+            PagedRecords<Map<String, Object?>>(
+              key: ValueKey('${place.id}:$_revision'),
+              load: (after) =>
+                  context.read<LocalStore>().notesPage(place, after: after),
+              emptyMessage: 'Здесь появятся сохранённые заметки.',
+              itemBuilder: (note) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Surface(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (note['image'] != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(
+                            File(note['image'] as String),
+                            height: 180,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) =>
+                                const Text('Фото недоступно'),
+                          ),
                         ),
-                      ),
-                    const SizedBox(height: 12),
-                    Text(note['text'] as String),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            dateLabel(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                note['created'] as int,
+                      const SizedBox(height: 12),
+                      Text(note['text'] as String),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              dateLabel(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                  note['created'] as int,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        IconButton(
-                          tooltip: 'Удалить заметку',
-                          onPressed: () async {
-                            final confirmed = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Удалить заметку?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('Отмена'),
-                                  ),
-                                  FilledButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('Удалить'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (confirmed != true || !context.mounted) return;
-                            await context.read<LocalStore>().deleteNote(
-                              note['id'] as int,
-                            );
-                            if (note['image'] != null) {
-                              final file = File(note['image'] as String);
-                              if (await file.exists()) await file.delete();
-                            }
-                            await _reload();
-                          },
-                          icon: const Icon(Icons.delete_outline),
-                        ),
-                      ],
-                    ),
-                  ],
+                          IconButton(
+                            tooltip: 'Удалить заметку',
+                            onPressed: () async {
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Удалить заметку?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('Отмена'),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text('Удалить'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              if (confirmed != true || !context.mounted) return;
+                              await context.read<LocalStore>().deleteNote(
+                                note['id'] as int,
+                              );
+                              if (note['image'] != null) {
+                                final file = File(note['image'] as String);
+                                if (await file.exists()) await file.delete();
+                              }
+                              await _reload();
+                            },
+                            icon: const Icon(Icons.delete_outline),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
