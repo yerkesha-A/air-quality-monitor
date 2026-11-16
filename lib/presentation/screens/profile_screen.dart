@@ -166,6 +166,15 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () async {
                     try {
                       final info = await DeviceService().info();
+                      if (info['available'] == false) {
+                        if (context.mounted) {
+                          showMessage(
+                            context,
+                            'Сведения об устройстве недоступны.',
+                          );
+                        }
+                        return;
+                      }
                       if (context.mounted) {
                         showDialog<void>(
                           context: context,

@@ -11,6 +11,7 @@ import 'package:air_quality_monitor/data/services/notification_service.dart';
 import 'package:air_quality_monitor/presentation/bloc/air_bloc.dart';
 import 'package:air_quality_monitor/presentation/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,13 @@ void main() {
       await prepareFirstLaunch();
       await app.main();
       await tester.pumpAndSettle();
-      await completeFirstLaunch(tester);
+      if (find.byType(HomeScreen).evaluate().isEmpty) {
+        await completeFirstLaunch(tester);
+      } else {
+        // --no-uninstall can restore an authenticated session; the route guard
+        // correctly skips the welcome screen without signing this account out.
+        expect(FirebaseAuth.instance.currentUser, isNotNull);
+      }
       await tester.tap(find.byKey(const ValueKey('home-city-picker')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Алматы');

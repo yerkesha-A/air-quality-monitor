@@ -62,7 +62,12 @@ class MapAirController extends ChangeNotifier {
     _timer?.cancel();
     final revision = ++_revision;
     await _load(latitude, longitude, revision, force: force);
-    return _active(revision) && reports.isNotEmpty ? reports.first : null;
+    if (!_active(revision)) return null;
+    final centerId = point(latitude, longitude).id;
+    for (final report in reports) {
+      if (report.place.id == centerId) return report;
+    }
+    return null;
   }
 
   bool _active(int revision) => !_disposed && revision == _revision;

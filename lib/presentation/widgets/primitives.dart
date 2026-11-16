@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'nature_components.dart';
+import 'infinite_records.dart';
 
 class PageBody extends StatelessWidget {
   const PageBody({super.key, required this.children, this.onRefresh});
@@ -8,10 +9,22 @@ class PageBody extends StatelessWidget {
   final Future<void> Function()? onRefresh;
   @override
   Widget build(BuildContext context) {
-    final view = ListView(
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
+    final view = CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 28),
+          sliver: SliverMainAxisGroup(
+            slivers: [
+              for (final child in children)
+                if (child is InfiniteRecords)
+                  child
+                else
+                  SliverToBoxAdapter(child: child),
+            ],
+          ),
+        ),
+      ],
       physics: const AlwaysScrollableScrollPhysics(),
-      children: children,
     );
     return SafeArea(
       top: false,

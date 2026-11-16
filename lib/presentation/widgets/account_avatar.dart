@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../domain/repositories/auth_repository.dart';
 
@@ -45,13 +46,16 @@ class AccountAvatar extends StatelessWidget {
     final pixels = (size * MediaQuery.devicePixelRatioOf(context)).round();
     final local = account.localPhotoPath;
     Widget remote() => account.photoUrl?.startsWith('https://') == true
-        ? Image.network(
-            account.photoUrl!,
+        ? CachedNetworkImage(
+            imageUrl: account.photoUrl!,
+            cacheKey: 'profile:${account.id}:${account.photoUrl}',
             fit: BoxFit.cover,
-            cacheWidth: pixels,
-            errorBuilder: (_, _, _) => fallback,
-            loadingBuilder: (_, child, progress) =>
-                progress == null ? child : fallback,
+            memCacheWidth: pixels,
+            maxWidthDiskCache: pixels,
+            fadeInDuration: Duration.zero,
+            fadeOutDuration: Duration.zero,
+            errorWidget: (_, _, _) => fallback,
+            placeholder: (_, _) => fallback,
           )
         : fallback;
     return Semantics(

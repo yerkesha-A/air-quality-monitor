@@ -44,6 +44,21 @@ void main() {
       verify(() => air.fetch(any())).called(5);
     },
   );
+  test(
+    'An unavailable selected center never substitutes a neighboring point',
+    () async {
+      final center = MapAirController.point(43, 76);
+      when(() => air.fetch(any())).thenAnswer((invocation) async {
+        final place = invocation.positionalArguments.first as Place;
+        if (place.id == center.id) throw const AirFailure('No center data');
+        return report(place);
+      });
+      final model = MapAirController(air, clock: () => now);
+      addTearDown(model.dispose);
+      expect(await model.select(43, 76), isNull);
+      expect(model.reports.length, 4);
+    },
+  );
   test('Failures are honest empty state, no made-up values', () async {
     when(() => air.fetch(any())).thenThrow(const AirFailure('API error'));
     final model = MapAirController(air, clock: () => now);

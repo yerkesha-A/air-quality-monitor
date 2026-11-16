@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/air_quality.dart';
 import 'primitives.dart';
@@ -26,7 +27,10 @@ class _AirChartState extends State<AirChart> {
   @override
   void didUpdateWidget(AirChart oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _selected = null;
+    if (!listEquals(oldWidget.points, widget.points) ||
+        oldWidget.variable != widget.variable) {
+      _selected = null;
+    }
   }
 
   @override
@@ -77,15 +81,17 @@ class _AirChartState extends State<AirChart> {
                   first,
                   duration,
                 ),
-                child: CustomPaint(
-                  size: Size(constraints.maxWidth, 156),
-                  painter: _AirChartPainter(
-                    points,
-                    widget.variable,
-                    color,
-                    widget.gridColor ??
-                        Theme.of(context).colorScheme.onSurfaceVariant,
-                    _selected,
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    size: Size(constraints.maxWidth, 156),
+                    painter: _AirChartPainter(
+                      points,
+                      widget.variable,
+                      color,
+                      widget.gridColor ??
+                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      _selected,
+                    ),
                   ),
                 ),
               ),
@@ -115,7 +121,7 @@ class _AirChartState extends State<AirChart> {
         index = i;
       }
     }
-    setState(() => _selected = index);
+    if (_selected != index) setState(() => _selected = index);
   }
 }
 
@@ -197,5 +203,10 @@ class _AirChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_AirChartPainter oldDelegate) => true;
+  bool shouldRepaint(_AirChartPainter oldDelegate) =>
+      !listEquals(oldDelegate.points, points) ||
+      oldDelegate.variable != variable ||
+      oldDelegate.color != color ||
+      oldDelegate.grid != grid ||
+      oldDelegate.selected != selected;
 }

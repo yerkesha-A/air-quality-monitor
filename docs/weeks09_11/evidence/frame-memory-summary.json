@@ -1,0 +1,24 @@
+{
+  "before": {
+    "frames": 1119,
+    "buildMedianMs": 1.851,
+    "buildP95Ms": 7.85,
+    "rasterMedianMs": 16.55,
+    "rasterP95Ms": 37.274,
+    "over16_67msPercent": 49.24,
+    "heapInitialMiB": 15.19,
+    "heapPeakMiB": 20.09,
+    "heapAfterGcMiB": 18.09
+  },
+  "after": {
+    "frames": 1152,
+    "buildMedianMs": 2.474,
+    "buildP95Ms": 7.11,
+    "rasterMedianMs": 16.584,
+    "rasterP95Ms": 30.713,
+    "over16_67msPercent": 49.05,
+    "heapInitialMiB": 15.85,
+    "heapPeakMiB": 21.03,
+    "heapAfterGcMiB": 18.78
+  }
+}

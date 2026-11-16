@@ -12,7 +12,7 @@ import '../../data/local/local_store.dart';
 import '../../data/services/notification_service.dart';
 import '../providers/settings_controller.dart';
 import '../widgets/primitives.dart';
-import '../widgets/paged_records.dart';
+import '../widgets/infinite_records.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -173,10 +173,11 @@ class _AlertsScreenState extends State<AlertsScreen> {
               'Автоматическая проверка при закрытом приложении ещё не активирована. Получение FCM-токена само по себе не запускает проверку AQI.',
             ),
           const SectionTitle('История на устройстве'),
-          PagedRecords<Map<String, Object?>>(
+          InfiniteRecords<Map<String, Object?>>(
             key: ValueKey(_revision),
             load: (after) =>
                 context.read<LocalStore>().alertsPage(after: after),
+            identity: (row) => row['id']!,
             emptyMessage: 'Предупреждений пока не было.',
             itemBuilder: (item) => ListTile(
               contentPadding: EdgeInsets.zero,

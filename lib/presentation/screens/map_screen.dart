@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/services/device_service.dart';
+import '../../data/services/location_service.dart';
 import '../../domain/entities/air_quality.dart';
 import '../../domain/repositories/air_repository.dart';
 import '../bloc/air_bloc.dart';
@@ -24,7 +25,7 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   late final Future<Map<String, dynamic>> _device = DeviceService().info();
   GoogleMapController? _map;
   late final MapAirController _samples;
@@ -36,12 +37,19 @@ class _MapScreenState extends State<MapScreen> {
   AirReport? _preview;
   String? _error;
   bool _loading = false;
+  bool _locating = false;
+  bool _locationGranted = false;
+  LatLng? _locationPoint;
+  LocationFailure? _locationFailure;
+  bool _pointSelected = false;
   int _revision = 0;
   String _variable = 'us_aqi';
   final Map<String, AirReport> _reports = {};
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkLocationPermission();
     _samples = MapAirController(context.read<AirRepository>())
       ..addListener(_sampleChanged);
     _loadFavorites();
@@ -99,6 +107,7 @@ class _MapScreenState extends State<MapScreen> {
       _loading = true;
       _error = null;
       _preview = null;
+      _pointSelected = true;
     });
     try {
       final report = await _samples.select(
@@ -129,8 +138,85 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  Future<void> _locate() async {
+    if (_locating) return;
+    setState(() {
+      _locating = true;
+      _locationFailure = null;
+    });
+    try {
+      final place = await context.read<AirRepository>().locate();
+      if (!mounted) return;
+      final point = LatLng(place.latitude, place.longitude);
+      setState(() {
+        _locationGranted = true;
+        _locationPoint = point;
+        _center = point;
+      });
+      await _map?.animateCamera(CameraUpdate.newLatLngZoom(point, 10));
+      if (mounted && _map != null) await _select(point);
+    } on LocationFailure catch (failure) {
+      if (mounted) {
+        setState(() {
+          _locationGranted = false;
+          _locationFailure = failure;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _locationGranted = false;
+          _locationFailure = const LocationFailure(
+            LocationIssue.unavailable,
+            'Не удалось определить местоположение. Можно выбрать точку на карте.',
+          );
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
+  }
+
+  Widget _locationNotice() => AirSurface(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_locating) const LinearProgressIndicator(),
+        if (_locationFailure != null) ...[
+          Text(_locationFailure!.message),
+          if (_locationFailure!.issue == LocationIssue.disabled ||
+              _locationFailure!.issue == LocationIssue.permanentlyDenied)
+            TextButton(
+              onPressed: () async {
+                final opened = await LocationService().openSettings(
+                  _locationFailure!.issue,
+                );
+                if (!opened && mounted) {
+                  showMessage(context, 'Откройте настройки Android вручную.');
+                }
+              },
+              child: const Text('Открыть настройки'),
+            ),
+        ],
+      ],
+    ),
+  );
+
+  Future<void> _checkLocationPermission() async {
+    final allowed = await LocationService().hasPermission();
+    if (mounted && allowed != _locationGranted) {
+      setState(() => _locationGranted = allowed);
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkLocationPermission();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _samples.removeListener(_sampleChanged);
     _samples.dispose();
     _map?.dispose();
@@ -153,21 +239,7 @@ class _MapScreenState extends State<MapScreen> {
         IconButton(
           tooltip: 'Моё местоположение',
           icon: const Icon(Icons.my_location_outlined),
-          onPressed: () async {
-            try {
-              final place = await context.read<AirRepository>().locate();
-              if (!context.mounted) return;
-              _map?.animateCamera(
-                CameraUpdate.newLatLngZoom(
-                  LatLng(place.latitude, place.longitude),
-                  10,
-                ),
-              );
-              context.read<AirBloc>().add(LoadAir(place));
-            } catch (e) {
-              if (context.mounted) showMessage(context, e.toString());
-            }
-          },
+          onPressed: _locating ? null : _locate,
         ),
       ],
     ),
@@ -180,6 +252,7 @@ class _MapScreenState extends State<MapScreen> {
         if (snapshot.data?['mapsConfigured'] != true) {
           return PageBody(
             children: [
+              if (_locationFailure != null || _locating) _locationNotice(),
               AirSurface(
                 padding: EdgeInsets.zero,
                 child: ListTile(
@@ -206,7 +279,7 @@ class _MapScreenState extends State<MapScreen> {
             : LatLng(current.place.latitude, current.place.longitude);
         final reports = <String, AirReport>{..._reports};
         if (current != null) reports[current.place.id] = current;
-        final selected = _preview ?? current;
+        final selected = _pointSelected ? _preview : current;
         return SafeArea(
           top: false,
           child: Stack(
@@ -224,6 +297,7 @@ class _MapScreenState extends State<MapScreen> {
                     _updateIcons();
                   },
                   onCameraIdle: () {
+                    if (_loading || _locating) return;
                     final center = _center ?? target;
                     _samples.schedule(center.latitude, center.longitude);
                   },
@@ -232,25 +306,43 @@ class _MapScreenState extends State<MapScreen> {
                       : null,
                   onTap: _select,
                   onCameraMove: (position) => _center = position.target,
-                  zoomControlsEnabled: false,
+                  myLocationEnabled: _locationGranted,
+                  zoomControlsEnabled: true,
                   myLocationButtonEnabled: false,
-                  markers: reports.values
-                      .map(
-                        (r) => Marker(
-                          markerId: MarkerId(r.place.id),
-                          position: LatLng(r.place.latitude, r.place.longitude),
-                          icon:
-                              _icons[r.place.id] ??
-                              BitmapDescriptor.defaultMarker,
-                          infoWindow: InfoWindow(
-                            title: r.place.name,
-                            snippet:
-                                '${_value(r)}${r.offline || r.isStale(DateTime.now()) ? ' · кеш' : ''}',
-                          ),
-                          onTap: () => setState(() => _preview = r),
+                  markers: {
+                    if (_locationPoint != null)
+                      Marker(
+                        markerId: const MarkerId('user-position'),
+                        position: _locationPoint!,
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueAzure,
                         ),
-                      )
-                      .toSet(),
+                        infoWindow: const InfoWindow(
+                          title: 'Моё местоположение',
+                        ),
+                      ),
+                    ...reports.values.map(
+                      (r) => Marker(
+                        markerId: MarkerId(r.place.id),
+                        position: LatLng(r.place.latitude, r.place.longitude),
+                        icon:
+                            _icons[r.place.id] ??
+                            BitmapDescriptor.defaultMarker,
+                        infoWindow: InfoWindow(
+                          title: r.place.name,
+                          snippet:
+                              '${_value(r)}${r.offline || r.isStale(DateTime.now()) ? ' · кеш' : ''}',
+                        ),
+                        onTap: () => setState(() {
+                          _revision++;
+                          _loading = false;
+                          _pointSelected = true;
+                          _preview = r;
+                          _error = null;
+                        }),
+                      ),
+                    ),
+                  },
                 ),
               ),
               Positioned(
@@ -259,6 +351,8 @@ class _MapScreenState extends State<MapScreen> {
                 right: 18,
                 child: Column(
                   children: [
+                    if (_locationFailure != null || _locating)
+                      _locationNotice(),
                     AirSurface(
                       padding: EdgeInsets.zero,
                       child: ListTile(
@@ -309,6 +403,10 @@ class _MapScreenState extends State<MapScreen> {
                             const LinearProgressIndicator(),
                           if (_samples.error != null) Text(_samples.error!),
                           if (_error != null) Text(_error!),
+                          if (_pointSelected && selected == null && !_loading)
+                            const Text(
+                              'Для выбранной точки нет данных. Попробуйте другую точку или обновление.',
+                            ),
                           if (selected != null) ...[
                             Row(
                               children: [

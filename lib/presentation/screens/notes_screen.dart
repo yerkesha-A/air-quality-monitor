@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../data/local/local_store.dart';
 import '../bloc/air_bloc.dart';
 import '../widgets/primitives.dart';
-import '../widgets/paged_records.dart';
+import '../widgets/infinite_records.dart';
 
 class NotesScreen extends StatefulWidget {
   const NotesScreen({super.key});
@@ -157,10 +157,11 @@ class _NotesScreenState extends State<NotesScreen> {
           ),
           const SectionTitle('Ваши заметки'),
           if (place != null)
-            PagedRecords<Map<String, Object?>>(
+            InfiniteRecords<Map<String, Object?>>(
               key: ValueKey('${place.id}:$_revision'),
               load: (after) =>
                   context.read<LocalStore>().notesPage(place, after: after),
+              identity: (row) => row['id']!,
               emptyMessage: 'Здесь появятся сохранённые заметки.',
               itemBuilder: (note) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),

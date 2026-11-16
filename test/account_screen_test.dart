@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:air_quality_monitor/core/theme/app_theme.dart';
 import 'package:air_quality_monitor/domain/repositories/auth_repository.dart';
@@ -8,6 +7,7 @@ import 'package:air_quality_monitor/presentation/providers/auth_controller.dart'
 import 'package:air_quality_monitor/presentation/screens/account_screen.dart';
 import 'package:air_quality_monitor/presentation/widgets/account_avatar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -117,6 +117,7 @@ void main() {
               XFile.fromData(bytes, mimeType: 'image/png', name: 'photo.png'),
         );
         registerFallbackValue(Uint8List(0));
+        registerFallbackValue(ImageSource.camera);
         when(() => repo.updateAvatar(any())).thenAnswer((_) async {});
         await show(tester, picker: picker);
         await tester.tap(find.text('Изменить фото'));
@@ -143,6 +144,65 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'Camera/gallery cancellation preserves profile and repeated opening works',
+    (tester) async {
+      registerFallbackValue(Uint8List(0));
+      registerFallbackValue(ImageSource.camera);
+      final picker = _Picker();
+      when(
+        () => picker.pickImage(
+          source: any(named: 'source'),
+          maxWidth: 640,
+          maxHeight: 640,
+          imageQuality: 80,
+        ),
+      ).thenAnswer((_) async => null);
+      for (final choice in [
+        'Сделать снимок',
+        'Выбрать из галереи',
+        'Сделать снимок',
+      ]) {
+        await show(tester, picker: picker);
+        await tester.tap(find.text('Изменить фото'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(choice));
+        await tester.pumpAndSettle();
+        expect(find.text(account.name), findsOneWidget);
+        expect(find.text('Фото сохранено на устройстве.'), findsNothing);
+        expect(tester.takeException(), isNull);
+      }
+      verifyNever(() => repo.updateAvatar(any()));
+    },
+  );
+  testWidgets(
+    'Camera permission/platform failure is actionable and does not change avatar',
+    (tester) async {
+      registerFallbackValue(Uint8List(0));
+      registerFallbackValue(ImageSource.camera);
+      final picker = _Picker();
+      when(
+        () => picker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 640,
+          maxHeight: 640,
+          imageQuality: 80,
+        ),
+      ).thenThrow(PlatformException(code: 'camera_access_denied'));
+      await show(tester, picker: picker);
+      await tester.tap(find.text('Изменить фото'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Сделать снимок'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Не удалось открыть камеру. Можно выбрать фото из галереи.'),
+        findsOneWidget,
+      );
+      verifyNever(() => repo.updateAvatar(any()));
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('Explicit Back works for a directly opened account route', (
     tester,

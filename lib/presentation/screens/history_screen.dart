@@ -45,7 +45,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) => BlocListener<AirBloc, AirState>(
-    listenWhen: (before, after) => !after.busy,
+    listenWhen: (before, after) =>
+        !after.busy &&
+        (before.busy ||
+            before.place?.id != after.place?.id ||
+            before.report != after.report),
     listener: (_, _) => setState(_reload),
     child: AirScaffold(
       photographic: true,
@@ -53,8 +57,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
         bottom: false,
         child: BlocBuilder<HistoryBloc, HistoryState>(
           builder: (context, state) {
-            final report = context.watch<AirBloc>().state.report;
-            final place = context.watch<AirBloc>().state.place;
+            final report = context.select<AirBloc, AirReport?>(
+              (bloc) => bloc.state.report,
+            );
+            final place = context.select<AirBloc, Place?>(
+              (bloc) => bloc.state.place,
+            );
             final offset = report?.utcOffsetSeconds ?? 0;
             final points = state.place?.id == place?.id
                 ? state.points

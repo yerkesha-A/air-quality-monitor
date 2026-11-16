@@ -1,0 +1,28 @@
+29 October 2026 — actual local verification outputs
+
+
+$ flutter analyze
+Analyzing air_quality_monitor...                                
+No issues found! (ran in 7.1s)
+
+$ flutter test --no-pub --concurrency=1 --coverage
+01:22 +87: All tests passed!
+
+$ flutter test integration_test/weeks_09_11_test.dart -d emulator-5560 --no-uninstall [private defines]
+02:24 +1: All tests passed!
+
+$ same native test --no-uninstall --dart-define=VERIFY_NATIVE_RESTART=true
+00:09 +1: All tests passed!
+
+$ flutter test integration_test/air_flow_test.dart -d emulator-5560 --no-uninstall
+00:31 +1: All tests passed!
+
+$ python3 tools/check_coverage.py
+Flutter LCOV: 2363/3382 lines (69.87%)
+
+$ flutter build apk --debug --no-pub
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+
+$ adb -s emulator-5560 install -r -t [regular APK]
+Performing Streamed Install
+Success

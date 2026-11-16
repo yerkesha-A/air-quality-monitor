@@ -1,0 +1,28 @@
+{
+  "beforeIntegrityOk": true,
+  "afterIntegrityOk": true,
+  "tableCountsBefore": {
+    "android_metadata": 1,
+    "alerts": 4,
+    "cache": 2,
+    "places": 2,
+    "samples": 8,
+    "notes": 1
+  },
+  "tableCountsAfter": {
+    "android_metadata": 1,
+    "alerts": 4,
+    "cache": 2,
+    "places": 2,
+    "samples": 8,
+    "notes": 1
+  },
+  "sqliteRowsExactlyPreserved": true,
+  "allPreviousRowsPresent": true,
+  "settingsExactlyPreserved": true,
+  "photoFilesBefore": 1,
+  "photoFilesAfter": 1,
+  "allPreviousPhotosUnchanged": true,
+  "persistedFirebaseAccountPresent": true,
+  "persistedFirebaseRecordUnchanged": true
+}

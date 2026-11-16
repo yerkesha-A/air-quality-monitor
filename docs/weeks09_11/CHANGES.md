@@ -1,0 +1,53 @@
+# Изменённые файлы недель 9–11
+
+29 октября 2026. Локальные изменения; секреты, APK, пользовательские данные и резервные копии сюда не входят.
+
+- `PROJECT_PROGRESS.md`
+- `README.md`
+- `WEEK_09.md`
+- `WEEK_10.md`
+- `WEEK_11.md`
+- `android/app/src/main/kotlin/com/example/air_quality_monitor/MainActivity.kt`
+- `docs/PERFORMANCE.md`
+- `docs/REQUIREMENTS_AUDIT.md`
+- `docs/weeks09_11/CHANGES.md`
+- `docs/weeks09_11/DEMO.md`
+- `docs/weeks09_11/GOOGLE_CLOUD.md`
+- `docs/weeks09_11/VALIDATION.md`
+- `docs/weeks09_11/evidence/android-camera.png`
+- `docs/weeks09_11/evidence/android-gallery.png`
+- `docs/weeks09_11/evidence/android-home-final.png`
+- `docs/weeks09_11/evidence/android-method-channel.png`
+- `docs/weeks09_11/evidence/apk-summary.json`
+- `docs/weeks09_11/evidence/frame-memory-summary.json`
+- `docs/weeks09_11/evidence/main-data-preservation.json`
+- `docs/weeks09_11/evidence/memory-after.png`
+- `docs/weeks09_11/evidence/native-summary.json`
+- `docs/weeks09_11/evidence/performance-after.png`
+- `docs/weeks09_11/evidence/performance-before.png`
+- `docs/weeks09_11/evidence/rebuild-inspection-after.png`
+- `docs/weeks09_11/evidence/test-results.txt`
+- `integration_test/air_flow_test.dart`
+- `integration_test/weeks_09_11_test.dart`
+- `lib/data/services/device_service.dart`
+- `lib/data/services/location_service.dart`
+- `lib/presentation/controllers/infinite_records_controller.dart`
+- `lib/presentation/controllers/map_air_controller.dart`
+- `lib/presentation/screens/alerts_screen.dart`
+- `lib/presentation/screens/history_screen.dart`
+- `lib/presentation/screens/map_screen.dart`
+- `lib/presentation/screens/notes_screen.dart`
+- `lib/presentation/screens/profile_screen.dart`
+- `lib/presentation/widgets/account_avatar.dart`
+- `lib/presentation/widgets/air_chart.dart`
+- `lib/presentation/widgets/infinite_records.dart`
+- `lib/presentation/widgets/primitives.dart`
+- `pubspec.lock`
+- `pubspec.yaml`
+- `test/account_screen_test.dart`
+- `test/device_service_test.dart`
+- `test/infinite_records_test.dart`
+- `test/location_service_test.dart`
+- `test/map_air_test.dart`
+- `tools/measure_android.dart`
+- `tools/week10_profile.dart`
