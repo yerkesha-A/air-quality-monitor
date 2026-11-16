@@ -12,5 +12,11 @@
   "remoteCi": "not run for current changes",
   "firestoreRulesTests": 6,
   "functionsUnitTests": 3,
-  "protectedFilesUnchanged": true
+  "protectedFilesUnchanged": true,
+  "releaseInstalledWithDataPreservingUpdate": true,
+  "existingSessionVisibleAfterFullAndroidRestart": true,
+  "releaseMapDark": true,
+  "releaseMapOfflineFallback": true,
+  "releaseMapLandscape": true,
+  "releaseAppRuntimeFatalMarkers": 0
 }
