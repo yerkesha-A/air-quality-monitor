@@ -195,6 +195,12 @@ class AccountScreen extends StatelessWidget {
                         padding: EdgeInsets.only(top: 16),
                         child: LinearProgressIndicator(),
                       ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push('/delete-account'),
+                      icon: const Icon(Icons.person_remove_outlined),
+                      label: const Text('Запросить удаление аккаунта'),
+                    ),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed: auth.busy ? null : auth.logout,

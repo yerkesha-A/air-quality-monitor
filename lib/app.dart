@@ -10,6 +10,7 @@ import 'core/di/app_dependencies.dart';
 import 'data/models/air_dto.dart';
 import 'data/local/favorite_removals.dart';
 import 'data/services/cloud_sync.dart';
+import 'data/services/map_tiles.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/repositories/air_repository.dart';
@@ -187,6 +188,9 @@ class _AirQualityAppState extends State<AirQualityApp> {
       Provider.value(value: widget.dependencies.notifications),
       Provider.value(value: widget.dependencies.firebase),
       Provider<AirRepository>.value(value: widget.dependencies.air),
+      Provider<MapTilesFactory>.value(
+        value: widget.dependencies.mapTilesFactory ?? createMapTiles,
+      ),
     ],
     child: MultiBlocProvider(
       providers: [

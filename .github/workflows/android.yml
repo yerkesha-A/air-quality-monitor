@@ -2,6 +2,7 @@ name: Android quality checks
 on:
   push:
   pull_request:
+  workflow_dispatch:
 concurrency:
   group: android-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -29,7 +30,7 @@ jobs:
       - name: Check publishable files for secrets
         run: python3 tools/secret_scan.py
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test docs coursework
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test docs coursework tools/*.dart
       - run: flutter analyze
       - run: dart run coursework/week01/exercises.dart
       - run: dart run docs/dart_basics.dart

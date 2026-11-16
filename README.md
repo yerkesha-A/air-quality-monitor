@@ -19,7 +19,7 @@ Flutter-приложение для Android, которое помогает с�
 - Заметки с фотографиями, локальные предупреждения и история уведомлений.
 - Вход по email и через Google, синхронизация профиля и избранного через Firebase.
 
-Google Maps находится в разработке: код карты и работы с координатами подготовлен, но отображение карты требует настройки Google Cloud с billing. Автоматические ежедневные push-сводки пока не реализованы.
+Карта использует OpenStreetMap: показывает выбранные города и модельные оценки воздуха вокруг выбранной точки. Доступны геолокация и просмотр сохранённых данных. Автоматические ежедневные push-сводки пока не реализованы.
 
 ## Технологии
 
@@ -32,7 +32,7 @@ Google Maps находится в разработке: код карты и р�
 | Локальные данные | SharedPreferences, SQLite / sqflite, cached_network_image |
 | Аккаунт и облако | Firebase Auth, Firestore, FCM, Crashlytics |
 | Возможности Android | geolocator, image_picker, локальные уведомления, Kotlin MethodChannel |
-| Карта | google_maps_flutter — интеграция не завершена |
+| Карта | flutter_map, OpenStreetMap, latlong2 |
 
 ## Архитектура
 
@@ -77,6 +77,7 @@ SharedPreferences сохраняет настройки и выбранный г
 
 <p>
   <img src="docs/rk1/screenshots/01-home.png" width="220" alt="Главная: качество воздуха в Алматы" />
+  <img src="docs/rk2/screenshots/02-map-light.png" width="220" alt="Карта воздуха OpenStreetMap" />
   <img src="docs/rk1/screenshots/02-history.png" width="220" alt="История качества воздуха" />
   <img src="docs/rk1/screenshots/05-dark-theme-20261015.png" width="220" alt="Тёмная тема" />
 </p>
@@ -121,3 +122,5 @@ Unit- и widget-тесты проверяют API, BLoC, кеш, навигац�
 [Google Maps и геолокация](WEEK_09.md) · [Производительность и DevTools](WEEK_10.md) · [Камера и Kotlin MethodChannel](WEEK_11.md) · [Сценарий демонстрации](docs/weeks09_11/DEMO.md)
 
 Проверка карты ожидает настройки Google Cloud. Камера и MethodChannel требуют отдельной приёмки на физическом Android; результаты эмулятора указаны в отчёте. Профилирование проведено на отдельном AVD: сохранены Performance до/после, Memory после и численные замеры памяти обеих версий. Снимок Memory до требует восстановления; медленные кадры отражены в отчёте.
+
+Материалы следующего этапа: [недели 9–15](docs/RK2_REPORT.md).

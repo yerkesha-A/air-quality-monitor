@@ -1,0 +1,13 @@
+{
+  "date": "2026-11-16",
+  "analyze": "passed",
+  "unitWidgetTests": 96,
+  "coveredLines": 2576,
+  "instrumentedLines": 3537,
+  "coveragePercent": 72.83,
+  "mapAndroidIntegration": "passed",
+  "physicalDevice": "not tested; deferred by owner",
+  "secretScanFiles": 389,
+  "secretScanFindings": 0,
+  "remoteCi": "not run for current changes"
+}

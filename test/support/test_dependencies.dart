@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:air_quality_monitor/core/di/app_dependencies.dart';
 import 'package:air_quality_monitor/data/local/local_store.dart';
 import 'package:air_quality_monitor/data/repositories/firebase_auth_repository.dart';
@@ -28,10 +32,10 @@ const fixturePlace = Place(
   longitude: 76.9115,
   country: 'Казахстан',
 );
-AirReport fixtureReport() {
+AirReport fixtureReport({Place place = fixturePlace}) {
   final now = DateTime.now().toUtc();
   return AirReport(
-    place: fixturePlace,
+    place: place,
     current: AirPoint(
       time: now,
       values: {
@@ -74,7 +78,10 @@ AppDependencies testDependencies({bool selected = false}) {
   when(() => places.select(any())).thenAnswer((_) async {});
   when(() => places.setFavorite(any(), any())).thenAnswer((_) async {});
   when(() => air.cached(any())).thenAnswer((_) async => null);
-  when(() => air.fetch(any())).thenAnswer((_) async => fixtureReport());
+  when(() => air.fetch(any())).thenAnswer(
+    (invocation) async =>
+        fixtureReport(place: invocation.positionalArguments.first as Place),
+  );
   when(() => air.search(any())).thenAnswer((_) async => [fixturePlace]);
   when(() => air.resolve(any())).thenAnswer((_) async => fixturePlace);
   when(() => air.history(any(), any()))
@@ -96,6 +103,7 @@ AppDependencies testDependencies({bool selected = false}) {
   ).thenAnswer((_) async {});
   when(() => notifications.requestPermission()).thenAnswer((_) async => true);
   return AppDependencies(
+    mapTilesFactory: () => TestMapTiles(),
     air: air,
     places: places,
     store: store,
@@ -103,4 +111,15 @@ AppDependencies testDependencies({bool selected = false}) {
     firebase: FirebaseService(configured: false),
     notifications: notifications,
   );
+}
+
+// No public tile-server traffic from widget tests. Android tests use real OSM.
+class TestMapTiles extends TileProvider {
+  @override
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
+      MemoryImage(
+        base64Decode(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=',
+        ),
+      );
 }

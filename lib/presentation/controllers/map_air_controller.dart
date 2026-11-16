@@ -70,6 +70,35 @@ class MapAirController extends ChangeNotifier {
     return null;
   }
 
+  /// Known city reports share the same serial queue as regional samples.
+  Future<List<AirReport>> loadPlaces(Iterable<Place> places) {
+    final result = <AirReport>[];
+    final task = _work.then((_) async {
+      for (final place in places.take(3)) {
+        if (_disposed) break;
+        try {
+          var report =
+              _cache.remove(place.id) ?? await repository.cached(place);
+          if (_disposed) break;
+          if (report == null || !_fresh(report)) {
+            report = await repository.fetch(place);
+          }
+          if (_disposed) break;
+          _cache[place.id] = report;
+          while (_cache.length > maxCacheEntries) {
+            _retryAt.remove(_cache.keys.first);
+            _cache.remove(_cache.keys.first);
+          }
+          result.add(report);
+        } catch (_) {
+          // An unavailable city has no fabricated marker.
+        }
+      }
+    });
+    _work = task;
+    return task.then((_) => result);
+  }
+
   bool _active(int revision) => !_disposed && revision == _revision;
   bool _fresh(AirReport report) =>
       !report.offline &&

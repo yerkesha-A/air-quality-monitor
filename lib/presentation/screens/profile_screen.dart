@@ -207,7 +207,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Air Quality Monitor · 1.0.0\nИсточник: Open-Meteo / Copernicus CAMS\nЕдиная шкала: US AQI',
+            'Air Quality Monitor · 1.1.0\nИсточник: Open-Meteo / Copernicus CAMS\nЕдиная шкала: US AQI',
             style: TextStyle(fontSize: 11, height: 1.6),
           ),
         ],

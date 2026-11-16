@@ -11,6 +11,7 @@ import '../../data/repositories/firebase_auth_repository.dart';
 import '../../data/repositories/local_places_repository.dart';
 import '../../data/repositories/open_meteo_repository.dart';
 import '../../data/services/device_service.dart';
+import '../../data/services/map_tiles.dart';
 import '../../data/services/firebase_service.dart';
 import '../../data/services/location_service.dart';
 import '../../data/services/notification_service.dart';
@@ -26,7 +27,9 @@ class AppDependencies {
     required this.auth,
     required this.firebase,
     required this.notifications,
+    this.mapTilesFactory,
   });
+  final MapTilesFactory? mapTilesFactory;
   final AirRepository air;
   final PlacesRepository places;
   final LocalStore store;

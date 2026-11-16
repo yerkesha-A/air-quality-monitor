@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:vm_service/vm_service_io.dart';
 
 Future<void> main(List<String> args) async {
-  if (args.length != 3) {
+  if (args.length < 3 ||
+      args.length > 4 ||
+      (args.length == 4 && args[3] != '--without-map')) {
     throw ArgumentError('URI file, output directory, ADB serial required');
   }
   final uri = (await File(args[0]).readAsString()).trim();
@@ -59,7 +61,9 @@ Future<void> main(List<String> args) async {
       await input(['tap', '670', '2200'], 750);
       await input(['swipe', '500', '1800', '500', '800', '600']);
       await input(['swipe', '500', '800', '500', '1800', '600']);
-      await input(['tap', '415', '2200'], 750);
+      if (args.length == 3) {
+        await input(['tap', '415', '2200'], 750);
+      }
       await input(['tap', '920', '2200'], 750);
       await input(['swipe', '500', '1800', '500', '800', '600']);
       await input(['swipe', '500', '800', '500', '1800', '600']);

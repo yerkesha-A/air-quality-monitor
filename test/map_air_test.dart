@@ -59,6 +59,30 @@ void main() {
       expect(model.reports.length, 4);
     },
   );
+  test(
+    'Known cities are bounded and share the serial region request queue',
+    () async {
+      var active = 0;
+      var peak = 0;
+      when(() => air.fetch(any())).thenAnswer((invocation) async {
+        active++;
+        if (active > peak) peak = active;
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+        active--;
+        return report(invocation.positionalArguments.first as Place);
+      });
+      final model = MapAirController(air, clock: () => now);
+      addTearDown(model.dispose);
+      final cities = model.loadPlaces([
+        for (var i = 0; i < 8; i++) MapAirController.point(40.0 + i, 70),
+      ]);
+      final region = model.select(50, 80);
+      expect((await cities).length, 3);
+      await region;
+      expect(peak, 1);
+      verify(() => air.fetch(any())).called(8);
+    },
+  );
   test('Failures are honest empty state, no made-up values', () async {
     when(() => air.fetch(any())).thenThrow(const AirFailure('API error'));
     final model = MapAirController(air, clock: () => now);
@@ -98,19 +122,16 @@ void main() {
     expect(await first, isNull);
     expect((await second)!.place.latitude, 50);
   });
-  test(
-    'Raster marker handles all AQI categories and absent PM values',
-    () async {
-      for (final value in [0.0, 51.0, 101.0, 151.0, 201.0, 301.0]) {
-        final sample = AirReport(
-          place: MapAirController.point(43, 76),
-          current: AirPoint(time: now, values: {'us_aqi': value}),
-          forecast: [],
-          fetchedAt: now,
-        );
-        expect(await aqiMarker(sample, 'us_aqi'), isNotNull);
-        expect(await aqiMarker(sample, 'pm10'), isNotNull);
-      }
-    },
-  );
+  test('Marker labels use actual values and show absent PM honestly', () async {
+    for (final value in [0.0, 51.0, 101.0, 151.0, 201.0, 301.0]) {
+      final sample = AirReport(
+        place: MapAirController.point(43, 76),
+        current: AirPoint(time: now, values: {'us_aqi': value}),
+        forecast: [],
+        fetchedAt: now,
+      );
+      expect(markerValue(sample, 'us_aqi'), value.toStringAsFixed(0));
+      expect(markerValue(sample, 'pm10'), '—');
+    }
+  });
 }

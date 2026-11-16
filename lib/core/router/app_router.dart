@@ -5,6 +5,7 @@ import '../../presentation/providers/auth_controller.dart';
 import '../../presentation/providers/settings_controller.dart';
 import '../../presentation/widgets/nature_components.dart';
 import '../../presentation/screens/account_screen.dart';
+import '../../presentation/screens/account_deletion_screen.dart';
 import '../../presentation/screens/alerts_screen.dart';
 import '../../presentation/screens/auth_screen.dart';
 import '../../presentation/screens/city_link_screen.dart';
@@ -63,6 +64,10 @@ GoRouter createRouter(
       path: '/account',
       name: 'account',
       builder: (_, _) => const AccountScreen(),
+    ),
+    GoRoute(
+      path: '/delete-account',
+      builder: (_, _) => const AccountDeletionScreen(),
     ),
     GoRoute(
       path: '/alerts',

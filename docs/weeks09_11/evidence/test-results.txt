@@ -2,7 +2,7 @@
 
 
 $ flutter analyze
-Analyzing air_quality_monitor...                                
+Analyzing air_quality_monitor...
 No issues found! (ran in 7.1s)
 
 $ flutter test --no-pub --concurrency=1 --coverage
