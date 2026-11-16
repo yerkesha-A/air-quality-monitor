@@ -83,3 +83,6 @@ lib/firebase_options.dart
 
 # Local teacher hand-in bundle (signed APK, source archive, personal data excluded)
 /submission/
+
+# Local Kotlin compiler session files
+android/.kotlin/

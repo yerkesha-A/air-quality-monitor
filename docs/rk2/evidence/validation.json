@@ -9,5 +9,8 @@
   "physicalDevice": "not tested; deferred by owner",
   "secretScanFiles": 389,
   "secretScanFindings": 0,
-  "remoteCi": "not run for current changes"
+  "remoteCi": "not run for current changes",
+  "firestoreRulesTests": 6,
+  "functionsUnitTests": 3,
+  "protectedFilesUnchanged": true
 }

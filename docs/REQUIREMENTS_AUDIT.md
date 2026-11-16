@@ -1,6 +1,6 @@
 # Аудит 13 обязательных требований
 
-Обновлено 29 октября 2026. Пункты ниже соответствуют уточнённому владельцем перечню из 13 категорий. Приоритет РК1 — **задания недель 1–7**; Firebase недели 8 показан отдельно. Оригинальная методичка в репозитории отсутствует, поэтому дополнительные дословные критерии внутри категорий не подменяются предположениями.
+Обновлено 16 ноября 2026. Пункты ниже соответствуют уточнённому владельцем перечню из 13 категорий. Приоритет РК1 — **задания недель 1–7**; Firebase недели 8 показан отдельно. Оригинальная методичка в репозитории отсутствует, поэтому дополнительные дословные критерии внутри категорий не подменяются предположениями.
 
 | № | Требование | Подтверждение | Итог |
 | --- | --- | --- | --- |
@@ -11,8 +11,8 @@
 | 5 | SharedPreferences + SQLite | Настройки, кеш, избранное, история, заметки, уведомления; offline-first Repository | Реализовано; unit/native-проверки и сохранность исходного AVD подтверждены |
 | 6 | GoRouter | StatefulShellRoute.indexedStack с 4 ветками; `/city/:id`, query mode; redirect `/account` для неавторизованного, неизвестный маршрут | Реализовано; вложенность — shell/branches, а не только набор плоских страниц |
 | 7 | Firebase | Реальные Auth Email/Google, Firestore profile/favorites/settings, Security Rules, настоящий FCM foreground/background/terminated + tap | Основные сценарии реализованы и подтверждены; физическая межустройственная приёмка отдельно не выполнена |
-| 8 | Google Maps + геолокация | Maps SDK/MapScreen/MapAirController; GPS/reverse geocoding работают отдельно; тесты контроллера | **Частично:** реальные tiles и SDK-приёмка заблокированы отсутствием billing/API key |
-| 9 | Производительность | SQLite keyset infinite scroll, SliverList.builder, cached_network_image disk cache, RepaintBoundary; реальные Performance/Memory/FrameTiming до/после | Критерии недели 10 — [отчёт](../WEEK_10.md); slow frames остаются, 60 FPS не подтверждено |
+| 8 | Google Maps + геолокация | flutter_map / OSM, MapScreen/MapAirController; реальные тайлы и GPS проверены на Android | **Частично по точному бренду SDK:** OSM-карта работает без billing; замену Google Maps нужно согласовать |
+| 9 | Производительность | SQLite keyset infinite scroll, SliverList.builder, cached_network_image disk cache, RepaintBoundary; реальные Performance/Memory/FrameTiming до/после | Критерии недели 10 — [отчёт](WEEK_10.md); slow frames остаются, 60 FPS не подтверждено |
 | 10 | Нативные возможности | Camera intent/image_picker, приватные фото, геолокация/permissions, Kotlin MethodChannel model/sdk/battery | На эмуляторе проверено; физическая камера/GPS ещё требуют отдельной приёмки |
 | 11 | Тестирование | Актуальные Flutter/analyze/coverage и native-проверки — [валидация](weeks09_11/VALIDATION.md); Rules 6/6 и Python 3/3 подтверждены 16.10 | Результаты РК1 исторические, новые проверки датированы отдельно |
 | 12 | CI/CD | .github/workflows/android.yml, реальные удалённые запуски GitHub Actions; изменения 29.10 ещё не отправлены, нового CI нет | [Запуск #38946181056](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/38946181056) завершился success: оба jobs успешны; подробности в GITHUB.md |
@@ -36,7 +36,7 @@
 
 ## Что остаётся в полном проекте
 
-- Подключение Google Maps владельцем в Cloud и настоящая native-приёмка.
+- Согласование замены Google Maps на работающую OpenStreetMap-карту; Google Cloud billing не подключён.
 - Полная проверка производительности на profile build/физическом Android и работа со slow frames. Есть память/trace, но 60 FPS и отсутствие утечек не доказаны.
 - Дисковый HTTP-кеш сетевого Google-аватара добавлен 29.10 через cached_network_image; локальные фото остаются отдельными файлами.
 - Физическое устройство: камера/GPS и синхронизация двух устройств; смена пароля по ссылке с последующим входом пока не подтверждена.
@@ -44,3 +44,5 @@
 - iOS и Google Play не входят в текущую Android-сдачу; публикация не выполнялась.
 
 Подробнее: [профилирование/кеш/пагинация](PERFORMANCE.md), [Google Maps](GOOGLE_MAPS_SETUP.md), [результаты](rk1/VALIDATION.md), [РК1](../RK1_REPORT.md).
+
+Текущая проверка следующих этапов: [недели 9–15](RK2_REPORT.md), [результаты 16.11](rk2/evidence/validation.json). Не считать новый удалённый CI или release-приёмку пройденными до отдельных подтверждений.
