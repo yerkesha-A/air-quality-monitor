@@ -8,8 +8,8 @@ GitHub Actions выполняет pub get, проверку форматиров
 
 ## Доказательства
 
-Конфигурация: [.github/workflows/android.yml](../.github/workflows/android.yml). Новые изменения находятся локально.
+Конфигурация: [.github/workflows/android.yml](../.github/workflows/android.yml). Изменения опубликованы с разрешения владельца. [Run 43853471363](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/43853471363) для 1955ee8 завершился success: Android и Firestore Rules.
 
 ## Что осталось
 
-Новый зелёный запуск GitHub Actions не подтверждён до публикации и выполнения workflow. Старый запуск РК1 не является доказательством текущей версии. Push и отправка сборок требуют разрешения.
+Новый запуск подтверждён; [машиночитаемый результат](rk2/evidence/github-actions.json). Следующие изменения отчётов могут запустить новый workflow; его статус нужно отличать от проверенного run.

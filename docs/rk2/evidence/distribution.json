@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-16",
+  "appDistributionUpload": "success",
+  "releaseNotes": "success",
+  "distributionToApprovedTester": "success",
+  "testerInstallation": "not yet confirmed",
+  "apkSha256": "b50eb03bcd5da67c93be59d38a45efb9e295da5cd46950414bb3d15712f57207",
+  "target": "lib/main.dart",
+  "billingEnabled": false,
+  "billingReadOnlyCheckAfterUpload": false,
+  "appDistributionReadOnlyStatusAfterUpload": 200
+}

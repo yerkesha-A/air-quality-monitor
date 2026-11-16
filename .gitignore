@@ -86,3 +86,6 @@ lib/firebase_options.dart
 
 # Local Kotlin compiler session files
 android/.kotlin/
+
+# Local Crashlytics symbol upload cache
+.crashlytics/

@@ -9,7 +9,7 @@
   "physicalDevice": "not tested; deferred by owner",
   "secretScanFiles": 389,
   "secretScanFindings": 0,
-  "remoteCi": "not run for current changes",
+  "remoteCi": "success: run 43853471363, commit 1955ee8",
   "firestoreRulesTests": 6,
   "functionsUnitTests": 3,
   "protectedFilesUnchanged": true,
@@ -18,5 +18,8 @@
   "releaseMapDark": true,
   "releaseMapOfflineFallback": true,
   "releaseMapLandscape": true,
-  "releaseAppRuntimeFatalMarkers": 0
+  "releaseAppRuntimeFatalMarkers": 0,
+  "nativeIntegration": "passed",
+  "nativeSessionAndPhotoAfterRestart": "passed",
+  "crashlyticsConsole": "confirmed by owner"
 }
