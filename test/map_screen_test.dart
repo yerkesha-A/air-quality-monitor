@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 
 import 'support/test_dependencies.dart';
 
+import 'package:air_quality_monitor/presentation/widgets/aqi_marker.dart';
+
 class _Location extends Mock implements LocationService {}
 
 class _Tiles extends TestMapTiles {
@@ -85,15 +87,120 @@ void main() {
       expect(marker, findsOneWidget);
       await tester.tap(marker);
       await tester.pumpAndSettle();
+      if (find.text('Точки рядом: 2').evaluate().isNotEmpty ||
+          find.textContaining('Точки рядом:').evaluate().isNotEmpty) {
+        await tester.tap(find.text('Алматы · 42 US AQI'));
+        await tester.pumpAndSettle();
+      }
       expect(find.text('42 US AQI'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('map-details-toggle')));
+      await tester.pumpAndSettle();
       expect(find.textContaining('PM₂.₅: 8.5'), findsOneWidget);
       expect(find.textContaining('Обновлено'), findsOneWidget);
-      await tester.tap(find.widgetWithText(ActionChip, 'Астана'));
+      await tester.tap(find.byTooltip('Быстрый выбор города'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Астана'));
       await tester.pumpAndSettle();
       expect(find.text('Астана'), findsWidgets);
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'Compact card expands without covering the map; legend explains all bands',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+      await show(tester);
+      final collapsed = tester.getSize(find.byType(FlutterMap)).height;
+      expect(collapsed, greaterThan(300));
+      expect(find.textContaining('PM₂.₅: 8.5'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('map-details-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('PM₂.₅: 8.5'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('map-details-toggle')));
+      await tester.pumpAndSettle();
+      expect(tester.getSize(find.byType(FlutterMap)).height, collapsed);
+      await tester.tap(find.text('Легенда US AQI'));
+      await tester.pumpAndSettle();
+      expect(find.text('0–50'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('301+'),
+        180,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(find.text('Опасный'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('Rotating the map keeps labels upright, visible and separated', (
+    tester,
+  ) async {
+    await show(tester);
+    tester
+        .widget<FlutterMap>(find.byType(FlutterMap))
+        .mapController!
+        .rotate(35);
+    await tester.pumpAndSettle();
+    final viewport = tester.getRect(find.byType(FlutterMap));
+    final labels = find.byType(AqiMapBadge);
+    expect(labels.evaluate(), isNotEmpty);
+    final rects = [
+      for (final element in labels.evaluate())
+        tester.getRect(find.byWidget(element.widget)),
+    ];
+    for (var i = 0; i < rects.length; i++) {
+      expect(viewport.contains(rects[i].topLeft), isTrue);
+      expect(viewport.contains(rects[i].bottomRight), isTrue);
+      for (var j = i + 1; j < rects.length; j++) {
+        expect(rects[i].overlaps(rects[j]), isFalse);
+      }
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Granted GPS remains visible without intercepting AQI labels', (
+    tester,
+  ) async {
+    when(() => location.locate()).thenAnswer((_) async => fixturePlace);
+    await show(tester);
+    await tester.tap(find.byTooltip('Моё местоположение'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('user-location-marker')), findsOneWidget);
+    expect(find.byType(AqiMapBadge), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final issue in [
+    LocationIssue.permanentlyDenied,
+    LocationIssue.disabled,
+  ]) {
+    testWidgets(
+      'Returning from settings clears recovered $issue without auto-locating',
+      (tester) async {
+        final failure = LocationFailure(issue, 'Старое ограничение');
+        when(() => location.locate()).thenThrow(failure);
+        await show(tester);
+        await tester.tap(find.byTooltip('Моё местоположение'));
+        await tester.pumpAndSettle();
+        expect(find.text(failure.message), findsOneWidget);
+        when(() => location.hasPermission()).thenAnswer((_) async => true);
+        when(() => location.serviceEnabled()).thenAnswer((_) async => true);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(failure.message), findsNothing);
+        verify(() => location.locate()).called(1);
+        expect(find.byType(FlutterMap), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   for (final issue in [
     LocationIssue.denied,

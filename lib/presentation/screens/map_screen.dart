@@ -13,7 +13,7 @@ import '../../domain/repositories/air_repository.dart';
 import '../bloc/air_bloc.dart';
 import '../controllers/map_air_controller.dart';
 import '../providers/places_controller.dart';
-import '../widgets/aqi_marker.dart';
+import '../widgets/map_marker_layout.dart';
 import '../widgets/primitives.dart';
 import '../widgets/nature_components.dart';
 import 'city_picker_sheet.dart';
@@ -51,6 +51,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   bool _useMain = true;
   bool _tileError = false;
   bool _showRegional = true;
+  bool _detailsExpanded = false;
   int _revision = 0;
 
   @override
@@ -189,8 +190,24 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
 
   Future<void> _checkPermission() async {
     final allowed = await _location.hasPermission();
-    if (mounted && allowed != _permission) {
-      setState(() => _permission = allowed);
+    if (!mounted) return;
+    final failure = _locationFailure;
+    final permissionRecovered =
+        allowed &&
+        (failure?.issue == LocationIssue.denied ||
+            failure?.issue == LocationIssue.permanentlyDenied);
+    final serviceRecovered =
+        failure?.issue == LocationIssue.disabled &&
+        await _location.serviceEnabled();
+    if (!mounted) return;
+    if (allowed != _permission || permissionRecovered || serviceRecovered) {
+      setState(() {
+        _permission = allowed;
+        if (identical(_locationFailure, failure) &&
+            (permissionRecovered || serviceRecovered)) {
+          _locationFailure = null;
+        }
+      });
     }
   }
 
@@ -232,17 +249,35 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   Widget _controls() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      AirSurface(
-        padding: EdgeInsets.zero,
-        child: ListTile(
-          dense: true,
-          leading: const Icon(Icons.search_rounded),
-          title: const Text('Поиск города…'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => showCityPicker(context),
-        ),
+      Row(
+        children: [
+          Expanded(
+            child: AirSurface(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                dense: true,
+                visualDensity: VisualDensity.compact,
+                leading: const Icon(Icons.search_rounded),
+                title: const Text('Поиск города…'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showCityPicker(context),
+              ),
+            ),
+          ),
+          PopupMenuButton<Place>(
+            tooltip: 'Быстрый выбор города',
+            icon: Icon(
+              Icons.location_city_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            onSelected: _openCity,
+            itemBuilder: (_) => [
+              for (final city in suggestedPlaces)
+                PopupMenuItem(value: city, child: Text(city.name)),
+            ],
+          ),
+        ],
       ),
-      const SizedBox(height: 6),
       SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -264,23 +299,112 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
+    ],
+  );
+
+  void _legend() => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useRootNavigator: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (context) => SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final city in suggestedPlaces)
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: ActionChip(
-                  label: Text(city.name),
-                  onPressed: () => _openCity(city),
+            Text(
+              'Легенда US AQI',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Цвет маркера всегда обозначает категорию US AQI, в том числе при просмотре PM₂.₅ и PM₁₀.',
+            ),
+            for (final (index, band) in AirBand.values.indexed)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  backgroundColor: Color(band.color),
+                  radius: 10,
+                ),
+                title: Text(band.label),
+                subtitle: Text(
+                  [
+                    '0–50',
+                    '51–100',
+                    '101–150',
+                    '151–200',
+                    '201–300',
+                    '301+',
+                  ][index],
                 ),
               ),
+            const Text(
+              '«+N» — соседние точки. Нажмите группу, чтобы выбрать точку. Число на маркере относится к одной реальной точке, это не среднее значение группы.',
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Open-Meteo / CAMS: модельные оценки, не показания уличных датчиков.',
+            ),
           ],
         ),
       ),
-    ],
+    ),
   );
+
+  Future<void> _markerPressed(List<AirReport> reports) async {
+    if (reports.length == 1) {
+      _chooseReport(reports.single);
+      return;
+    }
+    final report = await showModalBottomSheet<AirReport>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      useSafeArea: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .6,
+          child: Column(
+            children: [
+              Text(
+                'Точки рядом: ${reports.length}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: reports.length,
+                  itemBuilder: (_, index) {
+                    final r = reports[index];
+                    return ListTile(
+                      title: Text(
+                        '${r.place.name} · ${r.current.aqi?.round() ?? '—'} US AQI',
+                      ),
+                      subtitle: Text(
+                        '${r.place.latitude.toStringAsFixed(3)}, ${r.place.longitude.toStringAsFixed(3)}',
+                      ),
+                      onTap: () => Navigator.pop(context, r),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (report == null || !mounted) return;
+    _chooseReport(report);
+    if (_mapReady) {
+      _map.move(
+        LatLng(report.place.latitude, report.place.longitude),
+        (_map.camera.zoom + 1).clamp(3, 18),
+      );
+    }
+  }
 
   Widget _locationNotice() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,6 +430,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   );
 
   Widget _details(AirReport? report) => AirSurface(
+    padding: const EdgeInsets.all(12),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -319,51 +444,90 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
             'Нажмите маркер или точку на карте, чтобы узнать качество воздуха.',
           ),
         if (report != null) ...[
-          Text(
-            report.place.name,
-            style: Theme.of(context).textTheme.titleMedium,
+          InkWell(
+            key: const ValueKey('map-details-toggle'),
+            onTap: () => setState(() => _detailsExpanded = !_detailsExpanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          report.place.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        Text(
+                          '${report.current.aqi?.round() ?? '—'} US AQI',
+                          style: const TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (!_detailsExpanded)
+                          Text(
+                            'Обновлено ${clockLabel(report.fetchedAt.toLocal())}',
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Tooltip(
+                    message: _detailsExpanded
+                        ? 'Свернуть сведения'
+                        : 'Подробнее о воздухе',
+                    child: Icon(
+                      _detailsExpanded ? Icons.expand_less : Icons.expand_more,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          if (report.place.region.isNotEmpty)
-            Text(report.place.region, style: const TextStyle(fontSize: 11)),
-          const SizedBox(height: 4),
-          Text(
-            '${report.current.aqi?.round() ?? '—'} US AQI',
-            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w600),
-          ),
-          Text(
-            'PM₂.₅: ${report.current.values['pm2_5']?.toStringAsFixed(1) ?? '—'} · '
-            'PM₁₀: ${report.current.values['pm10']?.toStringAsFixed(1) ?? '—'} мкг/м³',
-          ),
-          Text(
-            'Данные модели: ${dateLabel(report.cityTime(report.current.time))} '
-            '${clockLabel(report.cityTime(report.current.time))}',
-            style: const TextStyle(fontSize: 11),
-          ),
-          Text(
-            '${report.offline || report.isStale(DateTime.now()) ? '${report.cacheLabel} · ' : ''}'
-            'Обновлено ${dateLabel(report.fetchedAt.toLocal())} ${clockLabel(report.fetchedAt.toLocal())}',
-            style: const TextStyle(fontSize: 11),
-          ),
-          TextButton(
-            onPressed: () => context.read<AirBloc>().add(LoadAir(report.place)),
-            child: const Text('Выбрать это место'),
-          ),
+          if (report.offline || report.isStale(DateTime.now()))
+            Text(report.cacheLabel, style: const TextStyle(fontSize: 11)),
+          if (_detailsExpanded) ...[
+            const Divider(),
+            if (report.place.region.isNotEmpty) Text(report.place.region),
+            Text(report.current.band?.label ?? 'Нет данных о категории'),
+            Text(
+              'PM₂.₅: ${report.current.values['pm2_5']?.toStringAsFixed(1) ?? '—'} · PM₁₀: ${report.current.values['pm10']?.toStringAsFixed(1) ?? '—'} мкг/м³',
+            ),
+            Text(
+              'Данные модели: ${dateLabel(report.cityTime(report.current.time))} ${clockLabel(report.cityTime(report.current.time))}',
+              style: const TextStyle(fontSize: 11),
+            ),
+            Text(
+              'Обновлено ${dateLabel(report.fetchedAt.toLocal())} ${clockLabel(report.fetchedAt.toLocal())}',
+              style: const TextStyle(fontSize: 11),
+            ),
+            TextButton(
+              onPressed: () =>
+                  context.read<AirBloc>().add(LoadAir(report.place)),
+              child: const Text('Выбрать это место'),
+            ),
+          ],
         ],
-        const Text(
-          'Цвет — категория US AQI. Open-Meteo / CAMS: модельные данные, не уличные датчики.',
-          style: TextStyle(fontSize: 11),
-        ),
-        TextButton.icon(
-          onPressed: _loading ? null : () => _select(_center, force: true),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Проверить центр карты'),
-        ),
+        if (_detailsExpanded || report == null)
+          TextButton.icon(
+            onPressed: _loading ? null : () => _select(_center, force: true),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Проверить центр карты'),
+          ),
       ],
     ),
   );
 
-  Widget _mapView(Map<String, AirReport> reports) {
+  Widget _mapView(
+    Map<String, AirReport> reports, {
+    bool compactLegend = false,
+  }) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final markerSize = airMapMarkerSize(MediaQuery.textScalerOf(context));
     final tiles = TileLayer(
       urlTemplate: osmTileUrl,
       tileProvider: _tiles,
@@ -431,34 +595,13 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                     child: tiles,
                   ),
                   MarkerLayer(
+                    rotate: true,
                     markers: [
-                      for (final report in reports.values.take(14))
-                        Marker(
-                          point: LatLng(
-                            report.place.latitude,
-                            report.place.longitude,
-                          ),
-                          width: 74,
-                          height: 38,
-                          child: Semantics(
-                            button: true,
-                            label:
-                                '${report.place.name}, ${report.current.aqi?.round() ?? 'нет данных'} US AQI',
-                            child: GestureDetector(
-                              key: ValueKey('map-marker-${report.place.id}'),
-                              onTap: () => _chooseReport(report),
-                              child: AqiMapBadge(
-                                report: report,
-                                variable: _variable,
-                              ),
-                            ),
-                          ),
-                        ),
                       if (_permission && _userPosition != null)
                         Marker(
                           point: _userPosition!,
-                          width: 98,
-                          height: 58,
+                          width: markerSize.width + 12,
+                          height: markerSize.height + 12,
                           child: Semantics(
                             label: 'Моё местоположение',
                             child: IgnorePointer(
@@ -476,6 +619,14 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                           ),
                         ),
                     ],
+                  ),
+                  AirMapMarkers(
+                    reports: reports.values.take(14).toList(),
+                    variable: _variable,
+                    selectedId: _pointSelected
+                        ? _preview?.place.id
+                        : context.read<AirBloc>().state.report?.place.id,
+                    onSelect: _markerPressed,
                   ),
                 ],
               ),
@@ -540,33 +691,53 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
         ),
         Material(
           color: Theme.of(context).colorScheme.surface,
-          child: InkWell(
-            onTap: () async {
-              try {
-                final opened = await launchUrl(
-                  Uri.parse('https://www.openstreetmap.org/copyright'),
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!opened && mounted) {
-                  showMessage(context, 'Не удалось открыть ссылку.');
-                }
-              } catch (_) {
-                if (mounted) showMessage(context, 'Не удалось открыть ссылку.');
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Semantics(
-                link: true,
-                child: Text(
-                  '© OpenStreetMap contributors',
-                  style: TextStyle(
-                    fontSize: 11,
-                    decoration: TextDecoration.underline,
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              if (compactLegend)
+                IconButton(
+                  tooltip: 'Легенда US AQI',
+                  onPressed: _legend,
+                  icon: const Icon(Icons.palette_outlined),
+                )
+              else
+                TextButton.icon(
+                  onPressed: _legend,
+                  icon: const Icon(Icons.palette_outlined, size: 18),
+                  label: const Text("Легенда US AQI"),
+                ),
+              InkWell(
+                onTap: () async {
+                  try {
+                    final opened = await launchUrl(
+                      Uri.parse('https://www.openstreetmap.org/copyright'),
+                      mode: LaunchMode.externalApplication,
+                    );
+                    if (!opened && mounted) {
+                      showMessage(context, 'Не удалось открыть ссылку.');
+                    }
+                  } catch (_) {
+                    if (mounted) {
+                      showMessage(context, 'Не удалось открыть ссылку.');
+                    }
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                  child: Semantics(
+                    link: true,
+                    child: Text(
+                      '© OpenStreetMap contributors',
+                      style: TextStyle(
+                        fontSize: 11,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ],
@@ -642,7 +813,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
               if (wide) {
                 return Row(
                   children: [
-                    Expanded(child: _mapView(reports)),
+                    Expanded(child: _mapView(reports, compactLegend: true)),
                     SizedBox(
                       width: size.maxWidth * .43,
                       child: SingleChildScrollView(
@@ -668,7 +839,8 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                   Expanded(child: _mapView(reports)),
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxHeight: size.maxHeight * .34,
+                      maxHeight:
+                          size.maxHeight * (_detailsExpanded ? .48 : .28),
                     ),
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),

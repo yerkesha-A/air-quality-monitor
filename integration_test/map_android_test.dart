@@ -24,6 +24,7 @@ Future<void> waitFor(WidgetTester tester, bool Function() condition) async {
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  WidgetController.hitTestWarningShouldBeFatal = true;
   testWidgets(
     'Real Android OSM tiles, report marker, attribution, disk cache and GPS',
     (tester) async {
@@ -51,18 +52,44 @@ void main() {
         find.text('© OpenStreetMap contributors').hitTestable(),
         findsOneWidget,
       );
-      final badge = tester
+      final badges = tester
           .widgetList<AqiMapBadge>(find.byType(AqiMapBadge))
-          .first;
+          .toList();
+      final badge = badges.first;
+      final viewport = tester.getRect(find.byType(FlutterMap));
+      final labelRects = [
+        for (final element in find.byType(AqiMapBadge).evaluate())
+          tester.getRect(find.byWidget(element.widget)),
+      ];
+      for (var i = 0; i < labelRects.length; i++) {
+        expect(viewport.contains(labelRects[i].topLeft), isTrue);
+        expect(viewport.contains(labelRects[i].bottomRight), isTrue);
+        for (var j = i + 1; j < labelRects.length; j++) {
+          expect(labelRects[i].overlaps(labelRects[j]), isFalse);
+        }
+      }
       expect(badge.report.current.aqi, greaterThanOrEqualTo(0));
       await tester.tap(
         find.byKey(ValueKey('map-marker-${badge.report.place.id}')),
       );
       await tester.pumpAndSettle();
+      if (badge.count > 1) {
+        await tester.tap(
+          find
+              .text(
+                '${badge.report.place.name} · ${badge.report.current.aqi!.round()} US AQI',
+              )
+              .first,
+        );
+        await tester.pumpAndSettle();
+      }
       expect(
         find.text('${badge.report.current.aqi!.round()} US AQI'),
         findsOneWidget,
       );
+      await tester.tap(find.byKey(const ValueKey('map-details-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('PM₂.₅:'), findsOneWidget);
       final cache = Directory(
         '${(await getApplicationCacheDirectory()).path}/fm_cache',
       );
@@ -110,6 +137,10 @@ void main() {
       await File('${docs.path}/rk2-map-verification.json').writeAsString(
         jsonEncode({
           'mapWidget': true,
+          'fullyVisibleNonOverlappingLabels': true,
+          'visibleLabels': badges.length,
+          'mapViewportHeightLogicalPixels': viewport.height,
+          'expandableDetails': true,
           'attributionVisible': true,
           'tileCacheFiles': tileCount,
           'aqi': badge.report.current.aqi,

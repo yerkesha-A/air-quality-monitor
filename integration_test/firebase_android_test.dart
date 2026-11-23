@@ -1,3 +1,5 @@
+import 'support/first_launch.dart';
+
 import 'package:air_quality_monitor/core/di/app_dependencies.dart';
 import 'package:air_quality_monitor/data/services/cloud_sync.dart';
 import 'package:air_quality_monitor/domain/entities/air_quality.dart';
@@ -17,6 +19,7 @@ void main() {
   testWidgets('Real Android email auth and safe Firestore restore', (
     tester,
   ) async {
+    await requireIsolatedAndroid();
     expect(email, isNotEmpty, reason: 'Provide private test credentials');
     expect(password.length, greaterThanOrEqualTo(12));
     final deps = await AppDependencies.create(

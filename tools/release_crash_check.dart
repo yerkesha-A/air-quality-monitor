@@ -9,12 +9,15 @@ Future<void> main() async {
   await application.main();
   if (!kReleaseMode || Firebase.apps.isEmpty) return;
   final preferences = await SharedPreferences.getInstance();
-  const marker = 'rk2_nonfatal_20261116';
+  const marker = String.fromEnvironment(
+    'CRASHLYTICS_VERIFICATION_ID',
+    defaultValue: 'aqm_release_nonfatal_check',
+  );
   if (preferences.getBool(marker) ?? false) return;
   final crashlytics = FirebaseCrashlytics.instance;
   await crashlytics.setCustomKey('verification', marker);
   await crashlytics.recordError(
-    StateError('AQM intentional RK2 nonfatal verification 20261116'),
+    StateError('AQM intentional nonfatal verification: $marker'),
     StackTrace.current,
     reason: 'Explicit isolated release QA; no user data in this event',
     fatal: false,

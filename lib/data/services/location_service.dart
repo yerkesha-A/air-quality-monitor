@@ -90,6 +90,14 @@ class LocationService {
     }
   }
 
+  Future<bool> serviceEnabled() async {
+    try {
+      return await platform.isLocationServiceEnabled();
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<bool> hasPermission() async {
     try {
       final p = await platform.checkPermission();
