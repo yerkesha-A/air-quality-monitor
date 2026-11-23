@@ -21,5 +21,15 @@
   "releaseAppRuntimeFatalMarkers": 0,
   "nativeIntegration": "passed",
   "nativeSessionAndPhotoAfterRestart": "passed",
-  "crashlyticsConsole": "confirmed by owner"
+  "crashlyticsConsole": "confirmed by owner",
+  "latestLocalCheck": {
+    "date": "2026-11-23",
+    "analyze": "passed",
+    "unitWidgetTests": 96,
+    "coveredLines": 2576,
+    "instrumentedLines": 3537,
+    "coveragePercent": 72.83,
+    "concurrency": 1,
+    "releaseApi30": "passed; session retained; real map loaded"
+  }
 }

@@ -8,7 +8,7 @@ GitHub Actions выполняет pub get, проверку форматиров
 
 ## Доказательства
 
-Конфигурация: [.github/workflows/android.yml](../.github/workflows/android.yml). Изменения опубликованы с разрешения владельца. [Run 43853471363](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/43853471363) для 1955ee8 завершился success: Android и Firestore Rules.
+Конфигурация: [.github/workflows/android.yml](../.github/workflows/android.yml). Изменения опубликованы с разрешения владельца. [Run 43856352446](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/43856352446) для 24a6946 завершился success: Android и Firestore Rules.
 
 ## Что осталось
 

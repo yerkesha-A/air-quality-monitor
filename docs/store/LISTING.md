@@ -27,8 +27,8 @@ Air Quality Monitor помогает быстро узнать качество 
 - Разработчик учебного проекта Air Quality Monitor.
 - Email: erkezhanabdraim@gmail.com.
 - Репозиторий: https://github.com/yerkesha-A/air-quality-monitor.
-- Политика: `docs/PRIVACY_POLICY.md`; после разрешённого push проверить публичный URL.
-- Удаление аккаунта: `docs/ACCOUNT_DELETION.md`; запрос через поддержку.
+- Политика: https://github.com/yerkesha-A/air-quality-monitor/blob/main/docs/PRIVACY_POLICY.md.
+- Удаление аккаунта: https://github.com/yerkesha-A/air-quality-monitor/blob/main/docs/ACCOUNT_DELETION.md; запрос через поддержку.
 
 ## Перед реальной публикацией
 

@@ -12,6 +12,6 @@
 
 ## Что осталось
 
-Подмена Google Maps на OpenStreetMap требует согласования преподавателя, если в задании указан именно Google Maps. Billing не подключён.
+Замена Google Maps на OpenStreetMap требует согласования преподавателя, если в задании указан именно Google Maps. Billing не подключён.
 
 На подписанной release-сборке дополнительно проверены [тёмная карта](rk2/screenshots/03-map-dark-release.png), [сохранённые данные без сети](rk2/screenshots/04-map-offline-release.png) и [альбомная ориентация](rk2/screenshots/05-map-landscape-release.png). Сеть и светлая тема восстановлены после проверки.

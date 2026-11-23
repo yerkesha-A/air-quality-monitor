@@ -13,10 +13,10 @@
 | 7 | Firebase | Реальные Auth/Firestore/Rules/FCM; физическая межустройственная приёмка отдельно не проведена |
 | 8 | Google Maps + геолокация | Работает flutter_map / OpenStreetMap: реальные тайлы, AQI и GPS проверены на Android. Замена Google Maps требует согласования преподавателя; billing не подключён |
 | 9 | Производительность | Infinite scroll заметок/уведомлений, cached_network_image, реальные DevTools до/после; p95 сократился, slow frames остаются ([неделя 10](docs/WEEK_10.md)) |
-| 10 | Нативные возможности | Камера/GPS/MethodChannel проверены на эмуляторе; физический телефон ещё не принят |
+| 10 | Нативные возможности | Камера/GPS/MethodChannel проверены на эмуляторе; физическая проверка отложена: Android-телефона нет |
 | 11 | Тестирование | 16.11: 96 тестов, coverage 72,83%, Rules 6/6, функции 3/3; [результаты](docs/rk2/evidence/validation.json) |
-| 12 | CI/CD | Workflow прошёл на GitHub: android + firestore-rules success; [доказательство](docs/rk1/GITHUB.md) |
-| 13 | Release + Crashlytics | Подписанные Android APK/AAB и non-fatal подтверждены 16.10; изменения 29.10 проверены в debug/profile |
+| 12 | CI/CD | Workflow прошёл на GitHub: android + firestore-rules success; [результат текущего этапа](docs/rk2/evidence/github-actions.json) |
+| 13 | Release + Crashlytics | APK/AAB 1.1.0+2 подписаны и проверены 16.11; non-fatal виден в Crashlytics; App Distribution отправлен, физическая установка не подтверждена |
 
 ## РК1
 

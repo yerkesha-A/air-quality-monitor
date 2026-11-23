@@ -109,7 +109,7 @@ python3 tools/check_coverage.py
 
 Unit- и widget-тесты проверяют API, BLoC, кеш, навигацию, формы и адаптивность. Правила Firestore проверяются отдельно в Firebase Emulator. В репозитории настроен [GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions) для анализа, тестов и сборки Android.
 
-[Результаты тестирования](docs/rk1/VALIDATION.md) · [Профилирование](docs/PERFORMANCE.md)
+[Результаты тестирования РК2](docs/rk2/evidence/validation.json) · [Профилирование](docs/WEEK_10.md)
 
 ## Материалы РК1
 
@@ -117,10 +117,10 @@ Unit- и widget-тесты проверяют API, BLoC, кеш, навигац�
 
 [Аудит требований полного проекта](docs/REQUIREMENTS_AUDIT.md)
 
-## Недели 9–11
+## Материалы РК2
 
-[Google Maps и геолокация](WEEK_09.md) · [Производительность и DevTools](WEEK_10.md) · [Камера и Kotlin MethodChannel](WEEK_11.md) · [Сценарий демонстрации](docs/weeks09_11/DEMO.md)
+[Отчёт по неделям 9–15](docs/RK2_REPORT.md) · [PDF-презентация](docs/rk2/RK2_PRESENTATION.pdf) · [Сценарий защиты](docs/rk2/DEFENSE.md) · [Комплект сдачи](docs/rk2/SUBMISSION.md)
 
-Проверка карты ожидает настройки Google Cloud. Камера и MethodChannel требуют отдельной приёмки на физическом Android; результаты эмулятора указаны в отчёте. Профилирование проведено на отдельном AVD: сохранены Performance до/после, Memory после и численные замеры памяти обеих версий. Снимок Memory до требует восстановления; медленные кадры отражены в отчёте.
+[Карта и геолокация](docs/WEEK_09.md) · [Производительность](docs/WEEK_10.md) · [Камера и Kotlin MethodChannel](docs/WEEK_11.md)
 
-Материалы следующего этапа: [недели 9–15](docs/RK2_REPORT.md).
+Android-проверки выполнены на эмуляторе. Проверка на физическом устройстве отложена и отмечена отдельно в отчёте.

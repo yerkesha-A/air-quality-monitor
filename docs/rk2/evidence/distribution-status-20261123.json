@@ -1,0 +1,19 @@
+{
+  "readOnly": true,
+  "billingStatus": 200,
+  "billingEnabled": false,
+  "googleProvider": true,
+  "appDistributionStatus": 200,
+  "appDistributionReady": true,
+  "appDistributionReason": null,
+  "latestRelease": {
+    "displayVersion": "1.1.0",
+    "buildVersion": "2"
+  },
+  "testerListStatus": 200,
+  "approvedTesterListed": true,
+  "testerLastActivityAvailable": true,
+  "invitationAcceptance": "not exposed by this API response",
+  "physicalDeviceInstallation": "not verified; owner has no Android phone",
+  "checkedOn": "2026-11-23"
+}

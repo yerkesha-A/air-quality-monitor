@@ -5,12 +5,14 @@
   "device": "AQM_Memory_Baseline / emulator-5562",
   "api": 37,
   "cpuCores": 4,
-  "memoryMiB": 3072,
+  "memoryMiB": 4096,
   "gpu": "host",
   "scenario": "3 cycles: home scroll, history scroll, profile scroll, home; --without-map",
   "account": "guest",
   "city": "Almaty",
   "baselineApkSha256": "b83300b88ee94e6425331ebb8d185c07921f6dbd0f60d037129c969447f31444",
   "afterApkSha256": "be2e306b034d8ec3ec09af075bef1d01b9b78feff01a885b11c69587f518a8fd",
-  "measurementScope": "Common guest screens only; real map tested separately"
+  "measurementScope": "Common guest screens only; real map tested separately",
+  "requestedMemoryMiB": 3072,
+  "memoryCorrection": "API 37 emulator logs confirm automatic increase to 4096 MB in both baseline and later runs; 3072 was only the requested CLI value."
 }
