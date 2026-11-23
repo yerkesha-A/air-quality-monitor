@@ -19,16 +19,21 @@ Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
   await Firebase.initializeApp();
   final store = await LocalStore.open();
   try {
-    await store.recordAlert(
+    await recordPushMessage(message, store);
+  } finally {
+    await store.database.close();
+  }
+}
+
+// Android may display notification payloads without calling the Dart background
+// handler. Persist again on tap; the SQLite message-id primary key deduplicates it.
+Future<void> recordPushMessage(RemoteMessage message, LocalStore store) =>
+    store.recordAlert(
       id: message.messageId ?? DateTime.now().microsecondsSinceEpoch.toString(),
       title: message.notification?.title ?? 'Качество воздуха',
       body: message.notification?.body ?? '',
       source: 'push',
     );
-  } finally {
-    await store.database.close();
-  }
-}
 
 class FirebaseService {
   FirebaseService({required this.configured, this.schedulerConfigured = false});
@@ -74,9 +79,11 @@ class FirebaseService {
       );
     });
     _opened = FirebaseMessaging.onMessageOpenedApp.listen(
-      (message) => onOpen?.call('/alerts'),
+      (message) => handleOpenedMessage(message, notifications.store),
     );
-    if (await FirebaseMessaging.instance.getInitialMessage() != null) {
+    final initial = await FirebaseMessaging.instance.getInitialMessage();
+    if (initial != null) {
+      await recordPushMessage(initial, notifications.store);
       initialRoute = '/alerts';
     }
     _tokens = FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
@@ -89,6 +96,14 @@ class FirebaseService {
         }
       }
     });
+  }
+
+  Future<void> handleOpenedMessage(
+    RemoteMessage message,
+    LocalStore store,
+  ) async {
+    await recordPushMessage(message, store);
+    onOpen?.call('/alerts');
   }
 
   Future<bool> enablePush(Account account) async {
