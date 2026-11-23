@@ -17,7 +17,8 @@ import 'cloud_sync.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
   await Firebase.initializeApp();
-  final store = await LocalStore.open();
+  // A background isolate must not close the UI isolate's native SQLite handle.
+  final store = await LocalStore.open(singleInstance: false);
   try {
     await recordPushMessage(message, store);
   } finally {

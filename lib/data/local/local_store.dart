@@ -9,10 +9,11 @@ import '../models/air_dto.dart';
 class LocalStore {
   LocalStore(this.database);
   final Database database;
-  static Future<LocalStore> open() async {
+  static Future<LocalStore> open({bool singleInstance = true}) async {
     final db = await openDatabase(
       path.join(await getDatabasesPath(), 'air_quality.db'),
       version: 3,
+      singleInstance: singleInstance,
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await db.execute(
