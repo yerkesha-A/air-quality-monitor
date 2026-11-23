@@ -15,14 +15,14 @@
 | 9 | Производительность | Lazy lists, настоящая keyset пагинация SQLite, cached_network_image, dispose и ограничение запросов | Pagination/infinite-records tests, native disk cache; реальные исторические DevTools Performance/Memory/FrameTiming до/после | Реализовано; 60 FPS и отсутствие утечек не гарантируются |
 | 10 | Нативные возможности | image_picker камера/галерея, локальные фото, geolocator, Kotlin MethodChannel | Android-эмулятор: camera/gallery/permissions/channel и перезапуск; сценарии отмены/ошибок в тестах | **Частично:** физический Android ещё не проверен |
 | 11 | Тестирование | Unit, mocktail, widget, integration; защита тестов от запуска на основном AVD | 108/108, analyze без замечаний; LCOV 2762/3693 = 74,79% >40%; Rules 6/6, Functions 3/3 | Локальные тесты подтверждены; не подменяют физическую приёмку |
-| 12 | CI/CD | `.github/workflows/android.yml`: зависимости, формат, analyze, тесты, покрытие, APK/artifact, Rules job | [Опубликованный run 45177924926](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45177924926), commit 86e2acd, success | Старый CI подтверждён; новый run возможен после разрешения push |
-| 13 | Release + Crashlytics | Существующий ключ, APK/AAB, obfuscate/split-debug-info, Crashlytics; privacy/store/Data Safety/App Distribution | Исторический build 2 опубликован с разрешения; non-fatal 16.11 подтверждён в Console; build 3 собран, обе подписи проверены, новый non-fatal подтверждён в Console | Новая публикация не выполняется; установка App Distribution на телефоне не подтверждена |
+| 12 | CI/CD | `.github/workflows/android.yml`: зависимости, формат, analyze, тесты, покрытие, APK/artifact, Rules job | [Опубликованный run 45228891410](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45228891410), commit 79bca13, success | Новый run для 79bca13 подтверждён: оба jobs success |
+| 13 | Release + Crashlytics | Существующий ключ, APK/AAB, obfuscate/split-debug-info, Crashlytics; privacy/store/Data Safety/App Distribution | Исторический build 2 опубликован с разрешения; non-fatal 16.11 подтверждён в Console; build 3 собран, обе подписи проверены, новый non-fatal подтверждён в Console | APK/AAB build 3 не публиковались; установка App Distribution на телефоне не подтверждена |
 
 ## Что нужно от владельца или преподавателя
 
 - Согласование OpenStreetMap вместо требуемого Google Maps. Billing не подключается.
 - Физический Android для настоящей проверки камеры, GPS и установки тестовой доставки.
-- Разрешение push для проверки новой рабочей копии GitHub Actions. Старый зелёный запуск не является проверкой нового кода.
+- Новый GitHub Actions проверен после разрешённого push; дополнительное разрешение потребуется для новой доставки APK, если она нужна.
 - Интерактивный вход Google, если требуется новая приёмка именно финального build 3. Предыдущий успешный вход и сохранение сессии уже зафиксированы; пароли в чат не нужны.
 
 Новые материалы и проверки датируются фактическим выполнением. Дополнительные продуктовые идеи не добавляются к преподавательским требованиям: ежедневная серверная сводка, iOS-публикация и английская локализация не объявляются завершёнными.

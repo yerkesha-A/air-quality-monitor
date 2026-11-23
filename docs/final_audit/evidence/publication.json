@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-23",
+  "authorizedByOwner": true,
+  "repository": "https://github.com/yerkesha-A/air-quality-monitor",
+  "sourceCommitVerifiedByCi": "79bca13",
+  "ciRun": 45228891410,
+  "ciConclusion": "success",
+  "anonymousFileChecks": [
+    {
+      "path": "README.md",
+      "publiclyAvailable": true,
+      "matchesPushedBlob": true,
+      "bytes": 11389
+    },
+    {
+      "path": "docs/final_audit/AUDIT_01_15.md",
+      "publiclyAvailable": true,
+      "matchesPushedBlob": true,
+      "bytes": 21117
+    },
+    {
+      "path": "docs/REQUIREMENTS_AUDIT.md",
+      "publiclyAvailable": true,
+      "matchesPushedBlob": true,
+      "bytes": 7103
+    },
+    {
+      "path": "docs/rk2/RK2_PRESENTATION.pdf",
+      "publiclyAvailable": true,
+      "matchesPushedBlob": true,
+      "bytes": 1034195
+    }
+  ],
+  "apkOrAabPublished": false,
+  "privateDataPublished": false,
+  "anonymousFileChecksCommit": "79bca13"
+}

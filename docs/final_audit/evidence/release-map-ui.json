@@ -11,5 +11,7 @@
   "darkTheme": true,
   "emulatedGpsMarkerDoesNotObscureAqi": true,
   "otherScreensRedesigned": false,
-  "physicalDevice": false
+  "physicalDevice": false,
+  "nativeHistoryScreenChecked": true,
+  "historySavedCitySamplesVisible": 4
 }

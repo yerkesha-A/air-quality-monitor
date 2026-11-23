@@ -11,5 +11,7 @@
   "fcmForeground": true,
   "sessionAndPhotoAfterRestart": true,
   "date": "2026-11-23",
-  "physicalDevice": false
+  "physicalDevice": false,
+  "buildMode": "isolated debug integration",
+  "cameraAndGallerySourceUnchangedInFinalRelease": true
 }

@@ -29,11 +29,15 @@
   "androidAirFlow": "passed: live API, real SQLite, fallback, paging",
   "physicalAndroidTested": false,
   "publishedCi": {
-    "commit": "86e2acd",
-    "run": 45177924926,
-    "conclusion": "success"
+    "commit": "79bca13",
+    "run": 45228891410,
+    "conclusion": "success",
+    "jobs": [
+      "android:success",
+      "firestore-rules:success"
+    ]
   },
-  "currentChangesPushed": false,
+  "currentChangesPushed": true,
   "nativeProgramsPassed": [
     "air_flow",
     "map_android (strict bounds/groups)",

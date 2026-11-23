@@ -1,7 +1,18 @@
 {
-  "id": 45177924926,
-  "head_sha": "86e2acd670984dfac9fb333a094219ef0163d05d",
+  "id": 45228891410,
+  "head_sha": "79bca13c260d5d156581bd3c9a7990d3f34c85d7",
   "status": "completed",
   "conclusion": "success",
-  "html_url": "https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45177924926"
+  "html_url": "https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45228891410",
+  "applicationCodeCommit": "9427a22",
+  "jobs": [
+    {
+      "name": "android",
+      "conclusion": "success"
+    },
+    {
+      "name": "firestore-rules",
+      "conclusion": "success"
+    }
+  ]
 }
