@@ -609,46 +609,55 @@ class _ForecastHours extends StatelessWidget {
         .clamp(0.0, 3.0);
     return SizedBox(
       height: 96 + extraScale * 64,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: points.length,
-        itemBuilder: (context, index) {
-          final point = points[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: SizedBox(
-              width: 64 + extraScale * 32,
-              child: Surface(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 12,
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      clockLabel(report.cityTime(point.time)),
-                      style: TextStyle(fontSize: 10),
-                    ),
-                    const SizedBox(height: 7),
-                    Container(
-                      height: 5,
-                      width: 5,
-                      decoration: BoxDecoration(
-                        color: Color(point.band?.color ?? 0xffaaaaaa),
-                        shape: BoxShape.circle,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            ...ScrollConfiguration.of(context).dragDevices,
+            PointerDeviceKind.mouse,
+          },
+        ),
+        child: ListView.builder(
+          key: const ValueKey('home-hourly-forecast'),
+          scrollDirection: Axis.horizontal,
+          itemCount: points.length,
+          itemBuilder: (context, index) {
+            final point = points[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SizedBox(
+                width: 64 + extraScale * 32,
+                child: Surface(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        clockLabel(report.cityTime(point.time)),
+                        style: TextStyle(fontSize: 10),
                       ),
-                    ),
-                    const SizedBox(height: 7),
-                    Text(
-                      point.aqi?.round().toString() ?? '—',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ],
+                      const SizedBox(height: 7),
+                      Container(
+                        height: 5,
+                        width: 5,
+                        decoration: BoxDecoration(
+                          color: Color(point.band?.color ?? 0xffaaaaaa),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      Text(
+                        point.aqi?.round().toString() ?? '—',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

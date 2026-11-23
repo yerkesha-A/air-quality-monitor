@@ -4,6 +4,9 @@ import 'package:air_quality_monitor/presentation/bloc/air_bloc.dart';
 import 'package:air_quality_monitor/presentation/providers/settings_controller.dart';
 import 'package:air_quality_monitor/presentation/screens/home_screen.dart';
 import 'package:air_quality_monitor/presentation/screens/profile_screen.dart';
+
+import 'dart:ui' show PointerDeviceKind;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,6 +42,46 @@ Future<void> tab(WidgetTester tester, String name) async {
 }
 
 void main() {
+  for (final kind in [PointerDeviceKind.touch, PointerDeviceKind.mouse]) {
+    testWidgets('Hourly forecast scrolls both ways with $kind', (tester) async {
+      await start(tester);
+      final list = find.byKey(const ValueKey('home-hourly-forecast'));
+      await tester.scrollUntilVisible(
+        list,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      final scrollable = find.descendant(
+        of: list,
+        matching: find.byType(Scrollable),
+      );
+      final state = tester.state<ScrollableState>(scrollable);
+      expect(state.position.maxScrollExtent, greaterThan(0));
+      final initialOffset = state.position.pixels;
+      final gesture = await tester.startGesture(
+        tester.getCenter(list),
+        kind: kind,
+      );
+      await gesture.moveBy(const Offset(-20, 0));
+      await gesture.moveBy(const Offset(-180, 0));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(state.position.pixels, greaterThan(initialOffset));
+      final forward = state.position.pixels;
+      final reverse = await tester.startGesture(
+        tester.getCenter(list),
+        kind: kind,
+      );
+      await reverse.moveBy(const Offset(20, 0));
+      await reverse.moveBy(const Offset(180, 0));
+      await reverse.up();
+      await tester.pumpAndSettle();
+      expect(state.position.pixels, lessThan(forward));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets(
     'Dashboard, forecast touch, recommendations, history and comparison',
     (tester) async {
