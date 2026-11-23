@@ -1,0 +1,17 @@
+{
+  "mapWidget": true,
+  "fullyVisibleNonOverlappingLabels": true,
+  "visibleLabels": 1,
+  "mapViewportHeightLogicalPixels": 327.0,
+  "expandableDetails": true,
+  "attributionVisible": true,
+  "tileCacheFiles": 4,
+  "aqi": 86.0,
+  "pm25": 46.1,
+  "pm10": 49.4,
+  "fetchedAt": "2026-11-23T13:24:15.423Z",
+  "source": "Open-Meteo/CAMS",
+  "sdk": 30,
+  "gps": null,
+  "physicalDevice": false
+}

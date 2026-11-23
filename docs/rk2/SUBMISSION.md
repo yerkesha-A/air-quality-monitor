@@ -1,15 +1,13 @@
-# Материалы РК2
+# Материалы РК2: недели 8–15
 
-- [Сводный отчёт](../RK2_REPORT.md) и отчёты WEEK_09–WEEK_15 в docs.
-- [Презентация PowerPoint](RK2_PRESENTATION.pptx) и [PDF](RK2_PRESENTATION.pdf).
-- [Сценарий защиты и ответы на вопросы](DEFENSE.md).
-- [Текущие результаты тестов](evidence/validation.json).
-- [Замеры профилирования](evidence/profile-summary.json) и реальные снимки Performance/Memory в evidence.
-- [Работающая карта](screenshots/02-map-light.png) и [интеграционная проверка Android](evidence/map-android-verification.json).
+- [Актуальный отчёт](../RK2_REPORT.md), [15 недель](../final_audit/AUDIT_01_15.md), [13 требований](../REQUIREMENTS_AUDIT.md).
+- [Презентация PDF](RK2_PRESENTATION.pdf), [PowerPoint](RK2_PRESENTATION.pptx), [сценарий на 8–10 минут](DEFENSE.md), [13 вопросов](QUESTIONS.md).
+- [Тесты: 108/108 и 74,79%](../final_audit/evidence/RESULTS.json), [измерения DevTools](../WEEK_10.md).
+- [Финальная карта release](screenshots/02-map-final-20261123.png), [легенда](screenshots/08-map-legend-20261123.png), [landscape](screenshots/09-map-landscape-20261123.png), [dark](screenshots/10-map-dark-final-20261123.png).
+- [Подписанные APK/AAB](../final_audit/evidence/release-verification.json), [сохранность данных](../final_audit/evidence/release-data-preservation.json), [новый Crashlytics](../final_audit/evidence/crashlytics.json).
+- [Что отправить преподавателю](../final_audit/HAND_IN.md), [демонстрация на MacBook](MAC_DEMO.md).
 - [Описание магазина](../store/LISTING.md), [Data Safety](../store/DATA_SAFETY.md), [политика](../PRIVACY_POLICY.md).
 
-Перед сдачей обязательно прочитайте колонку ограничений в сводном отчёте. Не представляйте отложенную проверку физического Android и неподтверждённую установку тестировщиком как выполненные задания.
+Локальный комплект: `submission/FINAL_RK1_RK2_2026-11-23`. Рабочий APK 1.1.0 (3) готов к установке; AAB — отдельный артефакт выпуска. Приватные ключи, токены, пользовательские данные и AVD в комплект не входят.
 
-APK/AAB, символы обфускации, ключи и приватные данные в Git не включаются. Push выполнен с разрешения владельца; CI 43856352446 для 24a6946 прошёл успешно. Финальный APK отправлен в App Distribution согласованному тестировщику. Установка на физическом Android ещё не подтверждена.
-
-[Проверки устройств и ограничения](DEVICE_VERIFICATION.md). Отсутствие телефона не блокирует демонстрацию на MacBook.
+Последний опубликованный CI 45177924926 для 86e2acd успешен. Новые изменения ждут разрешения push; build 3 не отправлялся в App Distribution или Google Play. В App Distribution доступен предыдущий build 2, установка на физическом Android не подтверждена. OSM нужно согласовать вместо Google Maps; физические камера/GPS и свежий Google-вход финальной версии не объявляются проверенными.

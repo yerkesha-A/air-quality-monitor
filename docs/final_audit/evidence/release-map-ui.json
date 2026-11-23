@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "signedRelease": true,
+  "liveOpenMeteoAqi": 87,
+  "portraitCollapsed": true,
+  "expandableDetails": true,
+  "sixBandLegend": true,
+  "groupDialog": true,
+  "landscapeSidePanel": true,
+  "darkTheme": true,
+  "emulatedGpsMarkerDoesNotObscureAqi": true,
+  "otherScreensRedesigned": false,
+  "physicalDevice": false
+}

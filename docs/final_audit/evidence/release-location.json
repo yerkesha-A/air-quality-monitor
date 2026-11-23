@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-23",
+  "api": 30,
+  "sourceCommit": "9427a22",
+  "source": "emulator geo fix, not physical location",
+  "configuredLatitude": 43.25249,
+  "configuredLongitude": 76.9115,
+  "osLocationMatchesFix": true,
+  "systemPermissionDialogAcceptedWhileUsing": true,
+  "appUserLocationMarkerPresent": true,
+  "physicalDevice": false
+}

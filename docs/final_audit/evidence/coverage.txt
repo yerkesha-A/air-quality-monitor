@@ -1,0 +1,1 @@
+Flutter LCOV: 2762/3693 lines (74.79%)

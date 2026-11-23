@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "api": 30,
+  "ramMiB": 2048,
+  "installReplaceSuccess": true,
+  "versionCode": 3,
+  "uninstallUsed": false,
+  "dataBackupBeforeUpdate": true,
+  "physicalDevice": false,
+  "installedApkMatchesFinalNormalArtifact": true
+}

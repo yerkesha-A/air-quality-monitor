@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-23",
+  "avd": "AQM_Light_API30",
+  "mainOwnerAvdOpened": false,
+  "sqliteBeforeIntegrityOk": true,
+  "sqliteAfterIntegrityOk": true,
+  "previousSampleKeysPreserved": true,
+  "previousAlertsPreserved": true,
+  "previousNotesPreserved": true,
+  "previousFavoritesPreserved": true,
+  "settingsAndSelectedPlacePreserved": true,
+  "previousPhotosUnchanged": true,
+  "sameFirebaseUid": true,
+  "countsBefore": {
+    "notes": 0,
+    "samples": 17,
+    "places": 2,
+    "alerts": 0
+  },
+  "countsAfter": {
+    "notes": 0,
+    "samples": 26,
+    "places": 2,
+    "alerts": 3
+  },
+  "privateArchivesPublished": false,
+  "uidVerificationMethod": "same visible account email and prior SDK-verified UID; before avatar UID directory matched; encrypted native record not decrypted",
+  "notesVerificationScope": "No notes in this test AVD before checks; real note persistence has separate native air_flow evidence",
+  "fcmTestRecordsAdded": 3,
+  "encryptedNativeAuthRecordPresent": true
+}

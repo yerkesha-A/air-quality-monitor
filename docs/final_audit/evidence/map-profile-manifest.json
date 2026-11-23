@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-23",
+  "beforeSource": "86e2acd",
+  "afterSource": "556fde8",
+  "api": 30,
+  "ramMiB": 2048,
+  "cores": 2,
+  "display": "720x1600",
+  "density": 320,
+  "gpu": "host",
+  "target": "tools/map_profile.dart",
+  "scenario": "12 identical physical swipes; 8 seconds initial warm-up; 26 seconds measured gestures; one pair",
+  "beforeViewportHeight": 206.04,
+  "afterViewportHeight": 327.0,
+  "heightIncreasePercent": 58.71,
+  "limitations": [
+    "One pair; no statistical significance claim",
+    "Viewport and tile workload changed",
+    "OSM/network/GPU emulator/cache timing are uncontrolled",
+    "No physical Android results; no 60 FPS guarantee",
+    "Performance screenshot includes warm-up; raw FrameTiming summary covers measured gestures only"
+  ],
+  "apkSha256": {
+    "profile-before.apk": "6c34345c4fde8ec0106b8bd8d536571b8c623e0cea857ed16e7b329eebf5f205",
+    "profile-after-final.apk": "424338f259aae0f4bbf9606baeff607d1feb75866834785d72cc1b01df2b9d68"
+  }
+}

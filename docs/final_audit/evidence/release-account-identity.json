@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "accountScreenVisible": true,
+  "sameEmailAsPreviouslySdkVerifiedAccount": true,
+  "beforeAvatarUidMatchesPreviouslySdkVerifiedUid": true,
+  "firebaseNativeRecordEncrypted": true,
+  "nativeTokensDecrypted": false,
+  "uidVerificationMethod": "before avatar UID directory plus same account email and previously verified Firebase SDK identity"
+}

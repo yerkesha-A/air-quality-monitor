@@ -1,0 +1,15 @@
+{
+  "camera": true,
+  "gallery": true,
+  "cache": {
+    "httpRequests": 1,
+    "diskCacheAfterServerStop": true
+  },
+  "sdk": 30,
+  "channel": true,
+  "firestoreServer": true,
+  "fcmForeground": true,
+  "sessionAndPhotoAfterRestart": true,
+  "date": "2026-11-23",
+  "physicalDevice": false
+}

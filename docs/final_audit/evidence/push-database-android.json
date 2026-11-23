@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "api": 30,
+  "isolatedAvd": true,
+  "test": "integration_test/push_database_test.dart",
+  "passed": true,
+  "closingIndependentConnectionKeepsUiReadable": true,
+  "sameDatabaseFile": true,
+  "pragmaIntegrityCheck": "ok",
+  "physicalDevice": false
+}

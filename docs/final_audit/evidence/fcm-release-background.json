@@ -1,0 +1,12 @@
+{
+  "date": "2026-11-23",
+  "phase": "background",
+  "buildMode": "signed release",
+  "sourceCommit": "9427a22",
+  "notificationDisplayed": true,
+  "tapOpenedAlerts": true,
+  "uniqueMessageInHistory": true,
+  "latencySeconds": 2.53,
+  "api": 30,
+  "physicalDevice": false
+}

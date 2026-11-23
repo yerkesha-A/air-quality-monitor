@@ -1,0 +1,17 @@
+{
+  "aabMatchesExistingKey": true,
+  "version": "1.1.0+3",
+  "apkSignatureValid": true,
+  "apkMatchesExistingKey": true,
+  "aabJarSignatureValid": true,
+  "artifacts": {
+    "release-apk-final.apk": {
+      "bytes": 58590115,
+      "sha256": "872d3d5ad35e8f744eaf4a5009afe753e83cb253191f0219009f632cddcf14d0"
+    },
+    "release-aab-final.aab": {
+      "bytes": 59052611,
+      "sha256": "abb620c70c9c68e5987757b07bea543c47f47d20ef604de5735d105150769cdd"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "releaseSha1Registered": true,
+  "releaseSha256Registered": true,
+  "readOnly": true,
+  "billingEnabled": false,
+  "googleProvider": true,
+  "appDistributionReady": true,
+  "appDistributionReason": null,
+  "latestRelease": {
+    "displayVersion": "1.1.0",
+    "buildVersion": "2"
+  },
+  "approvedTesterListed": true,
+  "testerLastActivityAvailable": true,
+  "invitationAcceptance": "not exposed by this API response",
+  "physicalDeviceInstallation": "not verified; owner has no Android phone"
+}

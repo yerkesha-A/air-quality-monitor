@@ -1,0 +1,14 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "version": "1.1.0+3",
+  "event": "AQM intentional nonfatal verification: map_final_build3_20261123",
+  "fatal": false,
+  "markerRecordedOnceInPrivatePrefs": true,
+  "sdkEnqueuedToDataTransport": true,
+  "dataTransportHttp200": true,
+  "consoleVisible": true,
+  "physicalDevice": false,
+  "normalApkRestoredWithoutUninstall": true,
+  "consoleConfirmationSource": "owner reply in this session, 2026-11-23"
+}

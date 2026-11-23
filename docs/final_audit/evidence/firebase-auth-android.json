@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-23",
+  "api": 30,
+  "isolatedAvd": true,
+  "realBackend": true,
+  "weakPasswordRejected": true,
+  "registration": true,
+  "duplicateRegistrationRejected": true,
+  "wrongPasswordRejected": true,
+  "emailLogin": true,
+  "sameUidAfterLogin": true,
+  "firestoreServerRead": true,
+  "favoriteAndSettingsRestore": true,
+  "foreignUidReadDenied": true,
+  "googleConfigured": true,
+  "freshGoogleLoginTested": false,
+  "testCompleted": true,
+  "testCredentialsPublished": false
+}

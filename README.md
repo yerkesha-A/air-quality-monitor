@@ -19,7 +19,7 @@ Flutter-приложение для Android, которое помогает с�
 - Заметки с фотографиями, локальные предупреждения и история уведомлений.
 - Вход по email и через Google, синхронизация профиля и избранного через Firebase.
 
-Карта использует OpenStreetMap: показывает выбранные города и модельные оценки воздуха вокруг выбранной точки. Доступны геолокация и просмотр сохранённых данных. Автоматические ежедневные push-сводки пока не реализованы.
+Карта использует OpenStreetMap: показывает выбранные города и модельные оценки воздуха вокруг выбранной точки. Доступны геолокация, просмотр сохранённых данных, легенда цветов и раскрываемая карточка. Близкие маркеры объединяются с возможностью выбрать отдельную точку. Автоматические ежедневные push-сводки пока не реализованы.
 
 ## Технологии
 
@@ -76,8 +76,8 @@ SharedPreferences сохраняет настройки и выбранный г
 ## Скриншоты
 
 <p>
-  <img src="docs/rk1/screenshots/01-home.png" width="220" alt="Главная: качество воздуха в Алматы" />
-  <img src="docs/rk2/screenshots/02-map-light.png" width="220" alt="Карта воздуха OpenStreetMap" />
+  <img src="docs/rk2/screenshots/01-home-final-20261123.png" width="220" alt="Главная: качество воздуха в Алматы" />
+  <img src="docs/rk2/screenshots/02-map-final-20261123.png" width="220" alt="Карта воздуха OpenStreetMap" />
   <img src="docs/rk1/screenshots/02-history.png" width="220" alt="История качества воздуха" />
   <img src="docs/rk1/screenshots/05-dark-theme-20261015.png" width="220" alt="Тёмная тема" />
 </p>
@@ -109,7 +109,7 @@ python3 tools/check_coverage.py
 
 Unit- и widget-тесты проверяют API, BLoC, кеш, навигацию, формы и адаптивность. Правила Firestore проверяются отдельно в Firebase Emulator. В репозитории настроен [GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions) для анализа, тестов и сборки Android.
 
-[Результаты тестирования РК2](docs/rk2/evidence/validation.json) · [Профилирование](docs/WEEK_10.md)
+[Актуальные результаты тестирования](docs/final_audit/evidence/RESULTS.json) · [Профилирование](docs/WEEK_10.md)
 
 ## Материалы РК1
 
@@ -124,3 +124,5 @@ Unit- и widget-тесты проверяют API, BLoC, кеш, навигац�
 [Карта и геолокация](docs/WEEK_09.md) · [Производительность](docs/WEEK_10.md) · [Камера и Kotlin MethodChannel](docs/WEEK_11.md)
 
 Android-проверки выполнены на эмуляторе. Проверка на физическом устройстве отложена и отмечена отдельно в отчёте.
+
+Полная проверка заданий: [недели 1–15](docs/final_audit/AUDIT_01_15.md) и [13 обязательных требований](docs/REQUIREMENTS_AUDIT.md).

@@ -1,0 +1,8 @@
+{
+  "arm64ProductionLibAppDebugInfoStripped": true,
+  "localSymbolFiles": 3,
+  "normalEntrypoint": "lib/main.dart",
+  "qaCrashEntrypointShipped": false,
+  "sourceCommit": "9427a22",
+  "apkAndAabZipIntegrity": true
+}

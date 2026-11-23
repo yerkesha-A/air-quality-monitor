@@ -1,0 +1,13 @@
+Observed before connection fix on isolated API 30; no user database deleted.
+11-23 22:20:38.161  6094  6094 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: DatabaseException(database_closed 1)
+11-23 22:20:38.161  6094  6094 E flutter : #0      wrapDatabaseException (package:sqflite_platform_interface/src/platform_exception.dart:12:7)
+11-23 22:20:38.161  6094  6094 E flutter : <asynchronous suspension>
+11-23 22:20:38.161  6094  6094 E flutter : #1      SqfliteDatabaseMixin.txnRawInsert.<anonymous closure> (package:sqflite_common/src/database_mixin.dart:665:14)
+11-23 22:20:38.161  6094  6094 E flutter : <asynchronous suspension>
+11-23 22:20:38.161  6094  6094 E flutter : #2      BasicLock.synchronized (package:synchronized/src/basic_lock.dart:38:16)
+11-23 22:20:38.161  6094  6094 E flutter : <asynchronous suspension>
+11-23 22:20:38.161  6094  6094 E flutter : #3      SqfliteDatabaseMixin.txnSynchronized (package:sqflite_common/src/database_mixin.dart:591:14)
+11-23 22:20:38.161  6094  6094 E flutter : <asynchronous suspension>
+11-23 22:20:38.161  6094  6094 E flutter : #4      LocalStore.recordAlert (package:air_quality_monitor/data/local/local_store.dart:267:5)
+11-23 22:20:38.161  6094  6094 E flutter : <asynchronous suspension>
+11-23 22:20:38.161  6094  6094 E flutter : #5      FirebaseService.handleOpenedMessage (package:air_quality_monitor/data/services/firebase_service.dart:105:5)

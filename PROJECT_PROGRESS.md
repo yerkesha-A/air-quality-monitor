@@ -1,6 +1,6 @@
 # Air Quality Monitor — текущий статус
 
-Актуализировано 16 ноября 2026 по уточнённым 13 категориям. **РК1 оценивается по неделям 1–7**. Firebase недели 8 показан дополнительно. [Подробный аудит](docs/REQUIREMENTS_AUDIT.md) содержит исходники и границы подтверждения каждого пункта.
+Актуализировано 23 ноября 2026 по уточнённым 13 категориям. **РК1 оценивается по неделям 1–7**. Firebase недели 8 показан дополнительно. [Подробный аудит](docs/REQUIREMENTS_AUDIT.md) содержит исходники и границы подтверждения каждого пункта.
 
 | № | Обязательный пункт полного проекта | Статус |
 | --- | --- | --- |
@@ -12,11 +12,11 @@
 | 6 | GoRouter | Shell branches, параметры, guard и неизвестный маршрут |
 | 7 | Firebase | Реальные Auth/Firestore/Rules/FCM; физическая межустройственная приёмка отдельно не проведена |
 | 8 | Google Maps + геолокация | Работает flutter_map / OpenStreetMap: реальные тайлы, AQI и GPS проверены на Android. Замена Google Maps требует согласования преподавателя; billing не подключён |
-| 9 | Производительность | Infinite scroll заметок/уведомлений, cached_network_image, реальные DevTools до/после; p95 сократился, slow frames остаются ([неделя 10](docs/WEEK_10.md)) |
+| 9 | Производительность | Infinite scroll заметок/уведомлений, cached_network_image, реальные DevTools карты до/после на API 30 / 2 ГБ; raster p95 вырос, доля slow frames снизилась ([неделя 10](docs/WEEK_10.md)) |
 | 10 | Нативные возможности | Камера/GPS/MethodChannel проверены на эмуляторе; физическая проверка отложена: Android-телефона нет |
-| 11 | Тестирование | 16.11: 96 тестов, coverage 72,83%, Rules 6/6, функции 3/3; [результаты](docs/rk2/evidence/validation.json) |
-| 12 | CI/CD | Workflow прошёл на GitHub: android + firestore-rules success; [результат текущего этапа](docs/rk2/evidence/github-actions.json) |
-| 13 | Release + Crashlytics | APK/AAB 1.1.0+2 подписаны и проверены 16.11; non-fatal виден в Crashlytics; App Distribution отправлен, физическая установка не подтверждена |
+| 11 | Тестирование | 23.11: 108 тестов, coverage 74,79%, Rules 6/6, функции 3/3; [результаты](docs/final_audit/evidence/RESULTS.json) |
+| 12 | CI/CD | Опубликованный CI 45177924926 для 86e2acd success; новый код ждёт разрешения push; [результат текущего этапа](docs/final_audit/evidence/github-actions.json) |
+| 13 | Release + Crashlytics | APK/AAB 1.1.0+3 подписаны и проверены 23.11; новый non-fatal подтверждён в Console, symbols загружены. App Distribution содержит предыдущий build 2, физическая установка не подтверждена |
 
 ## РК1
 
@@ -38,3 +38,9 @@
 Дизайн, ключ подписи и пользовательские данные сохранены. Billing/Google Play не подключались.
 
 Текущие отчёты недель 9–15 и ограничения: [РК2](docs/RK2_REPORT.md). Документы WEEK_09/10/11 в корне сохраняют историю предыдущей проверки.
+
+## Финальная проверка перед защитой
+
+[Матрица всех 15 недель](docs/final_audit/AUDIT_01_15.md) · [13 требований](docs/REQUIREMENTS_AUDIT.md) · [Комплект и инструкция](docs/final_audit/HAND_IN.md).
+
+Карта: +58,71% видимой высоты, группы, раскрытие, легенда, light/dark/landscape и эмуляторный GPS. Исправлена реальная ошибка закрытия UI SQLite фоновым FCM: отдельный native handle, тест integrity_check, три FCM-состояния в debug и подписанном release. Новая публикация исходников/бинарников не выполнялась.

@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-23",
+  "phase": "background",
+  "notificationDisplayed": true,
+  "tapOpenedAlerts": true,
+  "uniqueMessageInHistory": true,
+  "latencySeconds": 6.85,
+  "api": 30,
+  "physicalDevice": false
+}

@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "analyze": "No issues found",
+  "flutterTests": {
+    "passed": 108,
+    "failed": 0
+  },
+  "coverage": {
+    "hitLines": 2762,
+    "instrumentedLines": 3693,
+    "percent": 74.79,
+    "requiredGreaterThan": 40
+  },
+  "firestoreRules": {
+    "passed": 6,
+    "failed": 0,
+    "project": "demo-air-quality-monitor"
+  },
+  "functions": {
+    "passed": 3,
+    "failed": 0
+  },
+  "dartEntrypoints": [
+    "coursework/week01/exercises.dart",
+    "docs/dart_basics.dart"
+  ],
+  "jsonGeneration": "build_runner executed; generated DTO unchanged",
+  "androidAirFlow": "passed: live API, real SQLite, fallback, paging",
+  "physicalAndroidTested": false,
+  "publishedCi": {
+    "commit": "86e2acd",
+    "run": 45177924926,
+    "conclusion": "success"
+  },
+  "currentChangesPushed": false,
+  "nativeProgramsPassed": [
+    "air_flow",
+    "map_android (strict bounds/groups)",
+    "firebase_android (real registration/restore)",
+    "weeks_09_11 (camera/gallery/FCM/cache)",
+    "weeks_09_11 (same UID/photo restart)",
+    "push_database (independent native SQLite handle + integrity_check)"
+  ],
+  "pushHistoryFix": "Verified: independent background SQLite plus persistence before notification routing",
+  "finalFcmScenarios": [
+    "foreground: recorded once",
+    "background: tap opened alerts and history",
+    "terminated without force-stop: tap opened alerts and history"
+  ],
+  "signedReleaseFcmScenarios": [
+    "foreground recorded once",
+    "background tap/history",
+    "terminated tap/history"
+  ],
+  "newCrashlyticsConsoleConfirmed": true,
+  "releaseDataPreservation": "passed; counts and scope in release-data-preservation.json"
+}

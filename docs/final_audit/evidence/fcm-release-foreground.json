@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-23",
+  "sourceCommit": "9427a22",
+  "buildMode": "signed release",
+  "foregroundRealFcm": true,
+  "notificationDisplayed": true,
+  "messageRecordedOnce": true,
+  "sqliteReadOnlyVerification": true,
+  "api": 30,
+  "physicalDevice": false
+}
