@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-25",
+  "httpSuccess": true,
+  "currentAqiIsNumeric": true,
+  "forecastPointCount": 72,
+  "returnedCoordinates": [
+    43.300003,
+    77.0
+  ],
+  "checkedOn": "2026-11-25"
+}

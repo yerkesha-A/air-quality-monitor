@@ -1,0 +1,85 @@
+{
+  "libraries": [
+    {
+      "library": "lib/arm64-v8a/libapp.so",
+      "loadAlignments": [
+        65536,
+        65536,
+        65536
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/arm64-v8a/libdartjni.so",
+      "loadAlignments": [
+        16384,
+        16384,
+        16384
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/arm64-v8a/libdatastore_shared_counter.so",
+      "loadAlignments": [
+        16384,
+        16384,
+        16384
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/arm64-v8a/libflutter.so",
+      "loadAlignments": [
+        65536,
+        65536,
+        65536
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/x86_64/libapp.so",
+      "loadAlignments": [
+        65536,
+        65536,
+        65536
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/x86_64/libdartjni.so",
+      "loadAlignments": [
+        16384,
+        16384,
+        16384
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/x86_64/libdatastore_shared_counter.so",
+      "loadAlignments": [
+        16384,
+        16384
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    },
+    {
+      "library": "lib/x86_64/libflutter.so",
+      "loadAlignments": [
+        65536,
+        65536,
+        65536
+      ],
+      "elfAligned": true,
+      "zipAligned": true
+    }
+  ],
+  "staticCompatible": true,
+  "runtime16kDeviceTested": false
+}

@@ -95,9 +95,13 @@ flutter pub get
 flutter run
 ```
 
+Для debug-запуска используйте отдельный тестовый эмулятор: `flutter run` не следует запускать поверх существующего release-приложения с другой подписью, чтобы сохранить его данные.
+
 Без Firebase-конфигурации доступен гостевой мониторинг. Для входа и облачной синхронизации нужен `android/app/google-services.json` от настроенного Firebase-проекта. Этот файл и ключи подписи не хранятся в Git. Подробности настройки — в [инструкции Firebase](docs/ANDROID_FIREBASE_SETUP.md).
 
 Для демонстрации на Android можно использовать готовый APK из комплекта сдачи: конфигурация Firebase уже включена в него.
+
+Подготовлена адаптация общей кодовой базы для iOS. Нативная сборка и запуск на iPhone пока не подтверждены; нужны Xcode и отдельная iOS-конфигурация Firebase. [Настройка iOS](docs/ios_setup.md).
 
 ## Тестирование
 
@@ -109,7 +113,7 @@ python3 tools/check_coverage.py
 
 Unit- и widget-тесты проверяют API, BLoC, кеш, навигацию, формы и адаптивность. Правила Firestore проверяются отдельно в Firebase Emulator. В репозитории настроен [GitHub Actions](https://github.com/yerkesha-A/air-quality-monitor/actions) для анализа, тестов и сборки Android.
 
-[Актуальные результаты тестирования](docs/final_audit/evidence/RESULTS.json) · [Профилирование](docs/WEEK_10.md)
+[Актуальные результаты тестирования](docs/audit_20261125/results.json) · [Профилирование](docs/WEEK_10.md)
 
 ## Материалы РК1
 
@@ -125,4 +129,6 @@ Unit- и widget-тесты проверяют API, BLoC, кеш, навигац�
 
 Android-проверки выполнены на эмуляторе. Проверка на физическом устройстве отложена и отмечена отдельно в отчёте.
 
-Полная проверка заданий: [недели 1–15](docs/final_audit/AUDIT_01_15.md) и [13 обязательных требований](docs/REQUIREMENTS_AUDIT.md).
+Полная проверка заданий: [недели 1–15](docs/full_audit_weeks_1_15.md) и [13 обязательных требований](docs/REQUIREMENTS_AUDIT.md).
+
+[Подготовка Google Play](docs/store/PLAY_RELEASE_READINESS.md) · [Настройка iPhone](docs/ios_setup.md) · [UI/UX и точность AQI](docs/UI_UX_AUDIT.md)

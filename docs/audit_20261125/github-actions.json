@@ -1,0 +1,31 @@
+{
+  "id": 45237868528,
+  "head_sha": "b82e52b3be3618df45cb41d77df1812d3023d8f8",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45237868528",
+  "checkedOn": "2026-11-25",
+  "jobs": [
+    {
+      "name": "android",
+      "conclusion": "success"
+    },
+    {
+      "name": "firestore-rules",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "android-debug-apk",
+      "expired": false,
+      "size_in_bytes": 102374328
+    },
+    {
+      "name": "flutter-coverage",
+      "expired": false,
+      "size_in_bytes": 8884
+    }
+  ],
+  "coversLocalChanges": false
+}

@@ -7,7 +7,7 @@
 1. PDF `docs/rk2/RK2_PRESENTATION.pdf` и сценарий `docs/rk2/DEFENSE.md`.
 2. Отчёт `docs/RK2_REPORT.md` и реальные скриншоты `docs/rk2/screenshots`.
 3. Только отдельный облегчённый AVD; основной AVD и API 37 оставить закрытыми.
-4. Готовый подписанный APK `submission/FINAL_RK1_RK2_2026-11-23/android/air-quality-monitor-1.1.0-3.apk`. AAB подготовлен для выпуска, а не для прямой установки.
+4. Готовый подписанный APK `submission/FINAL_RK1_RK2_2026-11-25/android/air-quality-monitor-1.1.0-3.apk`. AAB подготовлен для выпуска, а не для прямой установки.
 
 Не запускать сборку во время демонстрации. Не очищать данные и не выходить из существующего аккаунта ради показа. Гостевой режим подходит для главной, поиска, карты и тем; Firebase показывается только при наличии реальной сохранённой сессии.
 
@@ -18,14 +18,14 @@
 - Открыть карту: маркер, AQI/PM, карточка, источник и атрибуция.
 - Показать историю и тему; не обещать накопленную историю на новом AVD.
 - Показать архитектуру и результаты тестов, реальные Performance/Memory.
-- Показать новый успешный GitHub Actions 45228891410 для 79bca13, App Distribution build 2 и подтверждение нового non-fatal build 3 в Crashlytics.
+- Показать успешный GitHub Actions 45237868528 опубликованной версии b82e52b; новые локальные изменения ещё не отправлены, App Distribution build 2 и подтверждение нового non-fatal build 3 в Crashlytics.
 - Отдельно назвать непроверенные на телефоне функции и необходимость согласовать замену Google Maps.
 
 При отсутствии сети использовать уже сохранённые данные с исходным временем и настоящие скриншоты. Не представлять скриншоты как текущий онлайн-запрос.
 
 ## Файлы для преподавателя
 
-Ссылка на GitHub, APK, PDF-презентация и отчёт. Полный локальный комплект находится в `submission/FINAL_RK1_RK2_2026-11-23`, включая исходники и контрольные суммы. Приватные ключи, пароли, Firebase CLI-токены и данные AVD не входят в комплект.
+Ссылка на GitHub, APK, PDF-презентация и отчёт. Полный локальный комплект находится в `submission/FINAL_RK1_RK2_2026-11-25`, включая исходники и контрольные суммы. Приватные ключи, пароли, Firebase CLI-токены и данные AVD не входят в комплект.
 
 ## Запуск уже подготовленного лёгкого AVD на этом Mac
 
@@ -43,7 +43,7 @@ ANDROID_AVD_HOME="$PWD/.local-backups/rk2-light-20261116/avds" \
 ```sh
 "$HOME/Library/Android/sdk/platform-tools/adb" -s emulator-5566 shell input keyevent KEYCODE_WAKEUP
 "$HOME/Library/Android/sdk/platform-tools/adb" -s emulator-5566 shell wm dismiss-keyguard
-"$HOME/Library/Android/sdk/platform-tools/adb" -s emulator-5566 shell am start -n com.example.air_quality_monitor/.MainActivity
+"$HOME/Library/Android/sdk/platform-tools/adb" -s emulator-5566 shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n com.example.air_quality_monitor/.MainActivity
 ```
 
-Это локальная готовая конфигурация этого Mac; папка AVD не входит в Git. Экран 720×1600 / density 320 и release APK уже настроены. Закрывать эмулятор штатно, сохраняя диск. Не использовать wipe data или uninstall. Материалы актуализированы 23.11.2026.
+Это локальная готовая конфигурация этого Mac; папка AVD не входит в Git. Экран 720×1600 / density 320 и release APK уже настроены. Закрывать эмулятор штатно, сохраняя диск. Не использовать wipe data или uninstall. Материалы актуализированы 25.11.2026.

@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-25",
+  "appSourceCommit": "7cfbb9b",
+  "device": "AQM_Final_QA_API30",
+  "physicalDevice": false,
+  "integrationPassed": true,
+  "databaseIntegrityAfterProcessStop": "ok",
+  "newNotePersistedAfterProcessStop": true,
+  "installationMethod": "adb install -t -r; flutter drive --use-existing-app; no SDK installation fallback"
+}

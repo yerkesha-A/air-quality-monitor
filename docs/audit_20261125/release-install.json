@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-25",
+  "avd": "AQM_Light_API30",
+  "normalReleaseInstalled": true,
+  "installedBaseApkMatchesArtifact": true,
+  "installationMethod": "adb install -r",
+  "uninstallOrWipeUsed": false,
+  "mainOwnerAvdOpened": false
+}

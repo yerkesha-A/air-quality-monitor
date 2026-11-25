@@ -1,0 +1,56 @@
+[
+  {
+    "file": "01.png",
+    "source": "docs/audit_20261125/android-home.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  },
+  {
+    "file": "02.png",
+    "source": "docs/audit_20261125/android-map.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  },
+  {
+    "file": "03.png",
+    "source": "docs/rk2/screenshots/07-map-expanded-20261123.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  },
+  {
+    "file": "04.png",
+    "source": "docs/rk2/screenshots/11-history-final-20261123.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  },
+  {
+    "file": "05.png",
+    "source": "docs/rk2/screenshots/10-map-dark-final-20261123.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  },
+  {
+    "file": "06.png",
+    "source": "docs/rk1/screenshots/03-city-picker.png",
+    "canvas": [
+      1080,
+      1920
+    ],
+    "content": "full actual capture, proportional resize and margins; source date retained"
+  }
+]

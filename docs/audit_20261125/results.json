@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-25",
+  "appSourceCommit": "7cfbb9b6df4adb1cbbbba788567dea7b0f7f5113",
+  "builtFromWorkingTreeBasedOn": "b82e52b",
+  "analyze": "passed",
+  "unitWidgetTests": 122,
+  "coveredLines": 2815,
+  "instrumentedLines": 3718,
+  "coveragePercent": 75.71,
+  "firestoreRulesTests": 6,
+  "functionsUnitTests": 3,
+  "dartTargets": "both passed",
+  "nativeAndroidIntegration": "passed; real API, SQLite, offline fallback, note, pagination, channel, local notification",
+  "releaseApk": "built, signature matches existing key, installed with -r",
+  "releaseAab": "built, signature matches existing key",
+  "dataPreserved": true,
+  "sessionRestored": true,
+  "protectedFilesUnchanged": true,
+  "physicalAndroidTested": false,
+  "iosNativeBuild": "blocked: full Xcode/Simulator/CocoaPods not installed",
+  "iosSwiftSyntax": "passed; UIKit type checking not performed",
+  "iosLayout": "passed; widget platform/inset/keyboard tests only",
+  "remoteCi": {
+    "commit": "b82e52b",
+    "run": 45237868528,
+    "conclusion": "success",
+    "coversCurrentLocalChanges": false
+  },
+  "weeksCompletedAgainstKnownList": 11,
+  "weeksPartial": [
+    8,
+    9,
+    11,
+    14
+  ],
+  "googlePlayPublicationReady": false,
+  "iosPublicationReady": false,
+  "symbols": {
+    "apk": "three ABI files saved privately in symbols-product-apk",
+    "aab": "three ABI files saved privately in symbols-product-aab"
+  },
+  "publishedThisStage": false,
+  "dartFormat": "passed: 111 files unchanged",
+  "secretScan": {
+    "filesChecked": 515,
+    "historyBlobsChecked": 798,
+    "findings": 0
+  },
+  "presentation": {
+    "slides": 13,
+    "pdfPages": 13,
+    "updatedOn": "2026-11-25"
+  },
+  "googlePlayStaticChecks": {
+    "targetSdk": 36,
+    "compileSdk": 36,
+    "minSdk": 24,
+    "zipalign16kPassed": true,
+    "elf64AlignmentPassed": true,
+    "runtime16kDeviceTested": false,
+    "advertisingIdPermission": false,
+    "backgroundLocationPermission": false,
+    "broadStoragePermission": false
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-25",
+  "avd": "AQM_Light_API30",
+  "mainOwnerAvdOpened": false,
+  "sqliteBeforeIntegrityOk": true,
+  "sqliteAfterIntegrityOk": true,
+  "previousSampleKeysPreserved": true,
+  "previousAlertsPreserved": true,
+  "previousNotesPreserved": true,
+  "previousFavoritesPreserved": true,
+  "settingsAndSelectedPlacePreserved": true,
+  "previousPhotosUnchanged": true,
+  "countsBefore": {
+    "notes": 0,
+    "samples": 44,
+    "places": 2,
+    "alerts": 3
+  },
+  "countsAfter": {
+    "notes": 0,
+    "samples": 52,
+    "places": 2,
+    "alerts": 3
+  },
+  "sdkUidRechecked": false,
+  "signedInSessionVisibleAfterColdRestart": true,
+  "privateArchivesPublished": false,
+  "sameDisplayedAccountEmail": true
+}
