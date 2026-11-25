@@ -114,7 +114,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                     if (context.mounted) {
                       showMessage(
                         context,
-                        'Разрешите уведомления в настройках Android.',
+                        'Разрешите уведомления в настройках устройства.',
                       );
                     }
                     return;

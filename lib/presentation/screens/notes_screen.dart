@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../widgets/nature_components.dart';
 
@@ -15,14 +16,15 @@ import '../widgets/primitives.dart';
 import '../widgets/infinite_records.dart';
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({super.key});
+  const NotesScreen({super.key, this.imagePicker});
+  final ImagePicker? imagePicker;
   @override
   State<NotesScreen> createState() => _NotesScreenState();
 }
 
 class _NotesScreenState extends State<NotesScreen> {
   final _text = TextEditingController();
-  final _picker = ImagePicker();
+  late final _picker = widget.imagePicker ?? ImagePicker();
   XFile? _photo;
   int _revision = 0;
   bool _saving = false;
@@ -34,9 +36,14 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _recoverPhoto() async {
-    final recovered = await _picker.retrieveLostData();
-    if (mounted && recovered.files?.isNotEmpty == true) {
-      setState(() => _photo = recovered.files!.first);
+    if (defaultTargetPlatform != TargetPlatform.android) return;
+    try {
+      final recovered = await _picker.retrieveLostData();
+      if (mounted && recovered.files?.isNotEmpty == true) {
+        setState(() => _photo = recovered.files!.first);
+      }
+    } catch (_) {
+      // A failed camera recovery must not prevent reading or writing notes.
     }
   }
 
@@ -62,7 +69,7 @@ class _NotesScreenState extends State<NotesScreen> {
       if (mounted) {
         showMessage(
           context,
-          'Камера недоступна. Проверьте разрешения Android.',
+          'Камера недоступна. Проверьте разрешения приложения.',
         );
       }
     }
@@ -84,6 +91,7 @@ class _NotesScreenState extends State<NotesScreen> {
       }
       if (!mounted) return;
       await context.read<LocalStore>().addNote(place, _text.text.trim(), saved);
+      if (!mounted) return;
       _text.clear();
       setState(() => _photo = null);
       await _reload();

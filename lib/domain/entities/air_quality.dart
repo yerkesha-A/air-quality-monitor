@@ -12,11 +12,12 @@ enum AirBand {
 
   static AirBand forAqi(double aqi) {
     if (!aqi.isFinite || aqi < 0) throw ArgumentError.value(aqi, 'aqi');
-    if (aqi <= 50) return good;
-    if (aqi <= 100) return moderate;
-    if (aqi <= 150) return sensitive;
-    if (aqi <= 200) return unhealthy;
-    if (aqi <= 300) return veryUnhealthy;
+    final index = aqi.round();
+    if (index <= 50) return good;
+    if (index <= 100) return moderate;
+    if (index <= 150) return sensitive;
+    if (index <= 200) return unhealthy;
+    if (index <= 300) return veryUnhealthy;
     return hazardous;
   }
 }

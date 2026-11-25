@@ -10,16 +10,23 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
-  FirebaseAuthRepository({this.auth, this.avatars, this.googleClientId = ''});
+  FirebaseAuthRepository({
+    this.auth,
+    this.avatars,
+    this.googleClientId = '',
+    this.googleIosClientId = '',
+  });
   final FirebaseAuth? auth;
   final LocalAvatarStore? avatars;
   final _avatarChanges = StreamController<void>.broadcast();
   final String googleClientId;
+  final String googleIosClientId;
   bool _googleInitialized = false;
   @override
   bool get configured => auth != null;
   @override
-  bool get googleConfigured => configured && googleClientId.isNotEmpty;
+  bool get googleConfigured =>
+      configured && (googleClientId.isNotEmpty || googleIosClientId.isNotEmpty);
   FirebaseAuth get _auth =>
       auth ??
       (throw const AuthFailure(
@@ -110,10 +117,13 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Future<void> google() => _run(() async {
     if (!googleConfigured) {
-      throw const AuthFailure('Google Sign-In ещё не настроен для Android.');
+      throw const AuthFailure(
+        'Google Sign-In ещё не настроен для этого устройства.',
+      );
     }
     if (!_googleInitialized) {
       await GoogleSignIn.instance.initialize(
+        clientId: googleIosClientId.isEmpty ? null : googleIosClientId,
         serverClientId: googleClientId.isEmpty ? null : googleClientId,
       );
       _googleInitialized = true;
@@ -157,7 +167,8 @@ class FirebaseAuthRepository implements AuthRepository {
       try {
         if (!_googleInitialized) {
           await GoogleSignIn.instance.initialize(
-            serverClientId: googleClientId,
+            clientId: googleIosClientId.isEmpty ? null : googleIosClientId,
+            serverClientId: googleClientId.isEmpty ? null : googleClientId,
           );
           _googleInitialized = true;
         }

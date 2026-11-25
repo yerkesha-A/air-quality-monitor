@@ -57,6 +57,7 @@ class AppDependencies {
         auth: firebase.configured ? FirebaseAuth.instance : null,
         avatars: await LocalAvatarStore.open(),
         googleClientId: device['googleClientId'] as String? ?? '',
+        googleIosClientId: device['googleIosClientId'] as String? ?? '',
       ),
       firebase: firebase,
       notifications: notifications,

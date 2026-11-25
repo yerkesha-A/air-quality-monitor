@@ -16,6 +16,11 @@ class NotificationService {
     await _plugin.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('ic_notification'),
+        iOS: DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
       ),
       onDidReceiveNotificationResponse: (response) => onOpen?.call('/alerts'),
     );
@@ -35,13 +40,27 @@ class NotificationService {
     );
   }
 
-  Future<bool> requestPermission() async =>
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.requestNotificationsPermission() ??
-      false;
+  Future<bool> requestPermission() async {
+    final ios = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (ios != null) {
+      return await ios.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ??
+          false;
+    }
+    return await _plugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
+            ?.requestNotificationsPermission() ??
+        false;
+  }
+
   Future<void> show({
     required String id,
     required String title,
@@ -53,6 +72,7 @@ class NotificationService {
       title: title,
       body: body,
       notificationDetails: const NotificationDetails(
+        iOS: DarwinNotificationDetails(),
         android: AndroidNotificationDetails(
           'air_quality_alerts',
           'Качество воздуха',
@@ -76,7 +96,7 @@ class NotificationService {
         report.offline ||
         report.isStale(DateTime.now().toUtc()) ||
         report.current.aqi == null ||
-        report.current.aqi! < threshold) {
+        report.current.aqi!.round() < threshold) {
       return;
     }
     _checking = true;

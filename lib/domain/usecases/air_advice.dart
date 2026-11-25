@@ -17,8 +17,12 @@ class AirAdvice {
 
   static String activity(double? aqi, {bool intense = false}) {
     if (aqi == null) return 'Нужны данные';
-    if (aqi > 150) return 'Лучше в помещении';
-    if (aqi > 100 || (intense && aqi > 50)) return 'Снизьте нагрузку';
+    final band = AirBand.forAqi(aqi);
+    if (band.index >= AirBand.unhealthy.index) return 'Лучше в помещении';
+    if (band.index >= AirBand.sensitive.index ||
+        (intense && band.index >= AirBand.moderate.index)) {
+      return 'Снизьте нагрузку';
+    }
     return 'Подходящие условия';
   }
 

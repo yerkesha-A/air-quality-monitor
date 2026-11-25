@@ -36,6 +36,31 @@ void main() {
     },
   );
   test(
+    'iOS Google availability uses its own client ID and requires Firebase',
+    () {
+      final sdk = MockFirebaseAuth();
+      expect(
+        FirebaseAuthRepository(
+          auth: sdk,
+          googleIosClientId: 'ios-test-client',
+        ).googleConfigured,
+        isTrue,
+      );
+      expect(
+        FirebaseAuthRepository(googleIosClientId: 'ios-test-client')
+            .googleConfigured,
+        isFalse,
+      );
+      expect(
+        FirebaseAuthRepository(
+          auth: sdk,
+          googleClientId: 'android-web-client',
+        ).googleConfigured,
+        isTrue,
+      );
+    },
+  );
+  test(
     'Email login, registration, reset and logout call the actual SDK methods',
     () async {
       final sdk = MockFirebaseAuth();

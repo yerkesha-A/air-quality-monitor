@@ -181,7 +181,7 @@ class ProfileScreen extends StatelessWidget {
                           builder: (context) => AlertDialog(
                             title: const Text('Устройство'),
                             content: Text(
-                              '${info['model']}\nAndroid API ${info['sdk']}\nБатарея: ${info['battery'] ?? '—'}%',
+                              '${info['model']}\n${info['platform'] == 'iOS' ? 'iOS ${info['osVersion']}' : 'Android API ${info['sdk']}'}\nБатарея: ${info['battery'] ?? '—'}%',
                             ),
                             actions: [
                               TextButton(

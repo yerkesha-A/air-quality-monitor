@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -23,7 +25,7 @@ class LocationService {
       if (!await platform.isLocationServiceEnabled()) {
         throw const LocationFailure(
           LocationIssue.disabled,
-          'Включите геолокацию в настройках Android.',
+          'Включите геолокацию в настройках устройства.',
         );
       }
       var permission = await platform.checkPermission();
@@ -33,7 +35,7 @@ class LocationService {
       if (permission == LocationPermission.deniedForever) {
         throw const LocationFailure(
           LocationIssue.permanentlyDenied,
-          'Доступ к геолокации запрещён. Разрешите его в настройках приложения Android.',
+          'Доступ к геолокации запрещён. Разрешите его в настройках приложения.',
         );
       }
       if (permission != LocationPermission.whileInUse &&
@@ -45,11 +47,17 @@ class LocationService {
       }
       final position = await platform
           .getCurrentPosition(
-            locationSettings: AndroidSettings(
-              accuracy: LocationAccuracy.high,
-              forceLocationManager: true,
-              timeLimit: const Duration(seconds: 25),
-            ),
+            locationSettings: defaultTargetPlatform == TargetPlatform.iOS
+                ? AppleSettings(
+                    accuracy: LocationAccuracy.high,
+                    timeLimit: const Duration(seconds: 25),
+                    pauseLocationUpdatesAutomatically: true,
+                  )
+                : AndroidSettings(
+                    accuracy: LocationAccuracy.high,
+                    forceLocationManager: true,
+                    timeLimit: const Duration(seconds: 25),
+                  ),
           )
           .timeout(const Duration(seconds: 25));
       var name = 'Моё местоположение';

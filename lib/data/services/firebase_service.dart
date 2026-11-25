@@ -37,7 +37,14 @@ Future<void> recordPushMessage(RemoteMessage message, LocalStore store) =>
     );
 
 class FirebaseService {
-  FirebaseService({required this.configured, this.schedulerConfigured = false});
+  FirebaseService({
+    required this.configured,
+    this.schedulerConfigured = false,
+    FirebaseMessaging? messaging,
+  }) : _messagingOverride = messaging;
+  final FirebaseMessaging? _messagingOverride;
+  FirebaseMessaging get _messaging =>
+      _messagingOverride ?? FirebaseMessaging.instance;
   final bool configured;
   final bool schedulerConfigured;
   StreamSubscription<RemoteMessage>? _foreground;
@@ -109,17 +116,27 @@ class FirebaseService {
 
   Future<bool> enablePush(Account account) async {
     if (!configured) return false;
-    final permission = await FirebaseMessaging.instance.requestPermission();
+    final permission = await _messaging.requestPermission();
     if (permission.authorizationStatus != AuthorizationStatus.authorized &&
         permission.authorizationStatus != AuthorizationStatus.provisional) {
       return false;
     }
-    final token = await FirebaseMessaging.instance.getToken();
+    final token = await _deviceToken();
     if (token != null) {
       await _saveToken(account.id, token);
       _pushEnabled = true;
     }
     return token != null;
+  }
+
+  Future<String?> _deviceToken() async {
+    // APNs registration can finish after the permission dialog. A missing token
+    // must leave push unavailable, rather than fail login or cloud sync.
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
+      if (await _messaging.getAPNSToken() == null) return null;
+    }
+    return _messaging.getToken();
   }
 
   Future<void> _saveToken(String uid, String token) => FirebaseFirestore
@@ -133,7 +150,7 @@ class FirebaseService {
     if (!configured) return;
     _pushEnabled = false;
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    final token = await FirebaseMessaging.instance.getToken();
+    final token = await _deviceToken();
     if (uid != null && token != null) {
       await FirebaseFirestore.instance
           .collection('users')
@@ -150,13 +167,12 @@ class FirebaseService {
       if (_pushEnabled) await unregisterDevice();
       return;
     }
-    final permission = await FirebaseMessaging.instance
-        .getNotificationSettings();
+    final permission = await _messaging.getNotificationSettings();
     if (permission.authorizationStatus != AuthorizationStatus.authorized &&
         permission.authorizationStatus != AuthorizationStatus.provisional) {
       return;
     }
-    final token = await FirebaseMessaging.instance.getToken();
+    final token = await _deviceToken();
     if (token != null && FirebaseAuth.instance.currentUser?.uid == account.id) {
       await _saveToken(account.id, token);
       _pushEnabled = true;

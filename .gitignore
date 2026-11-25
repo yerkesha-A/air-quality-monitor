@@ -89,3 +89,8 @@ android/.kotlin/
 
 # Local Crashlytics symbol upload cache
 .crashlytics/
+
+# Private Apple Firebase configuration
+**/GoogleService-Info.plist
+*.p8
+ios/firebase_app_id_file.json

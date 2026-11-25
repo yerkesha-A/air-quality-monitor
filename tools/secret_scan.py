@@ -12,7 +12,7 @@ PATTERNS = {
     'oauth-access-token': re.compile(rb'ya29\.[A-Za-z0-9_.-]{30,}'),
     'aws-access-key': re.compile(rb'AKIA[A-Z0-9]{16}'),
 }
-PRIVATE = re.compile(r'(^|/)(\.local-backups|node_modules|\.firebase|\.dart_tool)(/|$)|(^|/)(google-services\.json|firebase_options\.dart|key\.properties|local\.properties|service-account[^/]*\.json)$|\.(?:jks|keystore|p12|pem|apk|aab|tar|gz|zip)$|(^|/)\.env(?:\.|$)')
+PRIVATE = re.compile(r'(^|/)(\.local-backups|node_modules|\.firebase|\.dart_tool)(/|$)|(^|/)(google-services\.json|GoogleService-Info\.plist|firebase_app_id_file\.json|firebase_options\.dart|key\.properties|local\.properties|service-account[^/]*\.json)$|\.(?:jks|keystore|p12|p8|pem|apk|aab|tar|gz|zip)$|(^|/)\.env(?:\.|$)')
 
 
 def git(*args):

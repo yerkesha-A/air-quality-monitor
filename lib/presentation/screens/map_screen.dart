@@ -420,7 +420,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                 _locationFailure!.issue,
               );
               if (!opened && mounted) {
-                showMessage(context, 'Откройте настройки Android вручную.');
+                showMessage(context, 'Откройте настройки устройства вручную.');
               }
             },
             child: const Text('Открыть настройки'),

@@ -25,6 +25,16 @@ void main() {
       expect(() => AirBand.forAqi(invalid), throwsArgumentError);
     }
   });
+  test('Rounded AQI number, category and activity agree at every boundary', () {
+    for (final edge in [50, 100, 150, 200, 300]) {
+      expect(AirBand.forAqi(edge + .49), AirBand.forAqi(edge.toDouble()));
+      expect(AirBand.forAqi(edge + .5), AirBand.forAqi(edge + 1.0));
+    }
+    expect(AirAdvice.activity(50.49, intense: true), 'Подходящие условия');
+    expect(AirAdvice.activity(50.5, intense: true), 'Снизьте нагрузку');
+    expect(AirAdvice.activity(150.49), 'Снизьте нагрузку');
+    expect(AirAdvice.activity(150.5), 'Лучше в помещении');
+  });
   test(
     'Advisor handles missing and polluted data; best hour ignores null AQI',
     () {

@@ -61,7 +61,7 @@ class _AirChartState extends State<AirChart> {
             child: selected == null
                 ? const Text('Коснитесь графика, чтобы увидеть значение')
                 : Text(
-                    '${dateLabel(selected.time.add(offset))} ${clockLabel(selected.time.add(offset))}  ·  ${selected.values[widget.variable]?.toStringAsFixed(1) ?? 'нет данных'} ${widget.variable == 'us_aqi' ? 'US AQI' : 'мкг/м³'}',
+                    '${dateLabel(selected.time.add(offset))} ${clockLabel(selected.time.add(offset))}  ·  ${widget.variable == 'us_aqi' ? selected.aqi?.round().toString() ?? 'нет данных' : selected.values[widget.variable]?.toStringAsFixed(1) ?? 'нет данных'} ${widget.variable == 'us_aqi' ? 'US AQI' : 'мкг/м³'}',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
           ),

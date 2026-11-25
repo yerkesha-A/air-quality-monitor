@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mocktail/mocktail.dart';
@@ -74,6 +75,33 @@ void main() {
     verifyNever(() => geo.requestPermission());
     expect(await service.hasPermission(), isTrue);
   });
+  test(
+    'iOS requests foreground Apple location settings with a timeout',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      when(() => geo.checkPermission())
+          .thenAnswer((_) async => LocationPermission.whileInUse);
+      when(
+        () => geo.getCurrentPosition(
+          locationSettings: any(named: 'locationSettings'),
+        ),
+      ).thenThrow(StateError('test stop after settings capture'));
+      await issue(
+        LocationService(platformOverride: geo),
+        LocationIssue.unavailable,
+      );
+      final settings =
+          verify(
+                () => geo.getCurrentPosition(
+                  locationSettings: captureAny(named: 'locationSettings'),
+                ),
+              ).captured.single
+              as LocationSettings;
+      expect(settings, isA<AppleSettings>());
+      expect(settings.timeLimit, const Duration(seconds: 25));
+    },
+  );
   test(
     'Settings use correct Android target; plugin failures are controlled',
     () async {
