@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-25",
+  "appSourceCommit": "7cfbb9b",
+  "existingPrivateFirebaseProject": true,
+  "apkSymbolsUploaded": true,
+  "aabSymbolsUploaded": true,
+  "abiFilesPerArtifact": 3,
+  "apkOrAabDistributed": false,
+  "credentialsPublished": false
+}

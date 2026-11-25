@@ -1,6 +1,6 @@
 # Аудит Air Quality Monitor: недели 1–15 и подготовка iOS
 
-Дата: **25.11.2026**. Основа до изменений — опубликованный коммит `b82e52b`. Новые изменения остаются локальными: push, App Distribution и публикация магазинов в этом этапе не выполняются.
+Дата: **25.11.2026**. Основа до изменений — опубликованный коммит `b82e52b`. Код и материалы опубликованы до `70cda03`; [CI 45628248353](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45628248353) прошёл успешно. Последующие изменения протокола не меняют код приложения `7cfbb9b`. App Distribution и публикация магазинов не выполнялись.
 
 ## Источник требований и границы проверки
 
@@ -23,7 +23,7 @@
 | 9 | Google Maps, маркеры/камера/инфокарточка, GPS, разрешения/отказ, тематические данные | Реальная **OpenStreetMap/flutter_map**, Open-Meteo AQI/PM, marker grouping, легенда, компактная карточка, debounce/ограниченный кеш; `map_air_controller.dart`, `map_screen.dart`, `location_service.dart` | Map/controller/layout/location tests; реальные OSM tiles/GPS 23.11, текущий release smoke | Частично выполнено | Требуется согласование OSM вместо Google Maps. Billing не включается. Физический GPS ещё не принят |
 | 10 | ListView.builder, infinite pagination, cached_network_image, const/dispose, DevTools Performance/Memory до/после | `infinite_records.dart`, keyset SQLite pagination; cached avatar с placeholder/error, local photo приоритетен; ограничение запросов и cleanup контроллеров | `infinite_records_test.dart`, pagination/map tiles/avatar tests; настоящие native cache/paging результаты 23.11; DevTools 16/23.11 | Выполнено | Slow frames остаются. Есть реальные парные измерения, но стабильные 60 FPS/отсутствие утечек не доказаны; сравнение карты смешанное, не объявляется общим ускорением |
 | 11 | Камера/датчики, собственный Kotlin MethodChannel, физический Android | `image_picker`, `local_avatar_store.dart`, Kotlin `MainActivity`, Dart `DeviceService`; iOS Swift-эквивалент подготовлен отдельно | Unit/widget отмены/ошибок; камера/галерея/channel и сохранение фото на Android-эмуляторе 23.11 | Частично выполнено | Физического Android нет. iPhone не закрывает требование физического Android. Свежая Android-сборка и проверка данных не заменяют аппаратную камеру |
-| 12 | GitHub Actions: pub get, format/analyze/test/build apk, APK artifact | `.github/workflows/android.yml`; Android и отдельный Rules job; ограниченные permissions, без credentials в CI | Последний опубликованный `b82e52b`: run **45237868528 success**, оба jobs; APK artifact проверен read-only | Выполнено | Новые локальные изменения 25.11 ещё не отправлены и удалённым CI не проверены; push требует разрешения |
+| 12 | GitHub Actions: pub get, format/analyze/test/build apk, APK artifact | `.github/workflows/android.yml`; Android и отдельный Rules job; ограниченные permissions, без credentials в CI | Последний опубликованный `70cda03`: run **45628248353 success**, оба jobs; APK artifact проверен read-only | Выполнено | Код приложения проверен новым CI 45628248353; iOS native build в этом Android workflow не выполняется |
 | 13 | Unit, mocktail, widget, integration, coverage >40%, тесты в CI | Полный `test/`, защищённые `integration_test/`; новые iOS APNs/permissions/layout tests | Свежие analyze, flutter test --coverage, native air_flow; прежние нативные протоколы; CI опубликованной версии | Выполнено | Widget platform override — не доказательство нативного запуска iOS. Итоговые числа — в протоколе ниже |
 | 14 | Подписанные APK/AAB, icon/splash/version, obfuscate/symbols, Crashlytics, материалы магазинов, App Distribution | Существующий keystore; `1.1.0+3`; подписанные новые Android APK/AAB; docs/store; Crashlytics; App Store outline | Подписи сверены с существующим сертификатом; non-fatal build 3 подтверждён в Console 23.11; read-only App Distribution 25.11 | Частично выполнено | App Distribution содержит прежний build 2; свежий Google-вход и доставка последней сборки остаются. Новую доставку/публикацию без разрешения не выполнять |
 | 15 | РК2 по 8–15, презентация 7–10 минут, архитектура, демо, tests/DevTools/release | `docs/rk2/RK2_PRESENTATION.pptx/.pdf`, DEFENSE, QUESTIONS, MAC_DEMO, RK2_REPORT; материалы РК1 сохранены | Реальные скриншоты Android; 13 слайдов, сценарий 520 с; комплект `submission/FINAL_RK1_RK2_2026-11-23` сохранён | Выполнено | Это готовность материалов, не заявление о выполнении открытых пунктов 8/9/11/14. Старый комплект имеет дату/свои бинарники и не переименован в новый |
@@ -45,7 +45,7 @@
 | 9 | Производительность | Lazy lists/paging/cache, const/dispose, реальные DevTools пары | Требование инструментов выполнено; slow frames остаются открытым ограничением |
 | 10 | Нативные функции | image_picker, локальный аватар, Kotlin channel и ошибки | Частично: нет физического Android; Swift пока только подготовлен |
 | 11 | Тестирование | Unit/widget/mocktail/native integration + LCOV >40% | Выполнено для доступного Android/Flutter стенда |
-| 12 | CI/CD | Реальный green run с APK artifact и Rules | Выполнено опубликованным b82e52b; текущие локальные iOS-изменения не опубликованы |
+| 12 | CI/CD | Реальный green run с APK artifact и Rules | Выполнено опубликованным 70cda03; iOS native build не проверяется Android CI |
 | 13 | Release + Crashlytics | Существующая подпись, obfuscate/symbols, Android Console event, store package | Частично по свежей доставке/Google; iOS release не существует |
 
 ## Найденные проблемы и исправления 25.11
@@ -82,7 +82,7 @@
 | Slow frames | Остаются: реальные 23.11 raster p95 70,137 мс, slow frames 51,85% на лёгком AVD. Старые числа не выдаются за измерения нового iOS-кода и не обещают 60 FPS |
 | Физический Android | Не выполнено: пользователь располагает iPhone/Mac. Аппаратную приёмку требуется провести на доступном Android позже |
 | Следующая App Distribution сборка | Последняя доступная — 1.1.0 (2); свежий APK не отправлен. Нужны отдельное разрешение на доставку и следующий versionCode при выпуске новой версии |
-| Успех последнего CI | Подтверждён: 45237868528, b82e52b, success. Текущая локальная рабочая копия — отдельное состояние |
+| Успех последнего CI | Подтверждён: 45628248353, 70cda03, success; код приложения 7cfbb9b |
 
 ## Готовность Android
 
@@ -103,10 +103,10 @@
 3. Выбрать Apple Team, подключить iPhone/Developer Mode и провести физическую iOS-приёмку. Для APNs нужны Apple capabilities и ключ; платная программа без согласия не подключается.
 4. На Android повторить Google-вход на совместимом стенде и физическую камеру/GPS/permission/lifecycle проверку, когда будет устройство.
 5. Получить согласование преподавателя на OpenStreetMap вместо Google Maps.
-6. При желании отдельно разрешить push текущих локальных изменений для нового CI и доставку новой версии в App Distribution. Ничего не опубликовано автоматически.
+6. Исходники уже обновлены в GitHub и прошли CI. Доставка новой версии в App Distribution, магазины и размещение HTML сайта остаются отдельными действиями с разрешения владельца.
 
 ## Итоговая подготовка продукта и сдачи
 
-[Google Play: готовность и ручные шаги](store/PLAY_RELEASE_READINESS.md), [UI/UX-аудит](UI_UX_AUDIT.md), [iPhone](ios_setup.md). Финальная презентация обновлена 25.11: 122 теста и 75,71%; DevTools по-прежнему датирован 23.11. Публикация магазинов, новых HTML страниц, App Distribution и GitHub не выполнялась. Новые APK/AAB имеют отдельные наборы symbols для APK и AAB; их загрузка в Crashlytics перед внешней доставкой остаётся отдельным шагом.
+[Google Play: готовность и ручные шаги](store/PLAY_RELEASE_READINESS.md), [UI/UX-аудит](UI_UX_AUDIT.md), [iPhone](ios_setup.md). Финальная презентация обновлена 25.11: 122 теста и 75,71%; DevTools по-прежнему датирован 23.11. GitHub обновлён и новый CI прошёл; магазины, App Distribution и HTML сайт не публиковались. Новые APK/AAB имеют отдельные наборы symbols; оба набора по три ABI успешно загружены в существующий закрытый Crashlytics 25.11. [Протокол](audit_20261125/crashlytics-symbols.json). Приложения этим действием не распространялись.
 
 Окончательный локальный комплект: `submission/FINAL_RK1_RK2_2026-11-25`. Предыдущий комплект 23.11 сохранён. Содержимое и checksums описаны в START_HERE.md этого комплекта; архив исходников не включает ключи, Firebase-конфигурации и пользовательские данные.

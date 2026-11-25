@@ -12,6 +12,10 @@ GitHub Actions выполняет pub get, проверку форматиров
 
 Последующее обновление протокола и скриншотов не меняет код приложения. Реальные прежние запуски сохранены в исторических доказательствах с их собственными commit ID и датами; они не подменяют этот новый успешный run.
 
-## Последняя опубликованная версия
+## Состояние перед новым push 25.11
 
-Read-only проверка 25.11.2026: [run 45237868528](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45237868528) для `b82e52b` завершён **success**, jobs Android и Rules успешны, APK artifact доступен. [Протокол](audit_20261125/github-actions.json). Новые локальные изменения iOS пока не опубликованы.
+Read-only проверка 25.11.2026: [run 45237868528](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45237868528) для `b82e52b` завершён **success**, jobs Android и Rules успешны, APK artifact доступен. [Протокол](audit_20261125/github-actions.json). На момент этой предварительной проверки новые изменения ещё не публиковались; окончательный run приведён ниже.
+
+## Новый успешный CI 25.11.2026
+
+[Run 45628248353](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45628248353), `70cda03`: **success**, Android и Firestore Rules. Проверены форматирование, analyze, все тесты/coverage, функции, debug APK и artifacts. Код приложения — `7cfbb9b`; последующие записи протокола не изменяют его. [Протокол](audit_20261125/github-actions.json).

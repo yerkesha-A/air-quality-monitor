@@ -76,10 +76,10 @@ SharedPreferences сохраняет настройки и выбранный г
 ## Скриншоты
 
 <p>
-  <img src="docs/rk2/screenshots/01-home-final-20261123.png" width="220" alt="Главная: качество воздуха в Алматы" />
-  <img src="docs/rk2/screenshots/02-map-final-20261123.png" width="220" alt="Карта воздуха OpenStreetMap" />
+  <img src="docs/audit_20261125/android-home.png" width="220" alt="Главная: качество воздуха в Алматы" />
+  <img src="docs/audit_20261125/android-map.png" width="220" alt="Карта воздуха OpenStreetMap" />
   <img src="docs/rk2/screenshots/11-history-final-20261123.png" width="220" alt="История качества воздуха" />
-  <img src="docs/rk1/screenshots/05-dark-theme-20261015.png" width="220" alt="Тёмная тема" />
+  <img src="docs/rk2/screenshots/10-map-dark-final-20261123.png" width="220" alt="Тёмная тема" />
 </p>
 
 [Все скриншоты](docs/rk1/SCREENSHOTS.md) · [Эскизы экранов](docs/rk1/wireframes.svg)

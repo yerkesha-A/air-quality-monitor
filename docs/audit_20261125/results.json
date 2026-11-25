@@ -21,10 +21,11 @@
   "iosSwiftSyntax": "passed; UIKit type checking not performed",
   "iosLayout": "passed; widget platform/inset/keyboard tests only",
   "remoteCi": {
-    "commit": "b82e52b",
-    "run": 45237868528,
+    "commit": "70cda03",
+    "run": 45628248353,
     "conclusion": "success",
-    "coversCurrentLocalChanges": false
+    "coversApplicationCode": true,
+    "laterDocumentationChangesDoNotModifyAppCode": true
   },
   "weeksCompletedAgainstKnownList": 11,
   "weeksPartial": [
@@ -39,7 +40,7 @@
     "apk": "three ABI files saved privately in symbols-product-apk",
     "aab": "three ABI files saved privately in symbols-product-aab"
   },
-  "publishedThisStage": false,
+  "publishedThisStage": true,
   "dartFormat": "passed: 111 files unchanged",
   "secretScan": {
     "filesChecked": 515,
@@ -61,5 +62,6 @@
     "advertisingIdPermission": false,
     "backgroundLocationPermission": false,
     "broadStoragePermission": false
-  }
+  },
+  "crashlyticsSymbolsUploaded": true
 }
