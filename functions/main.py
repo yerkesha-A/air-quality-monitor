@@ -26,6 +26,9 @@ def fetch_current(place):
 
 @firestore.transactional
 def reserve(transaction, ref, user_ref, threshold, place_id):
+    barrier = firestore.client().collection('accountDeletions').document(user_ref.id)
+    if barrier.get(transaction=transaction).exists:
+        return False
     user = user_ref.get(transaction=transaction).to_dict() or {}
     if (not user.get('backgroundAlerts') or user.get('threshold') != threshold
             or (user.get('place') or {}).get('id') != place_id):
@@ -37,6 +40,17 @@ def reserve(transaction, ref, user_ref, threshold, place_id):
             return False
     transaction.set(ref, {'status': 'sending', 'createdAt': firestore.SERVER_TIMESTAMP})
     return True
+
+
+@firestore.transactional
+def finish(transaction, claim, user_ref, status, notification=None):
+    """Do not recreate deleted subcollections after an in-flight FCM request."""
+    barrier = firestore.client().collection('accountDeletions').document(user_ref.id)
+    if barrier.get(transaction=transaction).exists or not user_ref.get(transaction=transaction).exists:
+        return
+    transaction.set(claim, {'status': status, 'updatedAt': firestore.SERVER_TIMESTAMP}, merge=True)
+    if notification is not None:
+        transaction.set(user_ref.collection('notifications').document(claim.id), notification)
 
 
 @scheduler_fn.on_schedule(schedule='every 60 minutes', region='europe-west1', timeout_sec=540)
@@ -85,13 +99,14 @@ def check_air_thresholds(event: scheduler_fn.ScheduledEvent) -> None:
                 for device, result in zip(chunk, response.responses):
                     if isinstance(result.exception, messaging.UnregisteredError):
                         device.reference.delete()
-            claim.set({'status': 'acceptedByFcm' if accepted else 'failed',
-                       'updatedAt': firestore.SERVER_TIMESTAMP}, merge=True)
+            notification = None
             if accepted:
-                user_doc.reference.collection('notifications').document(alert_id).set({
+                notification = {
                     'title': title, 'body': body, 'aqi': aqi, 'standard': 'US AQI',
-                    'modelTime': model_time, 'createdAt': firestore.SERVER_TIMESTAMP})
+                    'modelTime': model_time, 'createdAt': firestore.SERVER_TIMESTAMP}
+            finish(db.transaction(), claim, user_doc.reference,
+                   'acceptedByFcm' if accepted else 'failed', notification)
         except Exception:
             logging.exception('AQI check failed for one profile')
             if claim is not None:
-                claim.set({'status': 'failed', 'updatedAt': firestore.SERVER_TIMESTAMP}, merge=True)
+                finish(db.transaction(), claim, user_doc.reference, 'failed')

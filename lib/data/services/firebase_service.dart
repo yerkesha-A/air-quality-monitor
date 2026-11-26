@@ -13,6 +13,8 @@ import '../local/local_store.dart';
 import '../models/air_dto.dart';
 import 'notification_service.dart';
 import 'cloud_sync.dart';
+import 'account_data_deletion.dart';
+import 'firestore_account_deletion.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundMessage(RemoteMessage message) async {
@@ -180,6 +182,18 @@ class FirebaseService {
   }
 
   late final CloudSync cloudSync = CloudSync(_FirestoreSyncGateway());
+
+  Future<void> eraseAccount(String uid) async {
+    if (!configured) throw StateError('Firebase is unavailable');
+    _pushEnabled = false;
+    cloudSync.reset();
+    await AccountDataDeletion(
+      FirestoreAccountDeletion(
+        FirebaseFirestore.instance,
+        FirebaseAuth.instance,
+      ),
+    ).erase(uid);
+  }
 
   Future<void> dispose() async {
     await _foreground?.cancel();

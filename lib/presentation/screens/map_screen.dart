@@ -30,6 +30,9 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
   final _map = MapController();
   final _mapViewKey = GlobalKey(debugLabel: 'air-map-viewport');
+  // Reparent the SAME tile state when the dark-only filter is added/removed.
+  // Otherwise changing theme disposes TileLayer and its shared tile provider.
+  final _tileLayerKey = GlobalKey(debugLabel: 'osm-tile-layer');
   final _tileReset = StreamController<void>.broadcast();
   late final _location = widget.location ?? LocationService();
   late final _tiles =
@@ -529,6 +532,7 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final markerSize = airMapMarkerSize(MediaQuery.textScalerOf(context));
     final tiles = TileLayer(
+      key: _tileLayerKey,
       urlTemplate: osmTileUrl,
       tileProvider: _tiles,
       userAgentPackageName: 'com.example.air_quality_monitor',
@@ -564,36 +568,34 @@ class _MapScreenState extends State<MapScreen> with WidgetsBindingObserver {
                   onTap: (_, point) => _select(point),
                 ),
                 children: [
-                  ColorFiltered(
-                    colorFilter: dark
-                        ? const ColorFilter.matrix([
-                            -.18,
-                            -.61,
-                            -.061,
-                            0,
-                            230,
-                            -.18,
-                            -.61,
-                            -.061,
-                            0,
-                            235,
-                            -.18,
-                            -.61,
-                            -.061,
-                            0,
-                            245,
-                            0,
-                            0,
-                            0,
-                            1,
-                            0,
-                          ])
-                        : const ColorFilter.mode(
-                            Colors.transparent,
-                            BlendMode.dst,
-                          ),
-                    child: tiles,
-                  ),
+                  if (dark)
+                    ColorFiltered(
+                      colorFilter: const ColorFilter.matrix([
+                        -.18,
+                        -.61,
+                        -.061,
+                        0,
+                        230,
+                        -.18,
+                        -.61,
+                        -.061,
+                        0,
+                        235,
+                        -.18,
+                        -.61,
+                        -.061,
+                        0,
+                        245,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                      ]),
+                      child: tiles,
+                    )
+                  else
+                    tiles,
                   MarkerLayer(
                     rotate: true,
                     markers: [

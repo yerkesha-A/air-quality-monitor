@@ -52,6 +52,9 @@ import UserNotifications
         "firebaseConfigured": firebaseConfigured,
         "googleClientId": "",
         "googleIosClientId": googleConfigured ? (config["CLIENT_ID"] as? String ?? "") : "",
+        // Enable only after provisioning and the Firebase Apple provider are configured.
+        "appleSignInConfigured": firebaseConfigured
+          && Bundle.main.object(forInfoDictionaryKey: "AQMAppleSignInEnabled") as? Bool == true,
       ]
       result(info)
     }

@@ -1,112 +1,60 @@
-# Запуск Air Quality Monitor на iOS
+# Air Quality Monitor на iOS
 
-Подготовлено 25.11.2026 для существующего проекта. Android и iOS используют одну кодовую базу. **iOS пока не собран и не запущен:** на этом Mac есть Command Line Tools, но нет полного Xcode, iOS Simulator и CocoaPods. `flutter build ios --simulator --debug --no-pub` завершился `Application not configured for iOS`; `xcodebuild -version` и `xcrun simctl` также не работают. Проверка синтаксиса Swift не заменяет сборку с UIKit/Flutter.
+## Проверенное состояние
 
-## Что подготовлено
+25.11.2026 установлен **Xcode 27.2**, доступен iOS 27.2 runtime. Выполнена настоящая arm64 Simulator debug-сборка существующего Flutter-проекта и нативный integration-прогон на отдельном **AQM iOS QA**. Проверены Swift MethodChannel, Firebase initialization, настоящий Open-Meteo, SQLite/заметки/пагинация, карта/навигация и fallback с реальным кешем при имитации сбоя сети. [Протокол](audit_20261125/ios-integration.json).
 
-- Существующий Runner, Swift AppDelegate/SceneDelegate, bundle ID `com.example.airQualityMonitor`, deployment target **iOS 15.0** (требование установленного Firebase SDK).
-- Native MethodChannel `air_quality_monitor/device`: модель, версия iOS, батарея, наличие настоящей Firebase-конфигурации. Неизвестный метод возвращает notImplemented.
-- Описания камеры, фотографий и геолокации в `ios/Runner/Info.plist`. Фоновый GPS не используется; камера снимает только фото, поэтому разрешение микрофона не добавлено.
-- Локальные уведомления iOS без запроса разрешения при старте; запрос только при включении функции. FCM ожидает APNs token.
-- Отдельный iOS Google client ID; Android web client ID и существующая Android-подпись сохранены.
-- CocoaPods fallback: `ios/Podfile`, optional xcconfig includes; foreground-only geolocator flag для CocoaPods. При SwiftPM флаги плагина необходимо сверить на настоящей сборке.
-- Иконки Runner и центрированный launch screen со светлым/тёмным фоном экспортированы из существующего знака приложения, дизайн не менялся.
-- Widget-проверки 375×667, 393×852 и 852×393, iOS theme/platform, insets, крупный текст, клавиатура, обе темы. Это модельные проверки layout, а не снимки работающего iPhone.
+Это первый QA debug-прогон 1.1.0 (3), а не приёмка финального Android release или физического iPhone. Google callback проверен в собранном bundle, интерактивный вход и Apple/APNs этим не подтверждены.
 
-SQLite/sqflite, SharedPreferences, path_provider, image_picker, geolocator, Google Sign-In и Firebase имеют iOS-реализации среди установленных зависимостей. Open-Meteo и OSM используют HTTPS; отключение App Transport Security не требуется. Фото сохраняется в каталоге приложения, не в общей галерее. GoRouter и Provider/BLoC общие.
+Все текущие iOS-плагины подключаются через **Swift Package Manager**. Пустой CocoaPods fallback удалён после резервного копирования: оставшийся Check Pods Manifest.lock ломал сборку после pub get. Поддерживаются iOS 15+, UIScene/Swift AppDelegate и SceneDelegate. Android ID, Firebase-проект и upload key сохранены.
 
-## 1. Установить окружение
+В Xcode 27 окно эмуляторов называется **Device Hub**, а не Simulator.app: Xcode → Open Developer Tool → Device Hub. [Документация Apple](https://developer.apple.com/documentation/xcode/managing-your-simulated-and-physical-devices-in-device-hub).
 
-На MacBook свободно около 6 ГБ перед новыми сборками — для Xcode и runtime этого недостаточно. Освободите место самостоятельно либо перенесите ненужные личные файлы на внешний диск. Не удаляйте AVD, резервные копии, keystore и папку проекта ради установки.
+## Firebase и локальная конфигурация
 
-1. Установите полный Xcode из App Store или [Apple Developer](https://developer.apple.com/xcode/), совместимый с macOS и версией iOS вашего iPhone. Запустите его, примите лицензию и установите необходимые компоненты.
-2. Выберите developer directory и завершите первичную настройку:
+26.11.2026 после разрешённого исправления подписи текущий iOS Bundle ID — **kz.erkezhan.airqualitymonitor**. Для него отдельно зарегистрирован iOS app в существующем **air-quality-monitor-erkezhan**. Новый Firebase-проект и billing не создавались. Для нового ID скачан настоящий `ios/Runner/GoogleService-Info.plist`, обновлены iOS OAuth client/callback; конфигурация исключена из Git. Прежняя регистрация `com.example.airQualityMonitor` и её приватная конфигурация сохранены. Старое QA-приложение не удаляется: новый Bundle ID имеет отдельный sandbox, автоматического переноса данных между ID нет. Android package остаётся `com.example.air_quality_monitor`.
 
-   ```sh
-   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
-   sudo xcodebuild -runFirstLaunch
-   xcodebuild -version
-   ```
-
-3. В Xcode → Settings → Components установите **один** iOS runtime. Не скачивайте несколько симуляторов на Mac с 8 ГБ RAM.
-4. Установите CocoaPods по [официальной инструкции](https://guides.cocoapods.org/using/getting-started.html#installation). Если Homebrew уже установлен, обычно используется `brew install cocoapods`. Не запускайте `sudo pod install`.
-5. В корне существующего проекта:
-
-   ```sh
-   flutter doctor -v
-   flutter pub get
-   ```
-
-Flutter поддерживает SwiftPM; в этом проекте присутствуют и зависимости, которым может потребоваться CocoaPods. Не удаляйте Runner и не выполняйте `flutter create .` для обхода ошибки. После установки Xcode повторно проверьте разрешение нативных зависимостей.
-
-## 2. Первый запуск без Firebase
-
-Пока настоящего `GoogleService-Info.plist` нет в bundle, мониторинг/карта/локальные данные должны работать без аккаунта; вход честно отображается неподключённым. Это ожидаемое поведение, которое ещё нужно подтвердить запуском iOS.
-
-Полностью закройте Android-эмулятор штатно; запускайте только один Simulator:
+После получения своего plist:
 
 ```sh
-open -a Simulator
-flutter devices
-flutter build ios --simulator --debug
-flutter run -d <ID_симулятора_из_flutter_devices>
+flutter pub get
+python3 tools/configure_ios_firebase.py
 ```
 
-В Simulator выберите один iPhone в File → Open Simulator, если устройство ещё не открыто. При ошибке сборки сохраните лог и остановитесь: не удаляйте приложение/данные, не сбрасывайте симулятор и не запускайте `flutter clean`.
+Скрипт сверяет Bundle ID и создаёт приватный `ios/Flutter/Firebase.xcconfig` с callback scheme из настоящего plist. Info.plist использует build setting, Google client ID определяется native-каналом только при совпадении callback. Android web client ID не подставляется вместо iOS client ID.
 
-У симулятора нет настоящей камеры; выбор фото и модельная геолокация не подтверждают физические датчики. Для тестового GPS используйте Features → Location. Для галереи импортируйте безопасное тестовое фото.
+Build phase копирует существующий plist в bundle, отклоняет несовпадающий Bundle ID и устаревший plist в build output. Без конфигурации возможна гостевая сборка; вход честно недоступен. Фиктивная конфигурация для обхода ошибок не создаётся. `Firebase.xcconfig`, `Signing.xcconfig`, plist и Apple `.p8` не публикуются.
 
-## 3. Настоящий Firebase для iOS
+## Подпись и физический iPhone
 
-Read-only проверка 25.11: Bundle ID `com.example.airQualityMonitor` ещё **не зарегистрирован** среди iOS apps существующего Firebase-проекта. Android-приложение остаётся прежним.
+**26.11.2026:** подписанная **Release AOT 1.1.1 (4)** установлена поверх debug-версии с теми же Bundle ID и Personal Team. Deep/strict codesign, provisioning, Firebase plist и Google callback проверены. Перед обновлением сохранена приватная копия контейнера приложения; SQLite `integrity_check = ok`. Удаление приложения не выполнялось. Владелец отключил iPhone от Mac, полностью закрыл приложение и открыл его с главного экрана: запуск и прежние имя/email без повторного Google-входа подтверждены. [Протокол release](audit_20261126/ios-release.json).
 
-1. Откройте существующий проект **air-quality-monitor-erkezhan** в Firebase Console → Project settings → General → Your apps → Add app → iOS. Не создавайте новый Firebase-проект и не подключайте billing.
-2. Укажите **точно** `com.example.airQualityMonitor` — текущий PRODUCT_BUNDLE_IDENTIFIER Runner. Если Xcode Personal Team потребует другой уникальный ID, сначала согласуйте его и используйте тот же ID в Firebase; Android applicationId не меняйте.
-3. Скачайте настоящий **GoogleService-Info.plist**, поместите в `ios/Runner/GoogleService-Info.plist`.
-4. Откройте `ios/Runner.xcworkspace` в Xcode, добавьте файл в группу Runner, target membership **Runner**; убедитесь, что он есть в Build Phases → Copy Bundle Resources. Наличие файла на диске без включения в bundle недостаточно.
-5. Файл исключён из Git; APNs `.p8` и `firebase_app_id_file.json` также игнорируются. Не подставляйте Android `google-services.json`, чужой plist или фиктивные значения. Проверьте `git check-ignore ios/Runner/GoogleService-Info.plist`.
-6. Повторите сборку и проверьте Email/Password, чтение Firestore с сервера, отказ чужому UID, offline/online, выход/вход и сохранение сессии после полного закрытия. Не используйте личные данные в публичных логах.
+Чёрный экран с текстом *In iOS 14+, debug mode Flutter apps can only be launched…* был штатным ограничением debug/JIT, а не доказанным сбоем сохранения Firebase-сессии. Для самостоятельного запуска нужна Release или Profile; установленная Release работает без debugger. Бесплатный development provisioning этой установки истекает **03.12.2026, 15:54 UTC**. После истечения приложение потребуется заново подписать/обновить через Mac, сохраняя Team и Bundle ID; постоянная App Store-подпись этим не предоставляется.
 
-Инициализация остаётся общей: `FirebaseService.create` вызывает `Firebase.initializeApp()` только при наличии native-конфигурации. Настоящий plist содержит публичные идентификаторы конфигурации, но по правилам проекта хранится локально.
+На Mac с 8 ГБ RAM сборка выполнялась последовательно: release config из Flutter, затем `xcodebuild` в конфигурации Release, `-jobs 1`, Swift `-j1`, с настоящей автоматической подписью. Обфускация включена, Dart symbols и dSYM сохранены приватно. `kernel_blob.bin` отсутствует, AOT App.framework присутствует. Никаких QA Dart defines в пользовательской сборке нет.
 
-## 4. Google Sign-In
+1. Подключить iPhone по USB, разблокировать и подтвердить доверие. В Device Hub завершить Pair. Включить Настройки → Конфиденциальность и безопасность → Режим разработчика; после необходимой перезагрузки снова разблокировать.
+2. В Xcode → Settings → Apple Accounts добавить Apple Account. Открыть **ios/Runner.xcworkspace**, выбрать TARGETS → Runner → Signing & Capabilities → Automatically manage signing → свою Team. Bundle Identifier без согласования не менять.
+3. Личная Team хранится в локальном `ios/Flutter/Signing.xcconfig` как `DEVELOPMENT_TEAM = ...`; её значение не входит в Git. Personal Team подходит для доступной бесплатной отладочной установки, но не означает доступность всех capabilities или публикации App Store.
+4. Выбрать подключённый iPhone. Перед сборкой штатно закрыть QA Simulator и все Android AVD. При ошибке install/signing остановиться: не удалять существующее приложение/данные для обхода проблемы.
+5. Проверить запуск, четыре вкладки, клавиатуру/SafeArea, API/кеш, фото через камеру/галерею, GPS и отказы, уведомления и сохранность после полного закрытия. Физическая проверка отмечается только по результату.
 
-Используйте iOS OAuth-конфигурацию из **настоящего iOS plist**, а не Android SHA/web client вместо iOS client:
+## Авторизация
 
-1. Проверьте включённый Google provider в Firebase Authentication (он уже включён для проекта).
-2. В `ios/Runner/Info.plist` добавьте URL type с единственным нужным scheme из `REVERSED_CLIENT_ID` настоящего plist. Скопируйте значение, не придумывайте его. Сохраните уже существующие URL types, если они появились.
-3. Native-канал прочитает `CLIENT_ID` из plist и передаст в `GoogleSignIn.initialize(clientId: ...)`. Кнопка активируется только при наличии Firebase и соответствующего callback URL scheme.
-4. Для этой Firebase ID-token схемы серверный client ID не задан на iOS. Если позже понадобится отдельный backend OAuth, настройте настоящий web/server client ID отдельно; Android-настройки не меняйте.
-5. Выполните интерактивный вход самостоятельно, без передачи пароля в чат; затем полностью закройте и запустите приложение и проверьте тот же аккаунт.
+Email/Password и Google используют существующие AuthRepository/Controller и настоящий iOS Firebase. Для Google после установки открыть вход, нажать «Продолжить с Google», подтвердить тот же аккаунт, затем полностью закрыть и открыть приложение. Пароль не передаётся в чат/репозиторий.
 
-## 5. FCM и Crashlytics
+На физическом iPhone новый Google-вход и последующее сохранение сессии при обновлении debug → release и запуске без Mac подтверждены владельцем 26.11.2026. Имя/email и токены в публичный протокол не включены. Владелец также проверил GPS, камеру в заметках, выбор фото из галереи, сохранение фото и локальное уведомление с записью в историю. [Ручная проверка](audit_20261126/ios-physical-owner-check.json). Email/Password, Apple и отказы разрешений учитываются отдельно и этим результатом не объявляются проверенными.
 
-Наличие Dart-кода **не означает**, что Apple push уже подключён.
+**Apple-вход реализован в коде**, использует `AppleAuthProvider`, native OAuth и отдельную capability-проверку. Кнопка отображается только после реальной настройки. Для включения нужны Sign in with Apple у App ID/Team, соответствующий provisioning и Apple provider существующего Firebase; при необходимости — настоящие Team ID/Key ID/`.p8`. Платная программа и ключи самостоятельно не создаются. После настройки добавить boolean `AQMAppleSignInEnabled = YES` в Info.plist. До этого live Apple-вход не заявляется проверенным.
 
-- В Xcode Runner → Signing & Capabilities потребуются **Push Notifications** и **Background Modes → Remote notifications**. `remote-notification` в Info.plist уже подготовлен, но подписанные APNs entitlements и provisioning ещё отсутствуют.
-- В Firebase → Project settings → Cloud Messaging → iOS app настройте настоящий APNs auth key `.p8`, Key ID и Team ID. Требуются доступы/возможности Apple Developer. Если для вашего аккаунта нужна платная программа — остановитесь; ничего платного автоматически не подключается.
-- Не отключайте Firebase AppDelegate swizzling. После разрешения уведомлений SDK должен получить APNs token, затем FCM token. Пока APNs token отсутствует, включение push возвращает недоступность без падения приложения.
-- Проверьте настоящую доставку foreground/background/terminated и переход в историю на iPhone. Не подменяйте её локальным уведомлением или Android-результатом. Условия фоновой доставки iOS отличаются от Android.
-- Для Crashlytics добавьте рекомендуемый SDK upload-symbols/run script по [официальной инструкции](https://firebase.google.com/docs/crashlytics/get-started?platform=flutter), проверьте dSYM/символы именно iOS. Новое non-fatal событие и появление в Console ещё не проверены. Android-событие 23.11 не является iOS-доказательством.
+Удаление аккаунта повторно авторизует владельца до удаления облачных данных. Для связанного Apple identity обязательно получает authorization code и отзывает grant через Firebase до удаления Auth. SDK-моки проверяют порядок; настоящий Apple grant без настройки не имитируется. [Процедура](ACCOUNT_DELETION.md), [официальный Firebase API](https://firebase.google.com/docs/auth/flutter/federated-auth).
 
-## 6. Запуск на своём iPhone
+## Нативные возможности и публикация
 
-1. Подключите iPhone к Mac, разблокируйте и подтвердите «Доверять этому компьютеру».
-2. Включите Developer Mode по запросу iOS, выполните требуемую перезагрузку телефона.
-3. В Xcode → Settings → Accounts войдите в Apple Account самостоятельно.
-4. Откройте `ios/Runner.xcworkspace`, выберите Runner → Signing & Capabilities → вашу Team, automatic signing. Бесплатная Personal Team подходит для базового запуска на своём устройстве с ограничениями; APNs и публикация проверяются отдельно. Членство/оплату не оформляйте автоматически.
-5. Выберите iPhone в destination и Run. Либо после успешного signing выполните `flutter devices`, затем `flutter run -d <ID_iPhone>` из корня проекта.
-6. Если уже установлена версия с этим Bundle ID и другой подписью, **не удаляйте её** ради запуска: остановитесь и сначала оцените сохранность данных.
-7. Проверьте: старт/темы/клавиатуру, настоящий Open-Meteo, OSM, GPS с отказом и повторным разрешением, камеру/галерею/отмену, сохранение фото/настроек после перезапуска, Firebase и Google после настоящей настройки. Скриншоты профиля публикуйте без email/имени/фото.
+Swift-канал `air_quality_monitor/device` возвращает модель, версию ОС, батарею и признаки реальной Firebase/OAuth-конфигурации. Неизвестный метод возвращает notImplemented. Камера/Photos/foreground location имеют purpose strings; фоновый GPS не запрашивается. SQLite, SharedPreferences, фото и навигация используют общую кодовую базу.
 
-iPhone-проверка подтверждает iOS, но не закрывает обязательное физическое Android-тестирование недели 11.
+Локальные уведомления не спрашивают разрешение при старте. FCM ожидает настоящий APNs token. **APNs push требует корректных Apple capabilities, provisioning и ключа в Firebase**, это не заменяется полем UIBackgroundModes или Android-проверкой. Live APNs и iOS Crashlytics/dSYM проверяются отдельно после подписанной установки. Personal Team не считается подтверждением готовности этих функций.
 
-## Источники
+Перед App Store также нужны рабочий Apple-вход, проверенная процедура удаления, App Privacy, HTTPS политика/поддержка, store screenshots и подпись владельца. Публикация и платные аккаунты не выполнялись. [Текущие требования Apple](https://developer.apple.com/app-store/submitting/), [Firebase Apple setup](https://firebase.google.com/docs/ios/setup).
 
-[Flutter iOS setup](https://docs.flutter.dev/platform-integration/ios/setup), [Firebase Apple setup](https://firebase.google.com/docs/ios/setup/), [Firebase Flutter setup](https://firebase.google.com/docs/flutter/setup), [Google Sign-In iOS](https://pub.dev/packages/google_sign_in_ios), [FCM/APNs prerequisites](https://firebase.google.com/docs/cloud-messaging/flutter/get-started), [image_picker](https://pub.dev/packages/image_picker), [geolocator](https://pub.dev/packages/geolocator). Проверены 25.11.2026; учитывайте совместимость именно зафиксированных версий в `pubspec.lock`.
-
-## Подготовка к будущему App Store
-
-Правило [4.8 Login Services](https://developer.apple.com/app-store/review/guidelines/#login-services) требует при стороннем/social login эквивалентный вариант с указанными Apple свойствами приватности, если исключения не применимы. Наличие Email/Password само по себе не подтверждает соответствие этому пункту. Для этого приложения стандартный путь — **Sign in with Apple**: потребуются capability/провайдер Firebase и реальные проверки на Apple-стенде. Сейчас этот вход **не реализован**; не добавляется неработающая кнопка и не оформляется платная программа.
-
-Проверить также правило 5.1.1 об удалении аккаунта. Текущий запрос через email разработчику не объявляется достаточным in-app deletion для App Store: перед публикацией нужен принятый Apple сценарий полного удаления аккаунта/связанных данных и, при Apple login, отзыва токенов. Данные существующих пользователей во время подготовки не удаляются. Это отдельные блокеры публикации наряду с Xcode, signing, Firebase iOS и APNs.
+На Mac с 8 ГБ RAM запускать только один стенд и собирать последовательно с `xcodebuild -jobs 1`. Первичные iPhone layout/widget-тесты не подменяют нативный прогон. `integration_test/ios_flow_test.dart` требует отдельный QA marker; тест удаления дополнительно ограничен локальным `demo-air-quality-monitor` и не удаляет рабочие аккаунты.

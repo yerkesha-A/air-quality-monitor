@@ -1,0 +1,21 @@
+{
+  "platform": "iOS Simulator",
+  "liveApi": true,
+  "nativeSwiftChannel": true,
+  "nativeFirebaseInitialization": true,
+  "googleCallbackConfigured": true,
+  "sqliteIntegrity": "ok",
+  "offlineFallback": "simulated network outage with real SQLite cache",
+  "notesSaved": true,
+  "sqlitePagination": true,
+  "physicalCamera": "not tested",
+  "apns": "not tested",
+  "date": "2026-11-25",
+  "baseCommit": "552bb11",
+  "build": "first iOS QA debug, 1.1.0+3",
+  "xcode": "27.2",
+  "sdk": "iOS Simulator 27.2",
+  "freshGoogleSignIn": false,
+  "appleSignInLive": false,
+  "physicalIphoneTested": false
+}

@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-26",
+  "signedDeviceBuild": true,
+  "codesignVerifyDeepStrict": true,
+  "bundleId": "kz.erkezhan.airqualitymonitor",
+  "version": "1.1.1+4",
+  "firebaseBundleMatches": true,
+  "firebaseProjectUnchanged": true,
+  "googleIosClientPresent": true,
+  "googleCallbackMatches": true,
+  "androidFilesAndKeystoreUnchanged": true,
+  "provisioning": {
+    "bundleId": "kz.erkezhan.airqualitymonitor",
+    "profileApplicationIdMatches": true,
+    "phoneIncludedInProfile": true,
+    "debuggingAllowed": true,
+    "expiresAt": "2026-12-03T15:54:33Z",
+    "apnsEntitlement": false,
+    "appleSignInEntitlement": false
+  },
+  "deviceInstallation": true,
+  "physicalLaunch": "passed through native LLDB after owner certificate trust",
+  "freshGoogleSignIn": true,
+  "emailSignInPhysical": false,
+  "noPaidServicesEnabled": true,
+  "noGitPush": true,
+  "noAppDistributionDelivery": true,
+  "googleProfileNameAndEmail": "confirmed by owner on physical iPhone",
+  "googleUidDirectlyInspected": false,
+  "sessionAfterFullRestart": "passed on release: owner confirmed name and email with Mac disconnected",
+  "debugHomeLaunchError": "debug-only iOS restriction, not a confirmed Firebase session failure",
+  "releaseVerification": "ios-release.json"
+}

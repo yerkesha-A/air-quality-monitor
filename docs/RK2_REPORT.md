@@ -1,36 +1,42 @@
-> Актуализация 25.11.2026: [полный аудит и результаты](full_audit_weeks_1_15.md), [UI/UX](UI_UX_AUDIT.md), [готовность Google Play](store/PLAY_RELEASE_READINESS.md), [iOS](ios_setup.md). Новые проверки: 122/122, покрытие 75,71%, новые подписанные APK/AAB и native Android integration. Исторические результаты ниже сохраняют свои даты.
-
 # Air Quality Monitor: РК2, недели 8–15
 
-Проверено 23.11.2026. Основной исходный код финальной Android-версии — `9427a22`. Отчёт различает реализацию, реальные проверки и внешние ограничения. РК1 относится к неделям 1–7; [общий аудит охватывает все 15 недель](final_audit/AUDIT_01_15.md).
+Обновлено **26.11.2026**. РК1 относится к неделям 1–7. Этот отчёт различает реализацию, реальные проверки и открытые требования. Полная матрица всех [15 недель и 13 категорий](full_audit_weeks_1_15.md) содержит ссылки на исходники и доказательства.
 
-| Неделя | Что сделано и проверено | Доказательства / ограничения |
+Текущая локальная версия — **1.1.1 (4)** на основе опубликованного `552bb11`. **131/131** unit/widget-тестов, `flutter analyze` без замечаний, **2920/3896 = 74,95%** покрытия строк. [Результаты](audit_20261126/results.json). Новый код ещё не отправлен на GitHub; последний опубликованный [CI 552bb11](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45630653658) успешен.
+
+| Неделя | Реализация и реальные проверки | Доказательства и ограничения |
 |---|---|---|
-| 8 | Настоящие Email-регистрация/вход, Firestore server-read/restore и запрет чужого UID; Rules 6/6. Настоящий FCM foreground/background/terminated проверен и в обычном debug, и в подписанном release | [Firebase](final_audit/evidence/firebase-auth-android.json), [release FCM фон](final_audit/evidence/fcm-release-background.json), [запуск](final_audit/evidence/fcm-release-terminated.json), [foreground](final_audit/evidence/fcm-release-foreground.json). SHA и Google provider проверены; свежий Google-вход финальной версии не подтверждён |
-| 9 | OSM + настоящие Open-Meteo данные, GPS/разрешение, компактная раскрываемая карточка, группы без пересечений, легенда, light/dark/landscape | [Интерфейс release](final_audit/evidence/release-map-ui.json), [GPS эмулятора](final_audit/evidence/release-location.json), [неделя 9](WEEK_09.md). **OSM не является Google Maps**, нужно согласование преподавателя |
-| 10 | Lazy lists, настоящая keyset пагинация SQLite, cached_network_image с дисковым кешем, dispose; реальные DevTools Performance/Memory и FrameTiming до/после | [Новые измерения](WEEK_10.md). Карта выше на 58,71%; raster p95 вырос, доля медленных кадров снизилась. Общее ускорение и стабильные 60 FPS не заявляются |
-| 11 | Камера, галерея, Kotlin MethodChannel; HTTP disk cache после остановки сервера; фото/сессия после отдельного перезапуска. Исправлено закрытие UI SQLite фоновым FCM | [Native](final_audit/evidence/native-android.json), [SQLite regression](final_audit/evidence/push-database-android.json). **Физический Android не проверен** |
-| 12 | Рабочий GitHub Actions с analyze, форматированием, тестами, coverage, APK/artifacts и Rules job | [Проверенный run приложения](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45228891410), `79bca13`, success. **Новый код опубликован с разрешения; CI прошёл** |
-| 13 | 108/108 тестов, analyze без замечаний, LCOV 2762/3693 = **74,79% >40%**. Rules 6/6, функции 3/3, отдельные Dart target и JSON generation выполнены; нативные сценарии пройдены | [Результаты](final_audit/evidence/RESULTS.json), [неделя 13](WEEK_13.md). Native-тесты используют отдельный AVD и предохранитель от запуска на основном |
-| 14 | Подписанные APK/AAB **1.1.0 (3)** существующим ключом, obfuscate/split-debug-info, подписи обоих сверены, установленный APK совпал с обычным артефактом. Новый non-fatal подтверждён SDK, HTTP 200 и владельцем в Console; символы загружены в закрытый Crashlytics | [Release](final_audit/evidence/release-verification.json), [Crashlytics](final_audit/evidence/crashlytics.json), [данные](final_audit/evidence/release-data-preservation.json). App Distribution содержит предыдущий build 2; физическая установка не подтверждена; build 3 не публиковался |
-| 15 | PPTX/PDF на 13 слайдов, сценарий на 8 мин 40 с, 13 вопросов, свежие реальные release-скриншоты, матрицы 15 недель и 13 требований, инструкция преподавателю | [Презентация](rk2/RK2_PRESENTATION.pdf), [PowerPoint](rk2/RK2_PRESENTATION.pptx), [сценарий](rk2/DEFENSE.md), [вопросы](rk2/QUESTIONS.md), [что отправить](final_audit/HAND_IN.md) |
+| 8 | Android Email/Password, Firestore server read/restore, Security Rules и настоящий FCM в трёх состояниях. Google-вход на физическом iPhone и сохранение сессии release после перезапуска без Mac | [Android Firebase](final_audit/evidence/firebase-auth-android.json), [release FCM](final_audit/evidence/fcm-release-terminated.json), Rules 8/8 от 25.11; [iPhone release](audit_20261126/ios-release.json). Свежая Google-приёмка Android учитывается отдельно |
+| 9 | OSM/Open-Meteo, геолокация, компактная карточка, группы маркеров, легенда, темы и адаптивность. GPS iPhone проверен владельцем | [Неделя 9](WEEK_09.md), [release UI](final_audit/evidence/release-map-ui.json). OSM работает, но не равна Google Maps; замену должен согласовать преподаватель |
+| 10 | Lazy lists, SQLite keyset pagination, cached_network_image с дисковым кешем, dispose. Настоящие DevTools Performance/Memory и FrameTiming до/после | [Измерения](PERFORMANCE.md). Общее ускорение, стабильные 60 FPS и отсутствие утечек не объявляются доказанными |
+| 11 | Android камера/галерея/Kotlin channel и native cache tests; iOS Swift channel/SQLite/API в Simulator. Камера iPhone в заметке, галерея профиля и фото после перезапуска проверены владельцем | [Android native](final_audit/evidence/native-android.json), [iOS native](audit_20261125/ios-integration.json), [ручная проверка iPhone](audit_20261126/ios-physical-owner-check.json). Физического Android нет |
+| 12 | GitHub Actions: dependencies, format/analyze/tests/coverage, APK/artifacts, отдельные Rules. Добавлена проверка ссылок документации | CI опубликованного `552bb11` зелёный; для текущей рабочей копии новый run ещё не выполнялся |
+| 13 | 131 unit/widget, mocktail, native integration, coverage 74,95%. Rules 8/8 и Python 3/3. Удаление аккаунта покрыто порядком операций, сбоями и повторным запуском | [Результаты](audit_20261126/results.json), [неделя 13](WEEK_13.md). [Нативное сквозное удаление прошло](audit_20261126/account-deletion-native/results.json) на локальном demo-проекте: reauth, 405 favorites, четыре подколлекции и Auth; рабочий аккаунт не затрагивался |
+| 14 | Существующие подписанные Android APK/AAB 1.1.0 (3), obfuscation/symbols, подтверждённый Crashlytics. Подписанный iPhone Release AOT 1.1.1 (4), обновление без uninstall, самостоятельный запуск без Mac | [Android release](audit_20261125/release-verification.json), [iPhone release](audit_20261126/ios-release.json). App Distribution содержит прежний build 2. iOS APNs/Apple Sign-In/App Store не готовы; бесплатная подпись до 03.12.2026 |
+| 15 | Отчёт, матрица, PDF/PPTX, сценарий на 8–10 минут, 13 вопросов, реальные скриншоты и инструкция сдачи | [PDF](rk2/RK2_PRESENTATION.pdf), [PPTX](rk2/RK2_PRESENTATION.pptx), [сценарий](rk2/DEFENSE.md), [вопросы](rk2/QUESTIONS.md), [сдача](final_audit/HAND_IN.md) |
 
-## Исправления, подтверждённые проверкой
+## Исправления текущего этапа
 
-Карта получила больше места, читаемые не перекрывающиеся группы и легенду. После разрешения GPS в настройках старая ошибка снимается. Firebase notification+data дополнительно сохраняется при нажатии до навигации. Главная причина `database_closed` устранена: background isolate использует отдельное SQLite-соединение, закрытие которого не закрывает UI handle. Это проверено нативным регрессионным тестом и тремя FCM-сценариями подписанной версии.
+- Реальное удаление аккаунта в приложении: подтверждение и повторная авторизация до удаления четырёх подколлекций Firestore и Auth. Rules блокируют записи старых сеансов; облачные ошибки не выдаются за успех. Общие локальные история/избранное/заметки сохраняются. [Процедура](ACCOUNT_DELETION.md).
+- Исправлена iOS-подпись: разрешённый владельцем уникальный Bundle ID, настоящий plist из того же Firebase-проекта и matching Google callback. Рабочая Google-сессия сохранилась при обновлении debug → release. Ограничение Flutter debug/JIT при запуске с главного экрана устранено установкой AOT release.
+- iOS-плагины собираются через Swift Package Manager; устранён ошибочный пустой CocoaPods fallback. Неиспользуемые зависимости удалены. Тест карты проверяет сохранение TileLayer при смене темы.
+- Обновлены политика/процедура удаления и статические страницы поддержки, исправлен mailto. Эти страницы пока не опубликованы.
+- Документация объединена без утраты исторических текстов: оригиналы находятся в Git checkpoint и приватном архиве владельца. Старые комплекты сдачи сохранены.
 
-## Данные и безопасная демонстрация
+## Сохранность и демонстрация
 
-Работает только облегчённый API 30 / 2048 MiB / 2 CPU; основной пользовательский AVD закрыт. Дополнительные AVD и app-data копии сохранены приватно. До/после обновления: SQLite integrity ok, старые ключи истории/избранное сохранены, настройки/выбранный город и фото совпали, живой экран восстановил тот же аккаунт. После проверок появились три настоящие тестовые push-записи; они не удаляются. На этом test AVD заметок изначально не было — сохранность непустой коллекции этим сравнением не заявляется.
+Android в этом этапе не собирался и не переустанавливался по просьбе владельца. Прежние APK/AAB, пользовательский AVD, Firebase-проект и release-keystore сохранены; контрольные суммы защищённых Android-файлов не изменились. Новые исходники iOS/общего кода не выдаются за прежний Android APK build 3.
 
-Wipe, uninstall, flutter clean, очистка SQLite, удаление резервных копий, смена Firebase/keystore/паролей и billing не выполнялись. По разрешению владельца удалялась только пересоздаваемая `build/app/intermediates`, когда нехватка диска блокировала AVD. Готовые артефакты и символы предварительно проверены. [Демонстрация на MacBook](rk2/MAC_DEMO.md).
+Перед release-обновлением iPhone сохранён контейнер приложения, SQLite integrity `ok`. Bundle ID и Team при обновлении не менялись, uninstall не применялся. Владелец подтвердил запуск без Mac, сохранение имени/email, работу GPS/камеры и сохранение фотографии из галереи. Личные данные и токены в публичные доказательства не включены.
 
-## Что остаётся внешним
+Бесплатный iPhone provisioning истекает **03.12.2026, 15:54 UTC**: после этого требуется повторная подпись через Mac. Это самостоятельная development release-установка, а не публикация в App Store. Billing/платные программы, новый push и доставка новой версии не запускались.
 
-- Согласовать замену Google Maps на OSM у преподавателя.
-- Проверить настоящие датчики/камеру и установку App Distribution на физическом Android.
-- Повторить свежий Google-вход финального release на актуальных Play Services: у лёгкого API 30 они устарели; прежний успешный вход владельца не переименовывается в новую проверку.
-- CI новой версии прошёл; отдельно согласовать новую тестовую доставку build 3, если она нужна.
-- Дополнительная ручная проверка: получение reset-email и смена пароля в браузере не подтверждены; UI/ошибки покрыты тестами. Это не подменяет уже проверенные регистрацию и вход.
+## Что ещё требует участия
 
-[13 обязательных категорий](REQUIREMENTS_AUDIT.md). Не объявлять весь проект «100%» при этих ограничениях. История прежних проверок сохранена в `docs/archive` и исходных доказательствах с датами.
+1. Согласовать OSM вместо дословного требования Google Maps.
+2. Проверить физический Android при доступности устройства; iPhone не подменяет этот пункт.
+3. Завершить отдельные ручные permission-denial/reset-email; локальное уведомление и запись в историю iPhone подтверждены владельцем; непройденные сценарии отмечены в протоколах.
+4. При необходимости настроить настоящие Apple Sign-In/APNs capabilities и Firebase provider/key. Платные программы без разрешения не подключаются.
+5. Разрешить новый push для CI текущего кода и отдельно новую App Distribution delivery/публикацию HTTPS страниц, если это нужно. Магазины не публикуются автоматически.
+
+Весь проект на 100% при этих открытых пунктах не объявляется.

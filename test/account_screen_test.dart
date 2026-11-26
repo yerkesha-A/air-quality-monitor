@@ -90,7 +90,13 @@ void main() {
             180,
             scrollable: find.byType(Scrollable).first,
           );
-          expect(find.text('Выйти из аккаунта').hitTestable(), findsOneWidget);
+          // ensureVisible can schedule one last layout after the drag.
+          await tester.pumpAndSettle();
+          expect(
+            find.text('Выйти из аккаунта').hitTestable(),
+            findsOneWidget,
+            reason: 'Logout must be tappable at $size in $theme',
+          );
           expect(tester.takeException(), isNull);
         }
       }

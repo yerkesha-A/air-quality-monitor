@@ -34,3 +34,15 @@ class AuthFailure implements Exception {
   @override
   String toString() => message;
 }
+
+/// Optional capabilities keep offline repositories independent of Firebase.
+abstract interface class AccountDeletionSupport {
+  bool get deletionConfigured;
+  bool get deletionNeedsPassword;
+  Future<void> deleteAccount({String? password});
+}
+
+abstract interface class AppleAuthSupport {
+  bool get appleConfigured;
+  Future<void> apple();
+}

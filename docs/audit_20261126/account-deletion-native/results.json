@@ -1,0 +1,12 @@
+{
+  "project": "demo-air-quality-monitor",
+  "localEmulatorsOnly": true,
+  "nativeReauthentication": true,
+  "wrongPasswordPreservedData": true,
+  "favoritesDeleted": 405,
+  "allFourSubcollectionsEmpty": true,
+  "authAccountDeleted": true,
+  "ownAvatarRemoved": true,
+  "otherFixtureAvatarPreserved": true,
+  "productionAccountsTouched": false
+}

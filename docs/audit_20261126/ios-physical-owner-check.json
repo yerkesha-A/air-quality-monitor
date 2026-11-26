@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-26",
+  "platform": "physical iPhone",
+  "version": "1.1.1+4 release",
+  "evidenceType": "owner interactive confirmation; no UI automation claimed",
+  "homeLaunchWithoutMac": true,
+  "sessionAfterFullClose": true,
+  "googleProfileNameAndEmailRestored": true,
+  "mapAndLocation": "owner reports working without errors",
+  "cameraInNotes": "owner reports taking and attaching photos successfully",
+  "themeFavoritesAndRestart": "owner replied all works to the combined checklist; per-item database diff not yet collected",
+  "galleryInAccount": "passed: owner selected photo and confirmed preservation after full close",
+  "permissionsDenialFlow": "not physically checked in this session",
+  "localNotifications": "passed: owner confirmed native notification and persisted alert history record",
+  "apnsPush": "not configured in current Personal Team profile",
+  "emailPasswordPhysical": "not separately checked",
+  "appleSignIn": "not enabled; no capability in profile",
+  "productionAccountDeletion": "never performed for testing",
+  "androidPhysicalTesting": false
+}

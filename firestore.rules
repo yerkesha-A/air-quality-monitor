@@ -2,6 +2,24 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function deleting(uid) {
+      return exists(/databases/$(database)/documents/accountDeletions/$(uid));
+    }
+    function recentLogin() {
+      return request.auth != null && request.auth.token.auth_time is int
+        && request.time.toMillis() / 1000 - request.auth.token.auth_time >= 0
+        && request.time.toMillis() / 1000 - request.auth.token.auth_time < 300;
+    }
+    match /accountDeletions/{uid} {
+      allow get: if owner(uid);
+      allow list, delete: if false;
+      allow create, update: if owner(uid) && recentLogin()
+        && request.resource.data.keys().hasOnly(['startedAt', 'purgeAfter'])
+        && request.resource.data.startedAt == request.time
+        && request.resource.data.purgeAfter is timestamp
+        && request.resource.data.purgeAfter > request.time + duration.value(119, 'm')
+        && request.resource.data.purgeAfter < request.time + duration.value(121, 'm');
+    }
     function validPlace(place) {
       return place is map && place.id is string && place.name is string && place.name.size() <= 200
         && place.latitude is number && place.latitude >= -90 && place.latitude <= 90
@@ -18,30 +36,34 @@ service cloud.firestore {
     }
     match /users/{uid} {
       allow read: if owner(uid);
-      allow create: if owner(uid) && validUser(request.resource.data)
+      allow create: if owner(uid) && !deleting(uid) && validUser(request.resource.data)
         && request.resource.data.keys().hasOnly(['name', 'email', 'photoUrl', 'threshold',
           'backgroundAlerts', 'place', 'theme', 'milligrams', 'updatedAt']);
-      allow update: if owner(uid) && validUser(request.resource.data)
+      allow update: if owner(uid) && !deleting(uid) && validUser(request.resource.data)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'email', 'photoUrl',
           'threshold', 'backgroundAlerts', 'place', 'theme', 'milligrams', 'updatedAt']);
       allow delete: if owner(uid);
       match /favorites/{placeId} {
         allow read, delete: if owner(uid);
-        allow create, update: if owner(uid) && validPlace(request.resource.data)
+        allow create, update: if owner(uid) && !deleting(uid) && validPlace(request.resource.data)
           && request.resource.data.id == placeId
           && request.resource.data.keys().hasOnly(['id', 'name', 'latitude', 'longitude', 'country', 'region']);
       }
       match /devices/{deviceId} {
         allow read, delete: if owner(uid);
-        allow create, update: if owner(uid) && request.resource.data.token is string
+        allow create, update: if owner(uid) && !deleting(uid) && request.resource.data.token is string
           && request.resource.data.token.size() <= 4096
           && request.resource.data.keys().hasOnly(['token', 'updatedAt']);
       }
       match /notifications/{notificationId} {
         allow read: if owner(uid);
-        allow write: if false;
+        allow delete: if owner(uid) && deleting(uid);
+        allow create, update: if false;
       }
-      match /alertClaims/{claimId} { allow read, write: if false; }
+      match /alertClaims/{claimId} {
+        allow read, delete: if owner(uid) && deleting(uid);
+        allow create, update: if false;
+      }
     }
   }
 }

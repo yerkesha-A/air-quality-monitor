@@ -94,3 +94,9 @@ android/.kotlin/
 **/GoogleService-Info.plist
 *.p8
 ios/firebase_app_id_file.json
+ios/Flutter/Firebase.xcconfig
+
+# Machine-specific Apple signing and duplicate generated project package cache
+ios/Flutter/Signing.xcconfig
+ios/Podfile.lock
+ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/

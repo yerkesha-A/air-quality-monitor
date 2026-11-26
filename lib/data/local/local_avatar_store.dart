@@ -65,4 +65,10 @@ class LocalAvatarStore {
     }
     return saved.path;
   }
+
+  /// Called only after the owner confirms account deletion and reauthenticates.
+  Future<void> removeAccount(String uid) async {
+    final folder = _account(uid);
+    if (await folder.exists()) await folder.delete(recursive: true);
+  }
 }

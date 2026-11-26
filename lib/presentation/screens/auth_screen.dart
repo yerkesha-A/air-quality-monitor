@@ -240,6 +240,33 @@ class _AuthScreenState extends State<AuthScreen> {
                 style: TextStyle(fontSize: 11),
               ),
             ),
+          if (auth.appleConfigured) ...[
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.apple),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.black
+                    : Colors.white,
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                side: BorderSide(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
+                minimumSize: const Size.fromHeight(48),
+              ),
+              onPressed: auth.busy
+                  ? null
+                  : () async {
+                      final success = await auth.apple();
+                      if (success && context.mounted) context.go('/account');
+                    },
+              label: const Text('Продолжить с Apple'),
+            ),
+          ],
           TextButton(
             onPressed: auth.busy
                 ? null

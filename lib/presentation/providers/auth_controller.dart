@@ -20,6 +20,15 @@ class AuthController extends ChangeNotifier {
   bool _disposed = false;
   bool get configured => repository.configured;
   bool get googleConfigured => repository.googleConfigured;
+  bool get appleConfigured =>
+      repository is AppleAuthSupport &&
+      (repository as AppleAuthSupport).appleConfigured;
+  bool get deletionConfigured =>
+      repository is AccountDeletionSupport &&
+      (repository as AccountDeletionSupport).deletionConfigured;
+  bool get deletionNeedsPassword =>
+      repository is AccountDeletionSupport &&
+      (repository as AccountDeletionSupport).deletionNeedsPassword;
   void _notify() {
     if (!_disposed) notifyListeners();
   }
@@ -46,6 +55,18 @@ class AuthController extends ChangeNotifier {
   Future<bool> register(String email, String password, String name) =>
       _perform(() => repository.register(email, password, name));
   Future<bool> google() => _perform(repository.google);
+  Future<bool> apple() => _perform(() async {
+    if (!appleConfigured) throw const AuthFailure('Вход с Apple недоступен.');
+    await (repository as AppleAuthSupport).apple();
+  });
+  Future<bool> deleteAccount({String? password}) => _perform(() async {
+    if (!deletionConfigured) {
+      throw const AuthFailure('Удаление аккаунта недоступно.');
+    }
+    await (repository as AccountDeletionSupport).deleteAccount(
+      password: password,
+    );
+  });
   Future<bool> reset(String email) => _perform(() => repository.reset(email));
   Future<bool> updateName(String name) =>
       _perform(() => repository.updateName(name));

@@ -9,7 +9,7 @@ import 'presentation/providers/settings_controller.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Paint a real first Flutter frame before opening databases/native Firebase.
-  // Bootstrap work must not hold the Android launch screen indefinitely.
+  // Bootstrap work must not hold the native launch screen indefinitely.
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,

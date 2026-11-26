@@ -107,16 +107,21 @@ class _AirQualityAppState extends State<AirQualityApp> {
       try {
         await firebase.cloudSync.sync(
           uid: account.id,
-          isCurrentAccount: () => mounted && _auth.account?.id == account.id,
+          isCurrentAccount: () =>
+              mounted && !_auth.busy && _auth.account?.id == account.id,
           restore: (CloudSnapshot cloud) async {
             // Merge local guest favorites with cloud favorites, never clear either.
             for (final place in cloud.favorites) {
-              if (!mounted || _auth.account?.id != account.id) return;
+              if (!mounted || _auth.busy || _auth.account?.id != account.id) {
+                return;
+              }
               if (!queue.snapshot().containsKey(place.id)) {
                 await widget.dependencies.places.setFavorite(place, true);
               }
             }
-            if (!mounted || _auth.account?.id != account.id) return;
+            if (!mounted || _auth.busy || _auth.account?.id != account.id) {
+              return;
+            }
             final data = cloud.settings;
             if (data != null) {
               await widget.settings.restoreCloud(data);
@@ -149,10 +154,12 @@ class _AirQualityAppState extends State<AirQualityApp> {
           },
           acknowledge: (_) => queue.acknowledge(sentRemovals),
         );
-        await firebase.restorePush(
-          account,
-          enabled: widget.settings.backgroundAlerts,
-        );
+        if (mounted && !_auth.busy && _auth.account?.id == account.id) {
+          await firebase.restorePush(
+            account,
+            enabled: widget.settings.backgroundAlerts,
+          );
+        }
       } catch (_) {
         // A failed restore/upload leaves local data and pending removals intact.
         // Retry on the next local action, rather than an unbounded timer loop.

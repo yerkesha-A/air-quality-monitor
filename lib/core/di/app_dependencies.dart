@@ -58,6 +58,8 @@ class AppDependencies {
         avatars: await LocalAvatarStore.open(),
         googleClientId: device['googleClientId'] as String? ?? '',
         googleIosClientId: device['googleIosClientId'] as String? ?? '',
+        appleEnabled: device['appleSignInConfigured'] == true,
+        eraseCloudAccount: firebase.configured ? firebase.eraseAccount : null,
       ),
       firebase: firebase,
       notifications: notifications,
