@@ -13,6 +13,7 @@ import '../../data/services/notification_service.dart';
 import '../providers/settings_controller.dart';
 import '../widgets/primitives.dart';
 import '../widgets/infinite_records.dart';
+import '../widgets/notification_history.dart';
 
 class AlertsScreen extends StatefulWidget {
   const AlertsScreen({super.key});
@@ -172,20 +173,15 @@ class _AlertsScreenState extends State<AlertsScreen> {
             const Text(
               'Автоматическая проверка при закрытом приложении ещё не активирована. Получение FCM-токена само по себе не запускает проверку AQI.',
             ),
-          const SectionTitle('История на устройстве'),
+          const NotificationHistoryHeading(),
           InfiniteRecords<Map<String, Object?>>(
             key: ValueKey(_revision),
             load: (after) =>
                 context.read<LocalStore>().alertsPage(after: after),
             identity: (row) => row['id']!,
-            emptyMessage: 'Предупреждений пока не было.',
-            itemBuilder: (item) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(item['title'] as String),
-              subtitle: Text(
-                '${item['body']}\n${dateLabel(DateTime.fromMillisecondsSinceEpoch(item['created'] as int))}',
-              ),
-            ),
+            emptyState: const NotificationHistoryEmpty(),
+            showCompletionMessage: false,
+            itemBuilder: (item) => NotificationHistoryCard(record: item),
           ),
         ],
       ),

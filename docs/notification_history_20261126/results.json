@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-26",
+  "baseCommit": "ec63298",
+  "unitWidgetTests": 136,
+  "unitWidgetResult": "passed",
+  "analyze": "passed: no issues found",
+  "format": "120 files, no formatting changes",
+  "coveredLines": 3025,
+  "instrumentedLines": 3996,
+  "coveragePercent": 75.7,
+  "platformLayoutChecks": [
+    "Android light",
+    "Android dark",
+    "iOS light",
+    "iOS dark"
+  ],
+  "widths": [
+    320,
+    393,
+    820
+  ],
+  "textScaleUpTo": 2.0,
+  "aqiCategories": 6,
+  "arbitraryMessagesUseNeutralIcon": true,
+  "thresholdNotUsedAsAqi": true,
+  "emptyHistoryChecked": true,
+  "sqliteSchemaAndNotificationServiceChanged": false,
+  "previewSource": "actual Flutter widget renders, synthetic fixtures, not native Android installation",
+  "physicalIphoneUpdate": "passed: signed AOT release updated without uninstall; owner confirmed both themes, original alert and session after full close",
+  "gitPush": false,
+  "dataPreservation": "passed: SQLite integrity, saved alerts/notes/favorites/history keys/photos/settings before-after comparison",
+  "androidProtectedFilesAndSigningKeyUnchanged": true
+}

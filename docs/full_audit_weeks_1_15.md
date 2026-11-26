@@ -2,7 +2,7 @@
 
 Актуализация: **26 ноября 2026**. Основание — сохранённые требования преподавателя, переданные владельцем, задания и исходники проекта. РК1 охватывает недели 1–7, РК2 — недели 8–15. Новым материалам не приписывается выполнение в прошлые недели.
 
-Текущая рабочая копия основана на опубликованном `552bb11` и ещё не отправлена на GitHub. [Локальные проверки 26.11](audit_20261126/results.json): **131/131**, analyze без замечаний, покрытие **2920/3896 = 74,95%**. Android в текущем этапе не собирался и не переустанавливался; прежние артефакты и данные сохранены. [iOS: подпись и установка](audit_20261126/ios-signing.json).
+Текущая рабочая копия основана на опубликованном `552bb11` и ещё не отправлена на GitHub. [Последняя проверка 26.11 после обновления уведомлений](notification_history_20261126/results.json): **136/136**, analyze без замечаний, покрытие **3025/3996 = 75,70%**. Android в текущем этапе не собирался и не переустанавливался; прежние артефакты и данные сохранены. [iOS: подпись и установка](audit_20261126/ios-signing.json).
 
 ## Все 15 недель
 
@@ -20,7 +20,7 @@
 | 10 | Lazy lists, пагинация, cached_network_image, const/dispose; DevTools Performance/Memory до/после | Настоящая SQLite keyset pagination, HTTP disk cache, dispose; [измерения](PERFORMANCE.md), [FrameTiming/heap](final_audit/evidence/map-profile-summary.json) | Инструменты и реализации выполнены. Slow frames остаются; 60 FPS и отсутствие утечек не доказаны |
 | 11 | Камера/галерея, native channel, физическое Android-устройство | [Android native 23.11](final_audit/evidence/native-android.json), camera/avatar/channel tests; Swift-канал и native iOS Simulator проверены отдельно | Частично: обязательная проверка физического Android остаётся открытой. iPhone учитывается отдельным стендом |
 | 12 | GitHub Actions: зависимости, format/analyze/tests/coverage, APK и artifacts, Rules | [CI 552bb11: success](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45630653658). В текущий workflow добавлена проверка ссылок | Выполнено для опубликованной версии; новый remote run ожидает разрешённого push |
-| 13 | Unit, mocktail, widget, integration; coverage >40% | [131/131, 74,95%](audit_20261126/results.json), analyze 0; Rules 8/8, Python 3/3 (25.11), реальные native-протоколы | Выполнено для доступных стендов; физические и интерактивные сценарии перечислены отдельно |
+| 13 | Unit, mocktail, widget, integration; coverage >40% | [136/136, 75,70%](notification_history_20261126/results.json), analyze 0; Rules 8/8, Python 3/3 (25.11), реальные native-протоколы | Выполнено для доступных стендов; физические и интерактивные сценарии перечислены отдельно |
 | 14 | Подписанные APK/AAB, версии/icon/splash, obfuscation/symbols, Crashlytics, материалы магазинов и App Distribution | [Android release 25.11](audit_20261125/release-verification.json), [symbols](audit_20261125/crashlytics-symbols.json), [iOS signed build/install 26.11](audit_20261126/ios-signing.json) | Частично: новая доставка App Distribution не разрешена, там прежний build 2; iOS Apple/APNs/App Store-публикация не готовы |
 | 15 | Отчёт РК2, презентация 7–10 минут, демонстрация, вопросы, доказательства | [РК2](RK2_REPORT.md), [PDF](rk2/RK2_PRESENTATION.pdf), [PPTX](rk2/RK2_PRESENTATION.pptx), [сценарий](rk2/DEFENSE.md), [сдача](final_audit/HAND_IN.md) | Материалы обновлены 26.11; локальный комплект FINAL_RK1_RK2_2026-11-26 подготовлен, новый push/CI требуют разрешения |
 
@@ -40,7 +40,7 @@
 | 8 | Google Maps + геолокация | Рабочая OSM, настоящие модельные AQI, GPS/permissions | Согласование замены SDK у преподавателя |
 | 9 | Производительность | Lazy lists, keyset, disk image cache, ограниченные запросы; настоящие DevTools/FrameTiming/Memory | Slow frames требуют дальнейшего измерения; нет обещания 60 FPS |
 | 10 | Нативные функции | Android Kotlin/channel/camera/gallery и iOS Swift channel | Физический Android отсутствует; GPS/камера/галерея iPhone подтверждены владельцем; отказы разрешений остаются отдельно |
-| 11 | Тестирование | 131 unit/widget, mocks, native integration, LCOV >40% | Непроверенные native-сценарии не закрываются mock-тестами |
+| 11 | Тестирование | 136 unit/widget, mocks, native integration, LCOV >40% | Непроверенные native-сценарии не закрываются mock-тестами |
 | 12 | CI/CD | Опубликованный зелёный pipeline с APK/artifact и Rules | Текущая рабочая копия ещё не отправлена |
 | 13 | Release + Crashlytics | Старый Android APK/AAB/symbols сохранены; iPhone Release AOT установлен, самостоятельный запуск и Google-сессия подтверждены | App Distribution новой версии, iOS live Crashlytics/Apple/APNs и магазины остаются отдельными этапами |
 
@@ -67,3 +67,7 @@ Android package `com.example.air_quality_monitor`, keystore и его парол
 2. Согласовать у преподавателя бесплатную OSM вместо Google Maps; физический Android проверить при доступности устройства.
 3. Apple Sign-In/APNs включать только при доступных реальных capabilities и настройке владельца. Платные программы самостоятельно не подключаются.
 4. После готового локального комплекта отдельно разрешить push для нового CI и, при необходимости, новую тестовую доставку App Distribution. Публичные HTTPS страницы/магазины тоже не публикуются автоматически.
+
+## Обновление истории уведомлений 26.11
+
+Заметный раздел «История уведомлений», отдельные карточки, город/US AQI/категория, цветная иконка, дата/время и пустое состояние. Android/iOS widget-проверки обеих тем, узкого экрана и текста до 200% прошли; [рендеры с демозаписями и протоколы](notification_history_20261126/README.md). Подписанный iPhone release обновлён поверх существующего приложения. SQLite/старые записи/фото/настройки сохранены по сравнению контейнеров; владелец подтвердил обе темы, запись и авторизацию после перезапуска. Существующий комплект FINAL_RK1_RK2_2026-11-26 соответствует прежнему локальному ec63298; это обновление сохранено отдельным коммитом, Android APK в том комплекте не пересобирался.

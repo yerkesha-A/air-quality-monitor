@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-26",
+  "configuration": "Release",
+  "version": "1.1.1+4",
+  "bundleId": "kz.erkezhan.airqualitymonitor",
+  "buildSucceeded": true,
+  "deepStrictCodesign": true,
+  "aotAppFrameworkPresent": true,
+  "debugKernelAbsent": true,
+  "obfuscationSymbolsPreservedPrivately": true,
+  "sameTeamAndApplicationIdentifierAsInstalledDebug": true,
+  "phoneIncludedInProfile": true,
+  "firebaseProjectAndAppUnchangedFromDebug": true,
+  "googleCallbackMatches": true,
+  "profileExpiresAt": "2026-12-03T15:54:33+00:00",
+  "apnsEntitlement": false,
+  "appleSignInEntitlement": false,
+  "androidProtectedFilesUnchanged": true,
+  "installation": "passed: same bundle ID update, no uninstall",
+  "standaloneLaunch": "native launch without debugger passed",
+  "sessionPersistence": "owner confirmed after full close/reopen",
+  "ownerUiAcceptance": "light and dark themes accepted on physical iPhone; saved alert and account retained"
+}

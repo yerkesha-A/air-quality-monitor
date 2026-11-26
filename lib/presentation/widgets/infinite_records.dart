@@ -10,11 +10,15 @@ class InfiniteRecords<T> extends StatefulWidget {
     required this.identity,
     required this.itemBuilder,
     this.emptyMessage = 'Записей пока нет.',
+    this.emptyState,
+    this.showCompletionMessage = true,
   });
   final Future<List<T>> Function(T? after) load;
   final Object Function(T) identity;
   final Widget Function(T) itemBuilder;
   final String emptyMessage;
+  final Widget? emptyState;
+  final bool showCompletionMessage;
   @override
   State<InfiniteRecords<T>> createState() => _InfiniteRecordsState<T>();
 }
@@ -100,8 +104,8 @@ class _InfiniteRecordsState<T> extends State<InfiniteRecords<T>> {
                     ],
                   )
                 : rows.isEmpty
-                ? Text(widget.emptyMessage)
-                : !_records.hasMore
+                ? widget.emptyState ?? Text(widget.emptyMessage)
+                : !_records.hasMore && widget.showCompletionMessage
                 ? const Center(child: Text('Все записи загружены'))
                 : const SizedBox.shrink(),
           ),

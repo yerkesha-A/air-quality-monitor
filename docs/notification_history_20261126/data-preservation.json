@@ -1,0 +1,13 @@
+{
+  "backupBeforeUpdate": true,
+  "backupAfterUpdate": true,
+  "sqliteIntegrityBeforeAndAfter": "ok",
+  "schemaVersionUnchanged": true,
+  "savedAlertsUnchanged": true,
+  "savedNotesUnchanged": true,
+  "favoriteFlagsUnchanged": true,
+  "historyKeysPreserved": true,
+  "documentPhotosUnchanged": true,
+  "settingsUnchanged": true,
+  "privateRecordsIncludedInPublicReport": false
+}

@@ -242,11 +242,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(settings.alertsEnabled, isTrue);
     await tester.scrollUntilVisible(
-      find.text('Предупреждений пока не было.'),
+      find.text('Пока нет уведомлений'),
       150,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Предупреждений пока не было.'), findsOneWidget);
+    expect(find.text('Пока нет уведомлений'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets(

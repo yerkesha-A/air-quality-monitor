@@ -2,7 +2,7 @@
 
 Обновлено **26.11.2026**. РК1 относится к неделям 1–7. Этот отчёт различает реализацию, реальные проверки и открытые требования. Полная матрица всех [15 недель и 13 категорий](full_audit_weeks_1_15.md) содержит ссылки на исходники и доказательства.
 
-Текущая локальная версия — **1.1.1 (4)** на основе опубликованного `552bb11`. **131/131** unit/widget-тестов, `flutter analyze` без замечаний, **2920/3896 = 74,95%** покрытия строк. [Результаты](audit_20261126/results.json). Новый код ещё не отправлен на GitHub; последний опубликованный [CI 552bb11](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45630653658) успешен.
+Текущая локальная версия — **1.1.1 (4)** на основе опубликованного `552bb11`. **136/136** unit/widget-тестов, `flutter analyze` без замечаний, **3025/3996 = 75,70%** покрытия строк. [Результаты](notification_history_20261126/results.json). Новый код ещё не отправлен на GitHub; последний опубликованный [CI 552bb11](https://github.com/yerkesha-A/air-quality-monitor/actions/runs/45630653658) успешен.
 
 | Неделя | Реализация и реальные проверки | Доказательства и ограничения |
 |---|---|---|
@@ -11,7 +11,7 @@
 | 10 | Lazy lists, SQLite keyset pagination, cached_network_image с дисковым кешем, dispose. Настоящие DevTools Performance/Memory и FrameTiming до/после | [Измерения](PERFORMANCE.md). Общее ускорение, стабильные 60 FPS и отсутствие утечек не объявляются доказанными |
 | 11 | Android камера/галерея/Kotlin channel и native cache tests; iOS Swift channel/SQLite/API в Simulator. Камера iPhone в заметке, галерея профиля и фото после перезапуска проверены владельцем | [Android native](final_audit/evidence/native-android.json), [iOS native](audit_20261125/ios-integration.json), [ручная проверка iPhone](audit_20261126/ios-physical-owner-check.json). Физического Android нет |
 | 12 | GitHub Actions: dependencies, format/analyze/tests/coverage, APK/artifacts, отдельные Rules. Добавлена проверка ссылок документации | CI опубликованного `552bb11` зелёный; для текущей рабочей копии новый run ещё не выполнялся |
-| 13 | 131 unit/widget, mocktail, native integration, coverage 74,95%. Rules 8/8 и Python 3/3. Удаление аккаунта покрыто порядком операций, сбоями и повторным запуском | [Результаты](audit_20261126/results.json), [неделя 13](WEEK_13.md). [Нативное сквозное удаление прошло](audit_20261126/account-deletion-native/results.json) на локальном demo-проекте: reauth, 405 favorites, четыре подколлекции и Auth; рабочий аккаунт не затрагивался |
+| 13 | 136 unit/widget, mocktail, native integration, coverage 75,70%. Rules 8/8 и Python 3/3. Удаление аккаунта покрыто порядком операций, сбоями и повторным запуском | [Результаты](notification_history_20261126/results.json), [неделя 13](WEEK_13.md). [Нативное сквозное удаление прошло](audit_20261126/account-deletion-native/results.json) на локальном demo-проекте: reauth, 405 favorites, четыре подколлекции и Auth; рабочий аккаунт не затрагивался |
 | 14 | Существующие подписанные Android APK/AAB 1.1.0 (3), obfuscation/symbols, подтверждённый Crashlytics. Подписанный iPhone Release AOT 1.1.1 (4), обновление без uninstall, самостоятельный запуск без Mac | [Android release](audit_20261125/release-verification.json), [iPhone release](audit_20261126/ios-release.json). App Distribution содержит прежний build 2. iOS APNs/Apple Sign-In/App Store не готовы; бесплатная подпись до 03.12.2026 |
 | 15 | Отчёт, матрица, PDF/PPTX, сценарий на 8–10 минут, 13 вопросов, реальные скриншоты и инструкция сдачи | [PDF](rk2/RK2_PRESENTATION.pdf), [PPTX](rk2/RK2_PRESENTATION.pptx), [сценарий](rk2/DEFENSE.md), [вопросы](rk2/QUESTIONS.md), [сдача](final_audit/HAND_IN.md) |
 
@@ -40,3 +40,5 @@ Android в этом этапе не собирался и не переуста�
 5. Разрешить новый push для CI текущего кода и отдельно новую App Distribution delivery/публикацию HTTPS страниц, если это нужно. Магазины не публикуются автоматически.
 
 Весь проект на 100% при этих открытых пунктах не объявляется.
+
+Дополнение интерфейса 26.11: [история уведомлений](notification_history_20261126/README.md) обновлена и принята владельцем на iPhone в обеих темах. Данные/SQLite и настройки сохранены; Android оформлен теми же Flutter-виджетами и проверен платформенными layout-тестами без переустановки AVD. Комплект FINAL_RK1_RK2_2026-11-26 сохраняет снимок предыдущего ec63298.
